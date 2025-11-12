@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\BarangImport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use App\Models\Barang;
 use App\Models\Ruangan;
@@ -82,5 +84,23 @@ class BarangController extends Controller
 
         return redirect()->route('ruangan.show', $ruangan_id)
             ->with('success', 'Barang berhasil dihapus!');
+    }
+    
+    public function importForm($ruangan_id)
+    {
+        $ruangan = Ruangan::findOrFail($ruangan_id);
+        return view('barang.import', compact('ruangan'));
+    }
+
+    public function import(Request $request, $ruangan_id)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls'
+        ]);
+
+        Excel::import(new BarangImport($ruangan_id), $request->file('file'));
+
+        return redirect()->route('barang.import.form', $ruangan_id)
+                        ->with('success', 'Data barang berhasil diimport!');
     }
 }

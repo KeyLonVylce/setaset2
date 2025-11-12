@@ -38,4 +38,7 @@ Route::middleware('auth:stafaset')->group(function () {
     Route::get('/barang/{id}/edit', [BarangController::class, 'edit'])->name('barang.edit');
     Route::put('/barang/{id}', [BarangController::class, 'update'])->name('barang.update');
     Route::delete('/barang/{id}', [BarangController::class, 'destroy'])->name('barang.destroy');
+
+    Route::get('/barang/import/{ruangan}', [BarangController::class, 'importForm'])->name('barang.import.form');
+    Route::post('/barang/import/{ruangan}', [BarangController::class, 'import'])->name('barang.import');
 });
