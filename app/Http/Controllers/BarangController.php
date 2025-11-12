@@ -17,7 +17,7 @@ class BarangController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'ruangan_id' => 'required|exists:ruangans,id',
             'no_urut' => 'nullable|integer',
             'nama_barang' => 'required|string|max:150',
@@ -27,17 +27,17 @@ class BarangController extends Controller
             'bahan' => 'nullable|string|max:100',
             'tahun_pembuatan' => 'nullable|integer|min:1900|max:' . date('Y'),
             'kode_barang' => 'nullable|string|max:50',
-            'jumlah' => 'required|integer|min:0',
-            'harga_perolehan' => 'nullable|numeric|min:0',
+            'jumlah' => 'required|integer|min:1',
+            'harga_perolehan' => 'nullable|string|max:255',
             'keadaan_baik' => 'required|integer|min:0',
             'keadaan_kurang_baik' => 'required|integer|min:0',
             'keadaan_rusak_berat' => 'required|integer|min:0',
             'keterangan' => 'nullable|string',
         ]);
 
-        Barang::create($request->all());
+        $barang = Barang::create($validated);
 
-        return redirect()->route('ruangan.show', $request->ruangan_id)
+        return redirect()->route('ruangan.show', $validated['ruangan_id'])
             ->with('success', 'Barang berhasil ditambahkan!');
     }
 
@@ -60,7 +60,7 @@ class BarangController extends Controller
             'tahun_pembuatan' => 'nullable|integer|min:1900|max:' . date('Y'),
             'kode_barang' => 'nullable|string|max:50',
             'jumlah' => 'required|integer|min:0',
-            'harga_perolehan' => 'nullable|numeric|min:0',
+            'harga_perolehan' => 'nullable|string|max:255', // Changed to string
             'keadaan_baik' => 'required|integer|min:0',
             'keadaan_kurang_baik' => 'required|integer|min:0',
             'keadaan_rusak_berat' => 'required|integer|min:0',
