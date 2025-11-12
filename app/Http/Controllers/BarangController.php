@@ -13,7 +13,6 @@ class BarangController extends Controller
     public function create($ruangan_id)
     {
         $ruangan = Ruangan::findOrFail($ruangan_id);
-        
         return view('barang.create', compact('ruangan'));
     }
 
@@ -31,13 +30,11 @@ class BarangController extends Controller
             'kode_barang' => 'nullable|string|max:50',
             'jumlah' => 'required|integer|min:1',
             'harga_perolehan' => 'nullable|string|max:255',
-            'keadaan_baik' => 'required|integer|min:0',
-            'keadaan_kurang_baik' => 'required|integer|min:0',
-            'keadaan_rusak_berat' => 'required|integer|min:0',
+            'kondisi' => 'required|in:B,KB,RB',
             'keterangan' => 'nullable|string',
         ]);
 
-        $barang = Barang::create($validated);
+        Barang::create($validated);
 
         return redirect()->route('ruangan.show', $validated['ruangan_id'])
             ->with('success', 'Barang berhasil ditambahkan!');
@@ -46,13 +43,12 @@ class BarangController extends Controller
     public function edit($id)
     {
         $barang = Barang::with('ruangan')->findOrFail($id);
-        
         return view('barang.edit', compact('barang'));
     }
 
     public function update(Request $request, $id)
     {
-        $request->validate([
+        $validated = $request->validate([
             'no_urut' => 'nullable|integer',
             'nama_barang' => 'required|string|max:150',
             'merk_model' => 'nullable|string|max:150',
@@ -62,15 +58,13 @@ class BarangController extends Controller
             'tahun_pembuatan' => 'nullable|integer|min:1900|max:' . date('Y'),
             'kode_barang' => 'nullable|string|max:50',
             'jumlah' => 'required|integer|min:0',
-            'harga_perolehan' => 'nullable|string|max:255', // Changed to string
-            'keadaan_baik' => 'required|integer|min:0',
-            'keadaan_kurang_baik' => 'required|integer|min:0',
-            'keadaan_rusak_berat' => 'required|integer|min:0',
+            'harga_perolehan' => 'nullable|string|max:255',
+            'kondisi' => 'required|in:B,KB,RB',
             'keterangan' => 'nullable|string',
         ]);
 
         $barang = Barang::findOrFail($id);
-        $barang->update($request->except('ruangan_id'));
+        $barang->update($validated);
 
         return redirect()->route('ruangan.show', $barang->ruangan_id)
             ->with('success', 'Barang berhasil diupdate!');
@@ -85,7 +79,7 @@ class BarangController extends Controller
         return redirect()->route('ruangan.show', $ruangan_id)
             ->with('success', 'Barang berhasil dihapus!');
     }
-    
+
     public function importForm($ruangan_id)
     {
         $ruangan = Ruangan::findOrFail($ruangan_id);
@@ -101,6 +95,6 @@ class BarangController extends Controller
         Excel::import(new BarangImport($ruangan_id), $request->file('file'));
 
         return redirect()->route('barang.import.form', $ruangan_id)
-                        ->with('success', 'Data barang berhasil diimport!');
+            ->with('success', 'Data barang berhasil diimport!');
     }
 }

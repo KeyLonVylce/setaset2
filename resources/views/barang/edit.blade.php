@@ -121,32 +121,20 @@
                 <input type="number" id="jumlah" name="jumlah" value="{{ old('jumlah', $barang->jumlah) }}" min="1" required>
             </div>
 
-            <div class="form-group">
-                <label>Kondisi Barang <span style="color: red;">*</span></label>
-                <div class="radio-group">
-                    <div class="radio-option">
-                        <input type="radio" id="kondisi_baik" name="kondisi" value="baik">
-                        <label for="kondisi_baik">Baik</label>
-                    </div>
-                    <div class="radio-option">
-                        <input type="radio" id="kondisi_kurang_baik" name="kondisi" value="kurang_baik">
-                        <label for="kondisi_kurang_baik">Kurang Baik</label>
-                    </div>
-                    <div class="radio-option">
-                        <input type="radio" id="kondisi_rusak_berat" name="kondisi" value="rusak_berat">
-                        <label for="kondisi_rusak_berat">Rusak Berat</label>
-                    </div>
-                </div>
-                <input type="hidden" id="keadaan_baik" name="keadaan_baik" value="{{ old('keadaan_baik', $barang->keadaan_baik) }}">
-                <input type="hidden" id="keadaan_kurang_baik" name="keadaan_kurang_baik" value="{{ old('keadaan_kurang_baik', $barang->keadaan_kurang_baik) }}">
-                <input type="hidden" id="keadaan_rusak_berat" name="keadaan_rusak_berat" value="{{ old('keadaan_rusak_berat', $barang->keadaan_rusak_berat) }}">
-            </div>
+<div class="form-group">
+    <label for="kondisi">Kondisi Barang <span style="color: red;">*</span></label>
+    <select id="kondisi" name="kondisi" required>
+        <option value="B" selected>Baik (B)</option>
+        <option value="KB">Kurang Baik (KB)</option>
+        <option value="RB">Rusak Berat (RB)</option>
+    </select>
+</div>
 
-            <div class="form-group-full">
-                <label for="keterangan">Keterangan</label>
-                <textarea id="keterangan" name="keterangan" rows="4">{{ old('keterangan', $barang->keterangan) }}</textarea>
-            </div>
-        </div>
+<div class="form-group-full">
+    <label for="keterangan">Keterangan</label>
+    <textarea id="keterangan" name="keterangan" rows="4" placeholder="Keterangan tambahan tentang barang"></textarea>
+</div>
+
 
         <div class="form-actions">
             <button type="submit" class="btn btn-success">Update Barang</button>
