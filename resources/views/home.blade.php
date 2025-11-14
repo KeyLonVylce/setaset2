@@ -34,6 +34,15 @@
         <button class="btn btn-primary" onclick="openAddLantaiModal()">+ Tambah Lantai</button>
     </div>
 
+    <div class="pemindahan">
+        <div class="pemindahan-header">
+        <a href="{{ route('pemindahan.pindah') }}" class="btn btn-primary">
+            Pindahkan Barang
+        </a>
+        </div>
+    </div>
+
+
     @if($lantais->count() > 0)
     <div class="lantai-grid">
         @foreach($lantais as $lantai)
