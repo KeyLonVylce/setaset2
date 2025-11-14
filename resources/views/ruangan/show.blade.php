@@ -17,6 +17,27 @@
     table th { position: sticky; top: 0; background: #ff9a56; z-index: 10; }
     .empty-state { text-align: center; padding: 60px 20px; color: #999; }
     .btn-group { display: flex; gap: 5px; }
+    
+    /* Kondisi badge styling */
+    .kondisi-badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        display: inline-block;
+    }
+    .kondisi-baik {
+        background: #d4edda;
+        color: #155724;
+    }
+    .kondisi-kurang-baik {
+        background: #fff3cd;
+        color: #856404;
+    }
+    .kondisi-rusak-berat {
+        background: #f8d7da;
+        color: #721c24;
+    }
 </style>
 @endsection
 
@@ -61,9 +82,7 @@
                     <th>Merk/Model</th>
                     <th>Kode Barang</th>
                     <th>Jumlah</th>
-                    <th>Baik</th>
-                    <th>Kurang Baik</th>
-                    <th>Rusak Berat</th>
+                    <th>Kondisi</th>
                     <th>Harga Perolehan</th>
                     <th>Total Nilai</th>
                     <th>Aksi</th>
@@ -77,9 +96,17 @@
                     <td>{{ $barang->merk_model ?? '-' }}</td>
                     <td>{{ $barang->kode_barang ?? '-' }}</td>
                     <td>{{ $barang->jumlah }}</td>
-                    <td>{{ $barang->keadaan_baik }}</td>
-                    <td>{{ $barang->keadaan_kurang_baik }}</td>
-                    <td>{{ $barang->keadaan_rusak_berat }}</td>
+                    <td>
+                        @if($barang->kondisi == 'B')
+                            <span class="kondisi-badge kondisi-baik">Baik</span>
+                        @elseif($barang->kondisi == 'KB')
+                            <span class="kondisi-badge kondisi-kurang-baik">Kurang Baik</span>
+                        @elseif($barang->kondisi == 'RB')
+                            <span class="kondisi-badge kondisi-rusak-berat">Rusak Berat</span>
+                        @else
+                            <span>-</span>
+                        @endif
+                    </td>
                     <td>Rp {{ number_format($barang->harga_perolehan, 0, ',', '.') }}</td>
                     <td>Rp {{ number_format($barang->total_nilai, 0, ',', '.') }}</td>
                     <td>
@@ -99,10 +126,8 @@
                 <tr style="font-weight: bold; background: #f9f9f9;">
                     <td colspan="4">TOTAL</td>
                     <td>{{ $ruangan->barangs->sum('jumlah') }}</td>
-                    <td>{{ $ruangan->barangs->sum('keadaan_baik') }}</td>
-                    <td>{{ $ruangan->barangs->sum('keadaan_kurang_baik') }}</td>
-                    <td>{{ $ruangan->barangs->sum('keadaan_rusak_berat') }}</td>
-                    <td colspan="2">Rp {{ number_format($ruangan->barangs->sum('total_nilai'), 0, ',', '.') }}</td>
+                    <td colspan="2"></td>
+                    <td>Rp {{ number_format($ruangan->barangs->sum('total_nilai'), 0, ',', '.') }}</td>
                     <td></td>
                 </tr>
             </tfoot>

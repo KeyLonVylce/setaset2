@@ -63,6 +63,9 @@
         @csrf
         @method('PUT')
         <input type="hidden" id="harga_perolehan_raw" name="harga_perolehan" value="{{ old('harga_perolehan', $barang->harga_perolehan) }}">
+        <input type="hidden" id="keadaan_baik" name="keadaan_baik" value="0">
+        <input type="hidden" id="keadaan_kurang_baik" name="keadaan_kurang_baik" value="0">
+        <input type="hidden" id="keadaan_rusak_berat" name="keadaan_rusak_berat" value="0">
 
         <div class="form-grid">
             <div class="form-group">
@@ -121,20 +124,29 @@
                 <input type="number" id="jumlah" name="jumlah" value="{{ old('jumlah', $barang->jumlah) }}" min="1" required>
             </div>
 
-<div class="form-group">
-    <label for="kondisi">Kondisi Barang <span style="color: red;">*</span></label>
-    <select id="kondisi" name="kondisi" required>
-        <option value="B" selected>Baik (B)</option>
-        <option value="KB">Kurang Baik (KB)</option>
-        <option value="RB">Rusak Berat (RB)</option>
-    </select>
-</div>
+            <div class="form-group">
+                <label>Kondisi Barang <span style="color: red;">*</span></label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="kondisi_baik" name="kondisi" value="B" checked>
+                        <label for="kondisi_baik">Baik (B)</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="kondisi_kurang_baik" name="kondisi" value="KB">
+                        <label for="kondisi_kurang_baik">Kurang Baik (KB)</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="kondisi_rusak_berat" name="kondisi" value="RB">
+                        <label for="kondisi_rusak_berat">Rusak Berat (RB)</label>
+                    </div>
+                </div>
+            </div>
 
-<div class="form-group-full">
-    <label for="keterangan">Keterangan</label>
-    <textarea id="keterangan" name="keterangan" rows="4" placeholder="Keterangan tambahan tentang barang"></textarea>
-</div>
-
+            <div class="form-group-full">
+                <label for="keterangan">Keterangan</label>
+                <textarea id="keterangan" name="keterangan" rows="4" placeholder="Keterangan tambahan tentang barang">{{ old('keterangan', $barang->keterangan) }}</textarea>
+            </div>
+        </div>
 
         <div class="form-actions">
             <button type="submit" class="btn btn-success">Update Barang</button>
@@ -179,9 +191,9 @@
 
     // Set initial radio button based on existing data
     window.addEventListener('DOMContentLoaded', function() {
-        const baik = parseInt(keadaanBaik.value) || 0;
-        const kurangBaik = parseInt(keadaanKurangBaik.value) || 0;
-        const rusakBerat = parseInt(keadaanRusakBerat.value) || 0;
+        const baik = parseInt('{{ $barang->keadaan_baik ?? 0 }}') || 0;
+        const kurangBaik = parseInt('{{ $barang->keadaan_kurang_baik ?? 0 }}') || 0;
+        const rusakBerat = parseInt('{{ $barang->keadaan_rusak_berat ?? 0 }}') || 0;
         const jumlah = parseInt(jumlahInput.value) || 0;
 
         // Determine which condition has the matching value with jumlah
@@ -195,6 +207,9 @@
             // Default to baik if no match or all zero
             document.getElementById('kondisi_baik').checked = true;
         }
+        
+        // Update hidden inputs on load
+        updateKondisiValues();
     });
 
     function updateKondisiValues() {
@@ -205,11 +220,11 @@
         keadaanKurangBaik.value = '0';
         keadaanRusakBerat.value = '0';
 
-        if (selectedKondisi === 'baik') {
+        if (selectedKondisi === 'B') {
             keadaanBaik.value = jumlah.toString();
-        } else if (selectedKondisi === 'kurang_baik') {
+        } else if (selectedKondisi === 'KB') {
             keadaanKurangBaik.value = jumlah.toString();
-        } else if (selectedKondisi === 'rusak_berat') {
+        } else if (selectedKondisi === 'RB') {
             keadaanRusakBerat.value = jumlah.toString();
         }
     }
@@ -229,4 +244,4 @@
         }
     });
 </script>
-@endsectio
+@endsection
