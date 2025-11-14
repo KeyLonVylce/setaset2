@@ -21,18 +21,27 @@ class HomeController extends Controller
     }
 
     public function storeLantai(Request $request)
-    {
-        $request->validate([
-            'nama_lantai' => 'required|string|max:20',
-        ]);
+{
+    $request->validate([
+        'nama_lantai' => 'required|string|max:20',
+    ]);
 
-        // Cek apakah lantai sudah ada
-        $exists = Ruangan::where('lantai', $request->nama_lantai)->exists();
-        
-        if ($exists) {
-            return back()->with('error', 'Lantai sudah ada!');
-        }
-
-        return back()->with('success', 'Lantai berhasil ditambahkan! Silakan tambahkan ruangan.');
+    // Cek apakah lantai sudah ada
+    $exists = Ruangan::where('lantai', $request->nama_lantai)->exists();
+    if ($exists) {
+        return back()->with('error', 'Lantai sudah ada!');
     }
+
+    // Tambahkan entri ruangan kosong agar lantai terdaftar
+    Ruangan::create([
+        'nama_ruangan' => 'Belum Ada Ruangan',
+        'lantai' => $request->nama_lantai,
+        'penanggung_jawab' => null,
+        'nip_penanggung_jawab' => null,
+        'keterangan' => 'Ruangan default otomatis',
+    ]);
+
+    return back()->with('success', 'Lantai berhasil ditambahkan!');
 }
+
+}  
