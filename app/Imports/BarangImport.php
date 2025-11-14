@@ -106,7 +106,7 @@ class BarangImport implements ToModel, WithStartRow
                 ($harga === '-' || $harga === '' || $harga === null ? '0' : $harga)
             ),
 
-            'kondisi'          => $kondisi,  // default 'B'
+            'kondisi'          => $kondisi,  // default 'null'
             'keterangan'       => $keterangan,
         ]);
     }
