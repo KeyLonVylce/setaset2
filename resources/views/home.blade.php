@@ -9,10 +9,15 @@
     .lantai-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .lantai-header h3 { font-size: 24px; color: #333; }
     .lantai-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-top: 20px; }
+    .lantai-card-wrapper { position: relative; }
     .lantai-card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center; cursor: pointer; transition: all 0.3s; text-decoration: none; color: #333; display: block; }
     .lantai-card:hover { transform: translateY(-5px); box-shadow: 0 5px 20px rgba(255,123,61,0.3); }
     .lantai-card h4 { font-size: 20px; margin-bottom: 10px; color: #ff7b3d; }
     .lantai-card p { color: #666; font-size: 14px; }
+    .lantai-card .badge { display: inline-block; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: 600; background: #d1ecf1; color: #0c5460; margin: 5px; }
+    .lantai-card-actions { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; z-index: 10; }
+    .lantai-card-actions button { background: none; border: none; cursor: pointer; font-size: 18px; padding: 5px; color: #999; transition: color 0.3s; }
+    .lantai-card-actions button:hover { color: #ff7b3d; }
     .empty-state { text-align: center; padding: 60px 20px; color: #999; }
 </style>
 @endsection
@@ -29,13 +34,28 @@
         <button class="btn btn-primary" onclick="openAddLantaiModal()">+ Tambah Lantai</button>
     </div>
 
-    @if($lantaiList->count() > 0)
+    @if($lantais->count() > 0)
     <div class="lantai-grid">
-        @foreach($lantaiList as $lantai)
-        <a href="{{ route('lantai.show', $lantai) }}" class="lantai-card">
-            <h4>{{ $lantai }}</h4>
-            <p>Lihat ruangan</p>
-        </a>
+        @foreach($lantais as $lantai)
+        <div class="lantai-card-wrapper">
+            <div class="lantai-card-actions">
+                <button onclick="event.preventDefault(); openEditLantaiModal({{ $lantai->id }}, '{{ addslashes($lantai->nama_lantai) }}', {{ $lantai->urutan }}, '{{ addslashes($lantai->keterangan ?? '') }}')" title="Edit">✏️</button>
+                <form action="{{ route('lantai.destroy', $lantai->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Yakin ingin menghapus lantai ini? Semua ruangan dan barang akan ikut terhapus!')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" title="Hapus">🗑️</button>
+                </form>
+            </div>
+            <a href="{{ route('lantai.show', $lantai->id) }}" class="lantai-card">
+                <h4>{{ $lantai->nama_lantai }}</h4>
+                <div>
+                    <span class="badge">{{ $lantai->ruangans_count }} Ruangan</span>
+                </div>
+                @if($lantai->keterangan)
+                <p style="margin-top: 10px; font-size: 12px;">{{ Str::limit($lantai->keterangan, 50) }}</p>
+                @endif
+            </a>
+        </div>
         @endforeach
     </div>
     @else
@@ -56,10 +76,45 @@
         <form action="{{ route('lantai.store') }}" method="POST">
             @csrf
             <div class="form-group">
-                <label for="nama_lantai">Nama Lantai</label>
+                <label for="nama_lantai">Nama Lantai <span style="color: red;">*</span></label>
                 <input type="text" id="nama_lantai" name="nama_lantai" placeholder="Contoh: Lantai 1, Lantai 2, Basement" required>
             </div>
+            <div class="form-group">
+                <label for="urutan">Urutan</label>
+                <input type="number" id="urutan" name="urutan" placeholder="Urutan lantai (opsional)">
+            </div>
+            <div class="form-group">
+                <label for="keterangan">Keterangan</label>
+                <textarea id="keterangan" name="keterangan" placeholder="Keterangan tambahan (opsional)"></textarea>
+            </div>
             <button type="submit" class="btn btn-success">Simpan</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Edit Lantai -->
+<div id="editLantaiModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Edit Lantai</h3>
+            <span class="close" onclick="closeEditLantaiModal()">&times;</span>
+        </div>
+        <form id="editLantaiForm" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="form-group">
+                <label for="edit_nama_lantai">Nama Lantai <span style="color: red;">*</span></label>
+                <input type="text" id="edit_nama_lantai" name="nama_lantai" required>
+            </div>
+            <div class="form-group">
+                <label for="edit_urutan">Urutan</label>
+                <input type="number" id="edit_urutan" name="urutan">
+            </div>
+            <div class="form-group">
+                <label for="edit_keterangan">Keterangan</label>
+                <textarea id="edit_keterangan" name="keterangan"></textarea>
+            </div>
+            <button type="submit" class="btn btn-success">Update</button>
         </form>
     </div>
 </div>
@@ -67,8 +122,35 @@
 
 @section('scripts')
 <script>
-    function openAddLantaiModal() { document.getElementById('addLantaiModal').style.display = 'block'; }
-    function closeAddLantaiModal() { document.getElementById('addLantaiModal').style.display = 'none'; }
-    window.onclick = function(event) { const modal = document.getElementById('addLantaiModal'); if (event.target == modal) { modal.style.display = 'none'; } }
+    function openAddLantaiModal() { 
+        document.getElementById('addLantaiModal').style.display = 'block'; 
+    }
+    
+    function closeAddLantaiModal() { 
+        document.getElementById('addLantaiModal').style.display = 'none'; 
+    }
+    
+    function openEditLantaiModal(id, nama, urutan, keterangan) {
+        document.getElementById('editLantaiForm').action = '/lantai/' + id;
+        document.getElementById('edit_nama_lantai').value = nama;
+        document.getElementById('edit_urutan').value = urutan;
+        document.getElementById('edit_keterangan').value = keterangan || '';
+        document.getElementById('editLantaiModal').style.display = 'block';
+    }
+    
+    function closeEditLantaiModal() {
+        document.getElementById('editLantaiModal').style.display = 'none';
+    }
+    
+    window.onclick = function(event) { 
+        const addModal = document.getElementById('addLantaiModal'); 
+        const editModal = document.getElementById('editLantaiModal');
+        if (event.target == addModal) { 
+            addModal.style.display = 'none'; 
+        }
+        if (event.target == editModal) {
+            editModal.style.display = 'none';
+        }
+    }
 </script>
 @endsection

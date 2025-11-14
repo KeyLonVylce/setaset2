@@ -13,6 +13,19 @@
     .form-group-full { grid-column: 1 / -1; }
     .form-actions { display: flex; gap: 10px; margin-top: 20px; }
     .helper-text { font-size: 12px; color: #666; margin-top: 5px; }
+    
+    /* Radio button styling */
+    .radio-group { display: flex; flex-direction: column; gap: 12px; padding-top: 8px; }
+    .radio-option { display: flex; align-items: center; cursor: pointer; }
+    .radio-option input[type="radio"] { 
+        width: 18px; 
+        height: 18px; 
+        margin-right: 10px; 
+        cursor: pointer;
+        accent-color: #ff7b3d;
+    }
+    .radio-option label { cursor: pointer; font-size: 14px; }
+    
     @media (max-width: 768px) {
         .form-grid { grid-template-columns: 1fr; }
     }
@@ -82,35 +95,29 @@
 
             <div class="form-group">
                 <label for="harga_perolehan">Harga Perolehan (Rp)</label>
-                <input type="number" id="harga_perolehan" name="harga_perolehan" min="0" step="0.01" placeholder="0">
-                <div class="helper-text">Harga perolehan per unit</div>
+                <input type="text" id="harga_perolehan" name="harga_perolehan" placeholder="0 atau -">
+                <div class="helper-text">Harga perolehan per unit (bisa menggunakan strip "-" jika tidak ada harga)</div>
             </div>
 
             <div class="form-group">
                 <label for="jumlah">Jumlah <span style="color: red;">*</span></label>
-                <input type="number" id="jumlah" name="jumlah" min="0" value="1" required>
+                <input type="number" id="jumlah" name="jumlah" min="1" value="1" required>
             </div>
 
-            <div class="form-group">
-                <label for="keadaan_baik">Kondisi Baik <span style="color: red;">*</span></label>
-                <input type="number" id="keadaan_baik" name="keadaan_baik" min="0" value="0" required>
-            </div>
+           <div class="form-group">
+    <label for="kondisi">Kondisi Barang <span style="color: red;">*</span></label>
+    <select id="kondisi" name="kondisi" required>
+        <option value="B" selected>Baik (B)</option>
+        <option value="KB">Kurang Baik (KB)</option>
+        <option value="RB">Rusak Berat (RB)</option>
+    </select>
+</div>
 
-            <div class="form-group">
-                <label for="keadaan_kurang_baik">Kondisi Kurang Baik <span style="color: red;">*</span></label>
-                <input type="number" id="keadaan_kurang_baik" name="keadaan_kurang_baik" min="0" value="0" required>
-            </div>
+<div class="form-group-full">
+    <label for="keterangan">Keterangan</label>
+    <textarea id="keterangan" name="keterangan" rows="4" placeholder="Keterangan tambahan tentang barang"></textarea>
+</div>
 
-            <div class="form-group">
-                <label for="keadaan_rusak_berat">Kondisi Rusak Berat <span style="color: red;">*</span></label>
-                <input type="number" id="keadaan_rusak_berat" name="keadaan_rusak_berat" min="0" value="0" required>
-            </div>
-
-            <div class="form-group-full">
-                <label for="keterangan">Keterangan</label>
-                <textarea id="keterangan" name="keterangan" rows="4" placeholder="Keterangan tambahan tentang barang"></textarea>
-            </div>
-        </div>
 
         <div class="form-actions">
             <button type="submit" class="btn btn-success">Simpan Barang</button>
@@ -122,29 +129,53 @@
 
 @section('scripts')
 <script>
-    // Auto-validate kondisi barang = jumlah
-    const jumlah = document.getElementById('jumlah');
-    const baik = document.getElementById('keadaan_baik');
-    const kurangBaik = document.getElementById('keadaan_kurang_baik');
-    const rusakBerat = document.getElementById('keadaan_rusak_berat');
+    // Handle kondisi radio buttons
+    const jumlahInput = document.getElementById('jumlah');
+    const kondisiRadios = document.querySelectorAll('input[name="kondisi"]');
+    const keadaanBaik = document.getElementById('keadaan_baik');
+    const keadaanKurangBaik = document.getElementById('keadaan_kurang_baik');
+    const keadaanRusakBerat = document.getElementById('keadaan_rusak_berat');
 
-    function validateTotal() {
-        const total = parseInt(jumlah.value) || 0;
-        const totalKondisi = (parseInt(baik.value) || 0) + 
-                            (parseInt(kurangBaik.value) || 0) + 
-                            (parseInt(rusakBerat.value) || 0);
-        
-        if (totalKondisi !== total) {
-            alert('Total kondisi barang (Baik + Kurang Baik + Rusak Berat) harus sama dengan jumlah total!');
-            return false;
+    function updateKondisiValues() {
+        const jumlah = parseInt(jumlahInput.value) || 0;
+        const selectedKondisi = document.querySelector('input[name="kondisi"]:checked').value;
+
+        keadaanBaik.value = '0';
+        keadaanKurangBaik.value = '0';
+        keadaanRusakBerat.value = '0';
+
+        if (selectedKondisi === 'baik') {
+            keadaanBaik.value = jumlah.toString();
+        } else if (selectedKondisi === 'kurang_baik') {
+            keadaanKurangBaik.value = jumlah.toString();
+        } else if (selectedKondisi === 'rusak_berat') {
+            keadaanRusakBerat.value = jumlah.toString();
         }
-        return true;
     }
 
+    jumlahInput.addEventListener('input', updateKondisiValues);
+    kondisiRadios.forEach(radio => {
+        radio.addEventListener('change', updateKondisiValues);
+    });
+
+    // Validate on submit
     document.querySelector('form').addEventListener('submit', function(e) {
-        if (!validateTotal()) {
+        const jumlah = parseInt(jumlahInput.value) || 0;
+        if (jumlah < 1) {
+            alert('Jumlah barang harus minimal 1!');
             e.preventDefault();
+            return false;
         }
     });
+
+    // Auto-refresh CSRF token every 5 minutes to prevent 419 error
+    setInterval(function() {
+        fetch('/refresh-csrf')
+            .then(response => response.json())
+            .then(data => {
+                document.querySelector('input[name="_token"]').value = data.token;
+            })
+            .catch(error => console.log('CSRF refresh failed:', error));
+    }, 300000); // 5 minutes
 </script>
 @endsection

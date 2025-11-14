@@ -9,7 +9,7 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-   public function up(): void
+public function up(): void
 {
     Schema::create('barangs', function (Blueprint $table) {
         $table->id();
@@ -24,13 +24,13 @@ return new class extends Migration
         $table->string('kode_barang', 50)->nullable();
         $table->integer('jumlah')->default(0);
         $table->decimal('harga_perolehan', 15, 2)->nullable();
-        $table->integer('keadaan_baik')->default(0);
-        $table->integer('keadaan_kurang_baik')->default(0);
-        $table->integer('keadaan_rusak_berat')->default(0);
+        $table->enum('kondisi', ['B', 'KB', 'RB'])->default('B');
+
         $table->text('keterangan')->nullable();
         $table->timestamps();
     });
 }
+
 
 
     /**
@@ -41,3 +41,4 @@ return new class extends Migration
         Schema::dropIfExists('barangs');
     }
 };
+
