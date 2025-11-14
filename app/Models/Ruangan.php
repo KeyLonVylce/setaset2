@@ -12,12 +12,18 @@ class Ruangan extends Model
     protected $table = 'ruangans';
 
     protected $fillable = [
+        'lantai_id',
         'nama_ruangan',
         'lantai',
         'penanggung_jawab',
         'nip_penanggung_jawab',
         'keterangan',
     ];
+
+    public function lantaiRelation()
+    {
+        return $this->belongsTo(Lantai::class, 'lantai_id');
+    }
 
     public function barangs()
     {
@@ -27,6 +33,14 @@ class Ruangan extends Model
     public function kartuInventaris()
     {
         return $this->hasMany(KartuInventaris::class, 'ruangan_id');
+    }
+
+    public function getNamaLantaiAttribute()
+    {
+        if ($this->lantaiRelation) {
+            return $this->lantaiRelation->nama_lantai;
+        }
+        return $this->lantai;
     }
 
     public function getTotalBarangAttribute()

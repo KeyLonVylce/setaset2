@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Lantai ' . $lantai . ' - SETASET')
+@section('title', $lantai->nama_lantai . ' - SETASET')
 
 @section('styles')
 <style>
@@ -9,6 +9,8 @@
     .breadcrumb a:hover { text-decoration: underline; }
     .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
     .page-header h2 { font-size: 28px; color: #333; }
+    .lantai-info { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+    .lantai-info p { margin: 5px 0; color: #666; }
     .ruangan-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
     .ruangan-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: all 0.3s; }
     .ruangan-card:hover { transform: translateY(-5px); box-shadow: 0 5px 20px rgba(255,123,61,0.3); }
@@ -26,18 +28,28 @@
 
 @section('content')
 <div class="breadcrumb">
-    <a href="{{ route('home') }}">Home</a> / {{ $lantai }}
+    <a href="{{ route('home') }}">Home</a> / {{ $lantai->nama_lantai }}
 </div>
 
 <div class="card">
     <div class="page-header">
-        <h2>{{ $lantai }}</h2>
+        <h2>{{ $lantai->nama_lantai }}</h2>
         <button class="btn btn-primary" onclick="openAddRuanganModal()">+ Tambah Ruangan</button>
     </div>
 
-    @if($ruangans->count() > 0)
+    @if($lantai->keterangan || $lantai->ruangans->count() > 0)
+    <div class="lantai-info">
+        @if($lantai->keterangan)
+        <p><strong>Keterangan:</strong> {{ $lantai->keterangan }}</p>
+        @endif
+        <p><strong>Total Ruangan:</strong> {{ $lantai->ruangans->count() }}</p>
+        <p><strong>Total Barang:</strong> {{ $lantai->ruangans->sum('barangs_count') }}</p>
+    </div>
+    @endif
+
+    @if($lantai->ruangans->count() > 0)
     <div class="ruangan-grid">
-        @foreach($ruangans as $ruangan)
+        @foreach($lantai->ruangans as $ruangan)
         <div class="ruangan-card">
             <div class="ruangan-card-header">
                 <div>
@@ -60,7 +72,7 @@
             @endif
             
             @if($ruangan->keterangan)
-            <p><strong>Keterangan:</strong> {{ $ruangan->keterangan }}</p>
+            <p><strong>Keterangan:</strong> {{ Str::limit($ruangan->keterangan, 100) }}</p>
             @endif
 
             <div class="ruangan-actions">
@@ -84,7 +96,7 @@
             <h3>Tambah Ruangan Baru</h3>
             <span class="close" onclick="closeAddRuanganModal()">&times;</span>
         </div>
-        <form action="{{ route('ruangan.store', $lantai) }}" method="POST">
+        <form action="{{ route('ruangan.store', $lantai->id) }}" method="POST">
             @csrf
             <div class="form-group">
                 <label for="nama_ruangan">Nama Ruangan <span style="color: red;">*</span></label>
@@ -110,11 +122,19 @@
 
 @section('scripts')
 <script>
-    function openAddRuanganModal() { document.getElementById('addRuanganModal').style.display = 'block'; }
-    function closeAddRuanganModal() { document.getElementById('addRuanganModal').style.display = 'none'; }
+    function openAddRuanganModal() { 
+        document.getElementById('addRuanganModal').style.display = 'block'; 
+    }
+    
+    function closeAddRuanganModal() { 
+        document.getElementById('addRuanganModal').style.display = 'none'; 
+    }
+    
     window.onclick = function(event) { 
         const modal = document.getElementById('addRuanganModal'); 
-        if (event.target == modal) { modal.style.display = 'none'; } 
+        if (event.target == modal) { 
+            modal.style.display = 'none'; 
+        } 
     }
 </script>
 @endsection

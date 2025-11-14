@@ -7,32 +7,30 @@ use App\Http\Controllers\LantaiController;
 use App\Http\Controllers\RuanganController;
 use App\Http\Controllers\BarangController;
 
-// Redirect root ke login
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// Auth Routes
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Protected Routes
 Route::middleware('auth:stafaset')->group(function () {
-    // Home
     Route::get('/home', [HomeController::class, 'index'])->name('home');
-    Route::post('/home/lantai', [HomeController::class, 'storeLantai'])->name('lantai.store');
-
-    // Lantai
-    Route::get('/lantai/{lantai}', [LantaiController::class, 'show'])->name('lantai.show');
-    Route::post('/lantai/{lantai}/ruangan', [LantaiController::class, 'storeRuangan'])->name('ruangan.store');
-    Route::delete('/ruangan/{id}/delete', [LantaiController::class, 'deleteRuangan'])->name('ruangan.delete');
-
-    // Ruangan
+    
+    // Lantai Routes
+    Route::post('/lantai', [HomeController::class, 'storeLantai'])->name('lantai.store');
+    Route::get('/lantai/{id}', [LantaiController::class, 'show'])->name('lantai.show');
+    Route::put('/lantai/{id}', [LantaiController::class, 'update'])->name('lantai.update');
+    Route::delete('/lantai/{id}', [LantaiController::class, 'destroy'])->name('lantai.destroy');
+    
+    // Ruangan Routes
+    Route::post('/lantai/{lantai_id}/ruangan', [LantaiController::class, 'storeRuangan'])->name('ruangan.store');
+    Route::delete('/ruangan/{id}', [LantaiController::class, 'deleteRuangan'])->name('ruangan.delete');
     Route::get('/ruangan/{id}', [RuanganController::class, 'show'])->name('ruangan.show');
     Route::get('/ruangan/{id}/export', [RuanganController::class, 'export'])->name('ruangan.export');
 
-    // Barang
+    // Barang Routes
     Route::get('/ruangan/{ruangan_id}/barang/create', [BarangController::class, 'create'])->name('barang.create');
     Route::post('/barang', [BarangController::class, 'store'])->name('barang.store');
     Route::get('/barang/{id}/edit', [BarangController::class, 'edit'])->name('barang.edit');

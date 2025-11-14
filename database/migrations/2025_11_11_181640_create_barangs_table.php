@@ -41,3 +41,4 @@ public function up(): void
         Schema::dropIfExists('barangs');
     }
 };
+

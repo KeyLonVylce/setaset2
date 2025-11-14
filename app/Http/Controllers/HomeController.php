@@ -3,36 +3,35 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Ruangan;
+use App\Models\Lantai;
 
 class HomeController extends Controller
 {
     public function index()
     {
-        // Ambil semua lantai yang unik
-        $lantaiList = Ruangan::select('lantai')
-            ->distinct()
-            ->orderBy('lantai')
-            ->pluck('lantai')
-            ->filter()
-            ->values();
+        $lantais = Lantai::withCount('ruangans')
+            ->ordered()
+            ->get();
 
-        return view('home', compact('lantaiList'));
+        return view('home', compact('lantais'));
     }
 
     public function storeLantai(Request $request)
     {
         $request->validate([
-            'nama_lantai' => 'required|string|max:20',
+            'nama_lantai' => 'required|string|max:50|unique:lantais,nama_lantai',
+            'urutan' => 'nullable|integer',
+            'keterangan' => 'nullable|string',
         ]);
 
-        // Cek apakah lantai sudah ada
-        $exists = Ruangan::where('lantai', $request->nama_lantai)->exists();
-        
-        if ($exists) {
-            return back()->with('error', 'Lantai sudah ada!');
-        }
+        $urutan = $request->urutan ?? (Lantai::max('urutan') ?? 0) + 1;
 
-        return back()->with('success', 'Lantai berhasil ditambahkan! Silakan tambahkan ruangan.');
+        Lantai::create([
+            'nama_lantai' => $request->nama_lantai,
+            'urutan' => $urutan,
+            'keterangan' => $request->keterangan,
+        ]);
+
+        return back()->with('success', 'Lantai berhasil ditambahkan!');
     }
 }
