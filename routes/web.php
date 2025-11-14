@@ -6,6 +6,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LantaiController;
 use App\Http\Controllers\RuanganController;
 use App\Http\Controllers\BarangController;
+use App\Http\Controllers\PemindahanController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -39,4 +40,14 @@ Route::middleware('auth:stafaset')->group(function () {
 
     Route::get('/barang/import/{ruangan}', [BarangController::class, 'importForm'])->name('barang.import.form');
     Route::post('/barang/import/{ruangan}', [BarangController::class, 'import'])->name('barang.import');
+
+    Route::get('/pemindahan/pindah', [PemindahanController::class, 'pindah'])
+        ->name('pemindahan.pindah');
+
+    Route::post('/pemindahan/pindah', [PemindahanController::class, 'pindahStore'])
+        ->name('pemindahan.pindah.store');
+
+    Route::get('/pemindahan/history', [PemindahanController::class, 'history'])
+        ->name('pemindahan.history');
+
 });
