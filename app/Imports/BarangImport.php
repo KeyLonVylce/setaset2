@@ -17,12 +17,12 @@ class BarangImport implements ToModel, WithStartRow
 
     public function startRow(): int
     {
-        return 12; // baris pertama data barang
+        return 12;
     }
 
     public function model(array $row)
     {
-        // Helper clean value
+        // Helper clean
         $clean = function ($value) {
             if (is_string($value)) {
                 $v = trim($value);
@@ -31,38 +31,32 @@ class BarangImport implements ToModel, WithStartRow
             return $value;
         };
 
-        // ==== Abaikan baris footer / tanda tangan / pejabat ==== //
-        $footerKeywords = [
-            'mengetahui',
-            'kepala bagian',
-            'tata usaha',
-            'pengelola barang',
-            'penanggungjawab',
-            'bandung',
-            'nip',
-            'hj.',
-            'astria',
-            'handi',
-            'nandang'
-        ];
+        // ============================================================
+        //   PEMUTUS PALING KUAT: jika kolom nomor urut BUKAN angka → SKIP
+        // ============================================================
+        $noUrutRaw = trim((string)($row[0] ?? ''));
 
-        $rowString = strtolower(trim(implode(' ', $row)));
-
-        foreach ($footerKeywords as $kw) {
-            if (str_contains($rowString, $kw)) {
-                return null; // baris footer → skip
-            }
+        // Jika kosong → skip
+        if ($noUrutRaw === '' || $noUrutRaw === null) {
+            return null;
         }
 
-        // Jika kolom nama barang kosong → skip
+        // Jika bukan angka murni → ini pasti footer
+        if (!ctype_digit($noUrutRaw)) {
+            return null;
+        }
+
+        // Convert setelah valid
+        $no_urut = (int)$noUrutRaw;
+
+        // Barang pasti punya nama barang
         if (empty($clean($row[1]))) {
             return null;
         }
 
         // ==========================
-        //  MAPPING KOLOM EXCEL
+        // Mapping kolom data barang
         // ==========================
-        $no_urut         = $clean($row[0]);
         $nama_barang     = $clean($row[1]);
         $merk_model      = $clean($row[3]);
         $no_seri_pabrik  = $clean($row[4]);
@@ -70,7 +64,6 @@ class BarangImport implements ToModel, WithStartRow
         $bahan           = $clean($row[6]);
         $tahun           = $clean($row[7]);
 
-        // Build kode barang from columns 9-14
         $kode_barang = implode('.', array_filter([
             $clean($row[9] ?? null),
             $clean($row[10] ?? null),
@@ -83,42 +76,31 @@ class BarangImport implements ToModel, WithStartRow
         $jumlah = $clean($row[15]);
         $harga  = $clean($row[16]);
 
-        // ===== PERBAIKAN KONDISI ===== //
-        $kondisi = null; // default
+        // ==========================
+        // Kondisi barang
+        // ==========================
+        $norm = fn($v) => ($v && trim($v) !== '-' ? strtolower(trim($v)) : null);
 
-        $normalize = function ($v) {
-            if (!$v) return null;
-            $v = trim(strtolower($v));
-            return ($v === '' || $v === '-' ? null : $v);
-        };
+        $hasB  = $norm($row[17] ?? null);
+        $hasKB = $norm($row[18] ?? null);
+        $hasRB = $norm($row[19] ?? null);
 
-        $hasB  = $normalize($row[17] ?? null);
-        $hasKB = $normalize($row[18] ?? null);
-        $hasRB = $normalize($row[19] ?? null);
-
-        if ($hasRB) {
-            $kondisi = 'RB';
-        } elseif ($hasKB) {
-            $kondisi = 'KB';
-        } elseif ($hasB) {
-            $kondisi = 'B';
-        }
+        $kondisi = null;
+        if ($hasRB) $kondisi = 'RB';
+        elseif ($hasKB) $kondisi = 'KB';
+        elseif ($hasB)  $kondisi = 'B';
 
         $keterangan = $clean($row[20] ?? null);
 
-        // Parse jumlah
-        $jumlah_clean = (int) preg_replace('/[^0-9]/', '',
-            ($jumlah === '-' || $jumlah === '' || $jumlah === null ? '0' : $jumlah)
-        );
-
-        // Parse harga - store as string
-        $harga_clean = preg_replace('/[^0-9]/', '',
-            ($harga === '-' || $harga === '' || $harga === null ? '0' : $harga)
-        );
+        // ==========================
+        // Parsing angka
+        // ==========================
+        $jumlah_clean = (int) preg_replace('/[^0-9]/', '', ($jumlah ?? '0'));
+        $harga_clean  = preg_replace('/[^0-9]/', '', ($harga ?? '0'));
 
         return new Barang([
             'ruangan_id'       => $this->ruangan_id,
-            'no_urut'          => (int) ($no_urut ?? 0),
+            'no_urut'          => $no_urut,
             'nama_barang'      => $nama_barang,
             'merk_model'       => $merk_model,
             'no_seri_pabrik'   => $no_seri_pabrik,
