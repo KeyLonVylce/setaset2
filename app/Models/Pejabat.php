@@ -30,7 +30,7 @@ class Barang extends Model
     ];
 
     protected $casts = [
-        'harga_perolehan' => 'decimal:2',
+        'harga_perolehan',
         'tahun_pembuatan' => 'integer',
         'jumlah' => 'integer',
         'keadaan_baik' => 'integer',

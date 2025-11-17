@@ -17,7 +17,7 @@
         .info-table .label { width: 150px; font-weight: bold; }
         table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
         table, th, td { border: 1px solid #000; }
-        th, td { padding: 5px; text-align: left; }
+        th, td { padding: 5px; text-align: left; font-size: 10px; }
         th { background-color: #f0f0f0; font-weight: bold; text-align: center; }
         .center { text-align: center; }
         .right { text-align: right; }
@@ -52,7 +52,7 @@
             <td class="label">Ruangan</td>
             <td>: {{ $ruangan->nama_ruangan }}</td>
             <td class="label">Lantai</td>
-            <td>: {{ $ruangan->lantai }}</td>
+            <td>: {{ $ruangan->nama_lantai }}</td>
         </tr>
         <tr>
             <td class="label">Penanggung Jawab</td>
@@ -71,13 +71,17 @@
         <thead>
             <tr>
                 <th style="width: 30px;">No</th>
+                <th>Kode Barang</th>
                 <th>Nama Barang</th>
                 <th>Merk/Model</th>
-                <th>Kode</th>
-                <th style="width: 50px;">Jumlah</th>
-                <th style="width: 50px;">Baik</th>
-                <th style="width: 50px;">Kurang Baik</th>
-                <th style="width: 50px;">Rusak Berat</th>
+                <th>No. Seri</th>
+                <th>Ukuran</th>
+                <th>Bahan</th>
+                <th>Tahun</th>
+                <th style="width: 40px;">Jumlah</th>
+                <th style="width: 35px;">B</th>
+                <th style="width: 35px;">KB</th>
+                <th style="width: 35px;">RB</th>
                 <th style="width: 100px;">Harga Satuan (Rp)</th>
                 <th style="width: 120px;">Total Nilai (Rp)</th>
             </tr>
@@ -86,26 +90,49 @@
             @foreach($ruangan->barangs as $index => $barang)
             <tr>
                 <td class="center">{{ $index + 1 }}</td>
+                <td class="center">{{ $barang->kode_barang ?? '-' }}</td>
                 <td>{{ $barang->nama_barang }}</td>
                 <td>{{ $barang->merk_model ?? '-' }}</td>
-                <td class="center">{{ $barang->kode_barang ?? '-' }}</td>
+                <td>{{ $barang->no_seri_pabrik ?? '-' }}</td>
+                <td>{{ $barang->ukuran ?? '-' }}</td>
+                <td>{{ $barang->bahan ?? '-' }}</td>
+                <td class="center">{{ $barang->tahun_pembuatan ?? '-' }}</td>
                 <td class="center">{{ $barang->jumlah }}</td>
-                <td class="center">{{ $barang->keadaan_baik }}</td>
-                <td class="center">{{ $barang->keadaan_kurang_baik }}</td>
-                <td class="center">{{ $barang->keadaan_rusak_berat }}</td>
-                <td class="right">{{ number_format($barang->harga_perolehan, 0, ',', '.') }}</td>
-                <td class="right">{{ number_format($barang->total_nilai, 0, ',', '.') }}</td>
+                <td class="center">{{ $barang->kondisi === 'B' ? $barang->jumlah : '-' }}</td>
+                <td class="center">{{ $barang->kondisi === 'KB' ? $barang->jumlah : '-' }}</td>
+                <td class="center">{{ $barang->kondisi === 'RB' ? $barang->jumlah : '-' }}</td>
+                <td class="right">
+                    @php
+                        $harga = is_numeric($barang->harga_perolehan) ? floatval($barang->harga_perolehan) : 0;
+                    @endphp
+                    {{ $harga > 0 ? number_format($harga, 0, ',', '.') : '-' }}
+                </td>
+                <td class="right">
+                    @php
+                        $total = $barang->jumlah * $harga;
+                    @endphp
+                    {{ $total > 0 ? number_format($total, 0, ',', '.') : '-' }}
+                </td>
             </tr>
             @endforeach
         </tbody>
         <tfoot>
             <tr class="total-row">
-                <td colspan="4" class="center">TOTAL</td>
+                <td colspan="8" class="center">TOTAL</td>
                 <td class="center">{{ $ruangan->barangs->sum('jumlah') }}</td>
-                <td class="center">{{ $ruangan->barangs->sum('keadaan_baik') }}</td>
-                <td class="center">{{ $ruangan->barangs->sum('keadaan_kurang_baik') }}</td>
-                <td class="center">{{ $ruangan->barangs->sum('keadaan_rusak_berat') }}</td>
-                <td colspan="2" class="right">{{ number_format($ruangan->barangs->sum('total_nilai'), 0, ',', '.') }}</td>
+                <td class="center">{{ $ruangan->barangs->where('kondisi', 'B')->sum('jumlah') }}</td>
+                <td class="center">{{ $ruangan->barangs->where('kondisi', 'KB')->sum('jumlah') }}</td>
+                <td class="center">{{ $ruangan->barangs->where('kondisi', 'RB')->sum('jumlah') }}</td>
+                <td class="right" colspan="2">
+                    @php
+                        $grandTotal = 0;
+                        foreach($ruangan->barangs as $item) {
+                            $harga = is_numeric($item->harga_perolehan) ? floatval($item->harga_perolehan) : 0;
+                            $grandTotal += $item->jumlah * $harga;
+                        }
+                    @endphp
+                    {{ number_format($grandTotal, 0, ',', '.') }}
+                </td>
             </tr>
         </tfoot>
     </table>
@@ -141,10 +168,5 @@
         <p>Dokumen ini dicetak dari Sistem SETASET - Dinas Komunikasi dan Informatika Kota Bandung</p>
         <p>Tanggal Cetak: {{ date('d F Y H:i:s') }}</p>
     </div>
-
-    <script>
-        // Auto print on page load (optional)
-        // window.onload = function() { window.print(); }
-    </script>
 </body>
 </html>

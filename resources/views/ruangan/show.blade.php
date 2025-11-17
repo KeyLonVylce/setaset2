@@ -14,16 +14,20 @@
     .action-buttons { display: flex; gap: 10px; margin-bottom: 20px; }
     .table-responsive { overflow-x: auto; }
     table { min-width: 100%; }
-    table th { position: sticky; top: 0; background: #ff9a56; z-index: 10; }
+    table th { position: sticky; top: 0; background: #ff9a56; z-index: 10; white-space: nowrap; }
     .empty-state { text-align: center; padding: 60px 20px; color: #999; }
     .btn-group { display: flex; gap: 5px; }
+    .badge-kondisi { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+    .badge-baik { background: #d4edda; color: #155724; }
+    .badge-kurang { background: #fff3cd; color: #856404; }
+    .badge-rusak { background: #f8d7da; color: #721c24; }
 </style>
 @endsection
 
 @section('content')
 <div class="breadcrumb">
     <a href="{{ route('home') }}">Home</a> / 
-    <a href="{{ route('lantai.show', $ruangan->lantai) }}">{{ $ruangan->lantai }}</a> / 
+    <a href="{{ route('lantai.show', $ruangan->lantai_id) }}">{{ $ruangan->nama_lantai }}</a> / 
     {{ $ruangan->nama_ruangan }}
 </div>
 
@@ -38,7 +42,7 @@
     </div>
 
     <div class="info-section">
-        <p><strong>Lantai:</strong> {{ $ruangan->lantai }}</p>
+        <p><strong>Lantai:</strong> {{ $ruangan->nama_lantai }}</p>
         @if($ruangan->penanggung_jawab)
         <p><strong>Penanggung Jawab:</strong> {{ $ruangan->penanggung_jawab }}</p>
         @endif
@@ -48,7 +52,7 @@
         @if($ruangan->keterangan)
         <p><strong>Keterangan:</strong> {{ $ruangan->keterangan }}</p>
         @endif
-        <p><strong>Total Barang:</strong> {{ $ruangan->barangs->count() }} item</p>
+        <p><strong>Total Barang:</strong> {{ $ruangan->barangs->count() }} item ({{ $ruangan->barangs->sum('jumlah') }} unit)</p>
     </div>
 
     @if($ruangan->barangs->count() > 0)
@@ -57,15 +61,18 @@
             <thead>
                 <tr>
                     <th>No</th>
+                    <th>Kode Barang</th>
                     <th>Nama Barang</th>
                     <th>Merk/Model</th>
-                    <th>Kode Barang</th>
+                    <th>No. Seri</th>
+                    <th>Ukuran</th>
+                    <th>Bahan</th>
+                    <th>Tahun</th>
                     <th>Jumlah</th>
-                    <th>Baik</th>
-                    <th>Kurang Baik</th>
-                    <th>Rusak Berat</th>
-                    <th>Harga Perolehan</th>
+                    <th>Kondisi</th>
+                    <th>Harga Satuan</th>
                     <th>Total Nilai</th>
+                    <th>Keterangan</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -73,15 +80,40 @@
                 @foreach($ruangan->barangs as $index => $barang)
                 <tr>
                     <td>{{ $index + 1 }}</td>
-                    <td>{{ $barang->nama_barang }}</td>
-                    <td>{{ $barang->merk_model ?? '-' }}</td>
                     <td>{{ $barang->kode_barang ?? '-' }}</td>
-                    <td>{{ $barang->jumlah }}</td>
-                    <td>{{ $barang->keadaan_baik }}</td>
-                    <td>{{ $barang->keadaan_kurang_baik }}</td>
-                    <td>{{ $barang->keadaan_rusak_berat }}</td>
-                    <td>Rp {{ number_format($barang->harga_perolehan, 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($barang->total_nilai, 0, ',', '.') }}</td>
+                    <td><strong>{{ $barang->nama_barang }}</strong></td>
+                    <td>{{ $barang->merk_model ?? '-' }}</td>
+                    <td>{{ $barang->no_seri_pabrik ?? '-' }}</td>
+                    <td>{{ $barang->ukuran ?? '-' }}</td>
+                    <td>{{ $barang->bahan ?? '-' }}</td>
+                    <td>{{ $barang->tahun_pembuatan ?? '-' }}</td>
+                    <td style="text-align: center;">{{ $barang->jumlah }}</td>
+                    <td>
+                        @if($barang->kondisi === 'B')
+                            <span class="badge-kondisi badge-baik">Baik</span>
+                        @elseif($barang->kondisi === 'KB')
+                            <span class="badge-kondisi badge-kurang">Kurang Baik</span>
+                        @elseif($barang->kondisi === 'RB')
+                            <span class="badge-kondisi badge-rusak">Rusak Berat</span>
+                        @else
+                            <span class="badge-kondisi">-</span>
+                        @endif
+                    </td>
+                    <td style="text-align: right;">
+                        @if($barang->harga_perolehan && $barang->harga_perolehan != '0')
+                            Rp {{ number_format($barang->harga_perolehan, 0, ',', '.') }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td style="text-align: right;">
+                        @if($barang->total_nilai > 0)
+                            Rp {{ number_format($barang->total_nilai, 0, ',', '.') }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td>{{ $barang->keterangan ? Str::limit($barang->keterangan, 50) : '-' }}</td>
                     <td>
                         <div class="btn-group">
                             <a href="{{ route('barang.edit', $barang->id) }}" class="btn btn-primary btn-sm">Edit</a>
@@ -97,13 +129,17 @@
             </tbody>
             <tfoot>
                 <tr style="font-weight: bold; background: #f9f9f9;">
-                    <td colspan="4">TOTAL</td>
-                    <td>{{ $ruangan->barangs->sum('jumlah') }}</td>
-                    <td>{{ $ruangan->barangs->sum('keadaan_baik') }}</td>
-                    <td>{{ $ruangan->barangs->sum('keadaan_kurang_baik') }}</td>
-                    <td>{{ $ruangan->barangs->sum('keadaan_rusak_berat') }}</td>
-                    <td colspan="2">Rp {{ number_format($ruangan->barangs->sum('total_nilai'), 0, ',', '.') }}</td>
-                    <td></td>
+                    <td colspan="8" style="text-align: right;">TOTAL</td>
+                    <td style="text-align: center;">{{ $ruangan->barangs->sum('jumlah') }}</td>
+                    <td>
+                        <span class="badge-kondisi badge-baik">B: {{ $ruangan->barangs->where('kondisi', 'B')->sum('jumlah') }}</span>
+                        <span class="badge-kondisi badge-kurang">KB: {{ $ruangan->barangs->where('kondisi', 'KB')->sum('jumlah') }}</span>
+                        <span class="badge-kondisi badge-rusak">RB: {{ $ruangan->barangs->where('kondisi', 'RB')->sum('jumlah') }}</span>
+                    </td>
+                    <td colspan="2" style="text-align: right;">
+                        Rp {{ number_format($ruangan->barangs->sum('total_nilai'), 0, ',', '.') }}
+                    </td>
+                    <td colspan="2"></td>
                 </tr>
             </tfoot>
         </table>

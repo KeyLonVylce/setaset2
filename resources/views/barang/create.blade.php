@@ -105,18 +105,18 @@
             </div>
 
            <div class="form-group">
-    <label for="kondisi">Kondisi Barang <span style="color: red;">*</span></label>
-    <select id="kondisi" name="kondisi" required>
-        <option value="B" selected>Baik (B)</option>
-        <option value="KB">Kurang Baik (KB)</option>
-        <option value="RB">Rusak Berat (RB)</option>
-    </select>
-</div>
+                <label for="kondisi">Kondisi Barang <span style="color: red;">*</span></label>
+                <select id="kondisi" name="kondisi" required>
+                    <option value="B" selected>Baik (B)</option>
+                    <option value="KB">Kurang Baik (KB)</option>
+                    <option value="RB">Rusak Berat (RB)</option>
+                </select>
+            </div>
 
-<div class="form-group-full">
-    <label for="keterangan">Keterangan</label>
-    <textarea id="keterangan" name="keterangan" rows="4" placeholder="Keterangan tambahan tentang barang"></textarea>
-</div>
+            <div class="form-group-full">
+                <label for="keterangan">Keterangan</label>
+                <textarea id="keterangan" name="keterangan" rows="4" placeholder="Keterangan tambahan tentang barang"></textarea>
+            </div>
 
 
         <div class="form-actions">
@@ -167,6 +167,31 @@
             return false;
         }
     });
+
+    // Format ribuan (1.000.000)
+    function formatRupiah(angka) {
+        let number_string = angka.replace(/[^0-9]/g, "");
+        return number_string.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    // Event ketika user mengetik
+    const hargaInput = document.getElementById('harga_perolehan');
+    hargaInput.addEventListener('input', function() {
+        if (this.value.trim() === "-") return; // biarkan "-" tetap
+        this.value = formatRupiah(this.value);
+    });
+
+    // Convert ke angka sebelum submit
+    document.querySelector('form').addEventListener('submit', function() {
+        const harga = hargaInput.value.trim();
+
+        if (harga === "-" || harga === "") {
+            hargaInput.value = ""; // simpan NULL
+        } else {
+            hargaInput.value = harga.replace(/\./g, ""); // hapus titik untuk database
+        }
+    });
+
 
     // Auto-refresh CSRF token every 5 minutes to prevent 419 error
     setInterval(function() {

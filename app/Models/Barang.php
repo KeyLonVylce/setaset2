@@ -23,19 +23,13 @@ class Barang extends Model
         'kode_barang',
         'jumlah',
         'harga_perolehan',
-        'keadaan_baik',
-        'keadaan_kurang_baik',
-        'keadaan_rusak_berat',
+        'kondisi',
         'keterangan',
     ];
 
     protected $casts = [
-        'harga_perolehan' => 'decimal:2',
         'tahun_pembuatan' => 'integer',
         'jumlah' => 'integer',
-        'keadaan_baik' => 'integer',
-        'keadaan_kurang_baik' => 'integer',
-        'keadaan_rusak_berat' => 'integer',
     ];
 
     public function ruangan()
@@ -45,6 +39,33 @@ class Barang extends Model
 
     public function getTotalNilaiAttribute()
     {
-        return $this->jumlah * $this->harga_perolehan;
+        $harga = is_numeric($this->harga_perolehan) ? floatval($this->harga_perolehan) : 0;
+        return $this->jumlah * $harga;
+    }
+
+    // Get kondisi counts for display (untuk backward compatibility)
+    public function getKeadaanBaikAttribute()
+    {
+        return $this->kondisi === 'B' ? $this->jumlah : 0;
+    }
+
+    public function getKeadaanKurangBaikAttribute()
+    {
+        return $this->kondisi === 'KB' ? $this->jumlah : 0;
+    }
+
+    public function getKeadaanRusakBeratAttribute()
+    {
+        return $this->kondisi === 'RB' ? $this->jumlah : 0;
+    }
+
+    public function getKondisiLabelAttribute()
+    {
+        $labels = [
+            'B' => 'Baik',
+            'KB' => 'Kurang Baik',
+            'RB' => 'Rusak Berat'
+        ];
+        return $labels[$this->kondisi] ?? '-';
     }
 }
