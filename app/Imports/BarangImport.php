@@ -31,17 +31,30 @@ class BarangImport implements ToModel, WithStartRow
             return $value;
         };
 
-        // Abaikan baris tanda tangan / footer
-        $ignore = ['mengetahui', 'sekretaris', 'nip', 'provinsi', 'penanggungjawab'];
-        if (!empty($row[1])) {
-            foreach ($ignore as $kw) {
-                if (str_contains(strtolower($row[1]), $kw)) {
-                    return null;
-                }
+        // ==== Abaikan baris footer / tanda tangan / pejabat ==== //
+        $footerKeywords = [
+            'mengetahui',
+            'kepala bagian',
+            'tata usaha',
+            'pengelola barang',
+            'penanggungjawab',
+            'bandung',
+            'nip',
+            'hj.',
+            'astria',
+            'handi',
+            'nandang'
+        ];
+
+        $rowString = strtolower(trim(implode(' ', $row)));
+
+        foreach ($footerKeywords as $kw) {
+            if (str_contains($rowString, $kw)) {
+                return null; // baris footer → skip
             }
         }
 
-        // Jika tidak ada nama barang → skip
+        // Jika kolom nama barang kosong → skip
         if (empty($clean($row[1]))) {
             return null;
         }
@@ -56,7 +69,7 @@ class BarangImport implements ToModel, WithStartRow
         $ukuran          = $clean($row[5]);
         $bahan           = $clean($row[6]);
         $tahun           = $clean($row[7]);
-        
+
         // Build kode barang from columns 9-14
         $kode_barang = implode('.', array_filter([
             $clean($row[9] ?? null),
@@ -69,45 +82,37 @@ class BarangImport implements ToModel, WithStartRow
 
         $jumlah = $clean($row[15]);
         $harga  = $clean($row[16]);
-        
-        // Untuk kondisi barang, ambil dari kolom S, T, U (17, 18, 19)
-        $kondisi_b  = $clean($row[17]);
-        $kondisi_kb = $clean($row[18]);
-        $kondisi_rb = $clean($row[19]);
 
-        // Tentukan kondisi berdasarkan mana yang berisi nilai atau tanda
-        $kondisi = 'B'; // default
-        
-        if (!empty($kondisi_b)) {
-            $val = strtoupper(str_replace(['(', ')', ' '], '', $kondisi_b));
-            if (in_array($val, ['B', '✓', 'V', 'X'])) {
-                $kondisi = 'B';
-            }
-        }
-        
-        if (!empty($kondisi_kb)) {
-            $val = strtoupper(str_replace(['(', ')', ' '], '', $kondisi_kb));
-            if (in_array($val, ['KB', '✓', 'V', 'X'])) {
-                $kondisi = 'KB';
-            }
-        }
-        
-        if (!empty($kondisi_rb)) {
-            $val = strtoupper(str_replace(['(', ')', ' '], '', $kondisi_rb));
-            if (in_array($val, ['RB', '✓', 'V', 'X'])) {
-                $kondisi = 'RB';
-            }
+        // ===== PERBAIKAN KONDISI ===== //
+        $kondisi = null; // default
+
+        $normalize = function ($v) {
+            if (!$v) return null;
+            $v = trim(strtolower($v));
+            return ($v === '' || $v === '-' ? null : $v);
+        };
+
+        $hasB  = $normalize($row[17] ?? null);
+        $hasKB = $normalize($row[18] ?? null);
+        $hasRB = $normalize($row[19] ?? null);
+
+        if ($hasRB) {
+            $kondisi = 'RB';
+        } elseif ($hasKB) {
+            $kondisi = 'KB';
+        } elseif ($hasB) {
+            $kondisi = 'B';
         }
 
         $keterangan = $clean($row[20] ?? null);
-        
+
         // Parse jumlah
-        $jumlah_clean = (int) preg_replace('/[^0-9]/', '', 
+        $jumlah_clean = (int) preg_replace('/[^0-9]/', '',
             ($jumlah === '-' || $jumlah === '' || $jumlah === null ? '0' : $jumlah)
         );
 
         // Parse harga - store as string
-        $harga_clean = preg_replace('/[^0-9]/', '', 
+        $harga_clean = preg_replace('/[^0-9]/', '',
             ($harga === '-' || $harga === '' || $harga === null ? '0' : $harga)
         );
 
@@ -122,9 +127,9 @@ class BarangImport implements ToModel, WithStartRow
             'tahun_pembuatan'  => is_numeric($tahun) ? (int) $tahun : null,
             'kode_barang'      => $kode_barang ?: null,
             'jumlah'           => $jumlah_clean,
-            'harga_perolehan'  => $harga_clean,
-            'kondisi'          => $kondisi,
-            'keterangan'       => $keterangan,
+            'harga_perolehan'  => $harga_clean ?: null,
+            'kondisi'          => $kondisi ?: null,
+            'keterangan'       => $keterangan ?: "-",
         ]);
     }
 }
