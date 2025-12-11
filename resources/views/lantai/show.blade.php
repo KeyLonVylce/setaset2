@@ -7,8 +7,21 @@
     .breadcrumb { margin-bottom: 20px; color: #666; font-size: 14px; }
     .breadcrumb a { color: #ff7b3d; text-decoration: none; }
     .breadcrumb a:hover { text-decoration: underline; }
-    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 10px; }
     .page-header h2 { font-size: 28px; color: #333; }
+
+    /* Search Box */
+    .search-box {
+        display: flex;
+        gap: 10px;
+    }
+    .search-box input {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        width: 230px;
+    }
+
     .lantai-info { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
     .lantai-info p { margin: 5px 0; color: #666; }
     .ruangan-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
@@ -23,6 +36,14 @@
     .empty-state { text-align: center; padding: 60px 20px; color: #999; }
     .delete-btn { background: none; border: none; color: #dc3545; cursor: pointer; font-size: 20px; padding: 0; }
     .delete-btn:hover { color: #c82333; }
+
+    /* Modal */
+    .modal { display: none; position: fixed; z-index: 1000; padding-top: 100px; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background: rgba(0,0,0,0.4); }
+    .modal-content { background: #fff; padding: 20px; border-radius: 10px; width: 400px; margin: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; }
+    .close { cursor: pointer; font-size: 24px; }
+    .form-group { margin-bottom: 15px; }
+    .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
 </style>
 @endsection
 
@@ -32,10 +53,31 @@
 </div>
 
 <div class="card">
+
+    <!-- HEADER + SEARCH -->
     <div class="page-header">
         <h2>{{ $lantai->nama_lantai }}</h2>
-        <button class="btn btn-primary" onclick="openAddRuanganModal()">+ Tambah Ruangan</button>
+
+        <div class="search-box">
+            <form method="GET">
+                <input type="text" name="search" placeholder="Cari ruangan..." value="{{ request('search') }}">
+            </form>
+            <button class="btn btn-primary" onclick="openAddRuanganModal()">+ Tambah Ruangan</button>
+        </div>
     </div>
+
+    @php
+        // FILTER SEARCH
+        $ruanganFiltered = $lantai->ruangans->filter(function($r){
+            if (!request('search')) return true;
+
+            $q = strtolower(request('search'));
+
+            return str_contains(strtolower($r->nama_ruangan), $q) ||
+                   str_contains(strtolower($r->penanggung_jawab), $q) ||
+                   str_contains(strtolower($r->keterangan), $q);
+        });
+    @endphp
 
     @if($lantai->keterangan || $lantai->ruangans->count() > 0)
     <div class="lantai-info">
@@ -47,9 +89,9 @@
     </div>
     @endif
 
-    @if($lantai->ruangans->count() > 0)
+    @if($ruanganFiltered->count() > 0)
     <div class="ruangan-grid">
-        @foreach($lantai->ruangans as $ruangan)
+        @foreach($ruanganFiltered as $ruangan)
         <div class="ruangan-card">
             <div class="ruangan-card-header">
                 <div>
@@ -81,10 +123,11 @@
         </div>
         @endforeach
     </div>
+
     @else
     <div class="empty-state">
-        <h3>Belum Ada Ruangan</h3>
-        <p>Klik tombol "Tambah Ruangan" untuk memulai</p>
+        <h3>Tidak Ada Ruangan</h3>
+        <p>{{ request('search') ? 'Pencarian tidak ditemukan.' : 'Klik tombol "Tambah Ruangan" untuk memulai.' }}</p>
     </div>
     @endif
 </div>
@@ -100,19 +143,19 @@
             @csrf
             <div class="form-group">
                 <label for="nama_ruangan">Nama Ruangan <span style="color: red;">*</span></label>
-                <input type="text" id="nama_ruangan" name="nama_ruangan" placeholder="Contoh: Ruang Server, Ruang Meeting" required>
+                <input type="text" id="nama_ruangan" name="nama_ruangan" required>
             </div>
             <div class="form-group">
                 <label for="penanggung_jawab">Penanggung Jawab</label>
-                <input type="text" id="penanggung_jawab" name="penanggung_jawab" placeholder="Nama penanggung jawab">
+                <input type="text" id="penanggung_jawab" name="penanggung_jawab">
             </div>
             <div class="form-group">
                 <label for="nip_penanggung_jawab">NIP Penanggung Jawab</label>
-                <input type="text" id="nip_penanggung_jawab" name="nip_penanggung_jawab" placeholder="NIP">
+                <input type="text" id="nip_penanggung_jawab" name="nip_penanggung_jawab">
             </div>
             <div class="form-group">
                 <label for="keterangan">Keterangan</label>
-                <textarea id="keterangan" name="keterangan" placeholder="Keterangan tambahan (opsional)"></textarea>
+                <textarea id="keterangan" name="keterangan"></textarea>
             </div>
             <button type="submit" class="btn btn-success">Simpan</button>
         </form>

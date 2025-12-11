@@ -166,7 +166,7 @@
 
     <div class="footer">
         <p>Dokumen ini dicetak dari Sistem SETASET - Dinas Komunikasi dan Informatika Kota Bandung</p>
-        <p>Tanggal Cetak: {{ date('d F Y H:i:s') }}</p>
+        <p>Tanggal Cetak: {{ now()->setTimezone('Asia/Jakarta')->format('d F Y H:i:s') }}</p>
     </div>
 </body>
 </html>
