@@ -29,7 +29,7 @@ return new class extends Migration
             $table->integer('jumlah')->default(0);
 
             // FIX: gunakan decimal untuk nilai uang
-            $table->decimal('harga_perolehan', 15, 2)->nullable();
+            $table->integer('harga_perolehan')->nullable();
 
             $table->enum('kondisi', ['B', 'KB', 'RB'])->default('B');
             $table->text('keterangan')->nullable();
