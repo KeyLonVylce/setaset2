@@ -68,7 +68,7 @@
                     value="{{ old('kode_barang', $barang->kode_barang) }}">
             </div>
 
-            <div class="form-group-full">
+            <div class="form-group">
                 <label for="nama_barang">Nama Barang <span style="color:red">*</span></label>
                 <input type="text" id="nama_barang" name="nama_barang"
                     value="{{ old('nama_barang', $barang->nama_barang) }}" required>
@@ -131,7 +131,7 @@
                 </select>
             </div>
 
-            <div class="form-group-full">
+            <div class="form-group">
                 <label for="keterangan">Keterangan</label>
                 <textarea id="keterangan" name="keterangan" rows="4"
                     placeholder="Keterangan tambahan tentang barang">{{ old('keterangan', $barang->keterangan) }}</textarea>

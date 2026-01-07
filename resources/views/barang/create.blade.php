@@ -63,10 +63,11 @@
                 <div class="helper-text">Kode unik identifikasi barang</div>
             </div>
 
-            <div class="form-group-full">
+            <div class="form-group">
                 <label for="nama_barang">Nama Barang <span style="color: red;">*</span></label>
                 <input type="text" id="nama_barang" name="nama_barang" placeholder="Contoh: Laptop, Meja Kantor" required>
             </div>
+
 
             <div class="form-group">
                 <label for="merk_model">Merk/Model</label>
@@ -113,7 +114,7 @@
                 </select>
             </div>
 
-            <div class="form-group-full">
+            <div class="form-group">
                 <label for="keterangan">Keterangan</label>
                 <textarea id="keterangan" name="keterangan" rows="4" placeholder="Keterangan tambahan tentang barang"></textarea>
             </div>
