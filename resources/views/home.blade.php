@@ -31,22 +31,24 @@
 <div class="card">
     <div class="lantai-header">
         <h3>Daftar Lantai</h3>
-        <button class="btn btn-primary" onclick="openAddLantaiModal()">+ Tambah Lantai</button>
+        @if(Auth::guard('stafaset')->user()->isAdmin())
+            <button class="btn btn-primary" onclick="openAddLantaiModal()">+ Tambah Lantai</button>
+        @endif
     </div>
 
     <div class="pemindahan">
         <div class="pemindahan-header">
-        <a href="{{ route('pemindahan.pindah') }}" class="btn btn-primary">
-            Pindahkan Barang
-        </a>
+            <a href="{{ route('pemindahan.pindah') }}" class="btn btn-primary">
+                Pindahkan Barang
+            </a>
         </div>
     </div>
-
 
     @if($lantais->count() > 0)
     <div class="lantai-grid">
         @foreach($lantais as $lantai)
         <div class="lantai-card-wrapper">
+            @if(Auth::guard('stafaset')->user()->isAdmin())
             <div class="lantai-card-actions">
                 <button onclick="event.preventDefault(); openEditLantaiModal({{ $lantai->id }}, '{{ addslashes($lantai->nama_lantai) }}', {{ $lantai->urutan }}, '{{ addslashes($lantai->keterangan ?? '') }}')" title="Edit">✏️</button>
                 <form action="{{ route('lantai.destroy', $lantai->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Yakin ingin menghapus lantai ini? Semua ruangan dan barang akan ikut terhapus!')">
@@ -55,6 +57,7 @@
                     <button type="submit" title="Hapus">🗑️</button>
                 </form>
             </div>
+            @endif
             <a href="{{ route('lantai.show', $lantai->id) }}" class="lantai-card">
                 <h4>{{ $lantai->nama_lantai }}</h4>
                 <div>
@@ -75,6 +78,7 @@
     @endif
 </div>
 
+@if(Auth::guard('stafaset')->user()->isAdmin())
 <!-- Modal Tambah Lantai -->
 <div id="addLantaiModal" class="modal">
     <div class="modal-content">
@@ -127,6 +131,7 @@
         </form>
     </div>
 </div>
+@endif
 @endsection
 
 @section('scripts')
@@ -162,4 +167,4 @@
         }
     }
 </script>
-@endsection
+@endsections

@@ -17,6 +17,7 @@ class StafAset extends Authenticatable
         'nama',
         'nip',
         'password',
+        'role',        // ✅ TAMBAHKAN INI
         'can_edit',
     ];
 
@@ -32,5 +33,16 @@ class StafAset extends Authenticatable
     public function getAuthPassword()
     {
         return $this->password;
+    }
+
+    // ✅ TAMBAHKAN HELPER METHODS
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isStaff()
+    {
+        return $this->role === 'staff';
     }
 }

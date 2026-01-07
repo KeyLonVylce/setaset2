@@ -9,7 +9,7 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+   public function up(): void
 {
     Schema::create('stafaset', function (Blueprint $table) {
         $table->id();
@@ -17,6 +17,7 @@ return new class extends Migration
         $table->string('nama', 150);
         $table->string('nip', 30)->unique();
         $table->string('password');
+        $table->enum('role', ['staff', 'admin'])->default('staff'); // ✅ TAMBAHKAN INI
         $table->boolean('can_edit')->default(true);
         $table->rememberToken();
         $table->timestamps();

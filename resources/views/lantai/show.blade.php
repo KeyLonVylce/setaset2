@@ -34,7 +34,9 @@
 <div class="card">
     <div class="page-header">
         <h2>{{ $lantai->nama_lantai }}</h2>
-        <button class="btn btn-primary" onclick="openAddRuanganModal()">+ Tambah Ruangan</button>
+        @if(Auth::guard('stafaset')->user()->isAdmin())
+            <button class="btn btn-primary" onclick="openAddRuanganModal()">+ Tambah Ruangan</button>
+        @endif
     </div>
 
     @if($lantai->keterangan || $lantai->ruangans->count() > 0)
@@ -56,11 +58,13 @@
                     <h3>{{ $ruangan->nama_ruangan }}</h3>
                     <span class="badge badge-info">{{ $ruangan->barangs_count }} Barang</span>
                 </div>
+                @if(Auth::guard('stafaset')->user()->isAdmin())
                 <form action="{{ route('ruangan.delete', $ruangan->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus ruangan ini? Semua barang di dalamnya akan ikut terhapus!')">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="delete-btn" title="Hapus Ruangan">×</button>
                 </form>
+                @endif
             </div>
             
             @if($ruangan->penanggung_jawab)
@@ -89,6 +93,7 @@
     @endif
 </div>
 
+@if(Auth::guard('stafaset')->user()->isAdmin())
 <!-- Modal Tambah Ruangan -->
 <div id="addRuanganModal" class="modal">
     <div class="modal-content">
@@ -118,6 +123,7 @@
         </form>
     </div>
 </div>
+@endif
 @endsection
 
 @section('scripts')

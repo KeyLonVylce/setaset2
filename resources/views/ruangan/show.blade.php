@@ -35,7 +35,9 @@
     <div class="page-header">
         <h2>{{ $ruangan->nama_ruangan }}</h2>
         <div class="action-buttons">
-            <a href="{{ route('ruangan.export', $ruangan->id) }}" class="btn btn-success" target="_blank">📄 Export PDF</a>
+            @if(Auth::guard('stafaset')->user()->isAdmin())
+                <a href="{{ route('ruangan.export', $ruangan->id) }}" class="btn btn-success" target="_blank">📄 Export PDF</a>
+            @endif
             <a href="{{ route('barang.create', $ruangan->id) }}" class="btn btn-primary">+ Tambah Barang</a>
             <a href="{{ route('barang.import.form', $ruangan->id) }}" class="btn btn-warning">⬆️ Import Excel</a>
         </div>

@@ -10,7 +10,10 @@
         .header { background: linear-gradient(135deg, #ff9a56 0%, #ff7b3d 100%); padding: 15px 30px; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .header h1 { font-size: 32px; font-weight: bold; letter-spacing: 2px; }
         .user-info { display: flex; align-items: center; gap: 20px; }
-        .user-name { font-size: 14px; background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 20px; }
+        .user-name { font-size: 14px; background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 20px; display: flex; align-items: center; gap: 8px; }
+        .role-badge { padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .role-admin { background: #28a745; color: white; }
+        .role-staff { background: #6c757d; color: white; }
         .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; text-decoration: none; display: inline-block; transition: all 0.3s; }
         .btn-primary { background: #ff7b3d; color: white; }
         .btn-primary:hover { background: #ff6524; }
@@ -18,6 +21,8 @@
         .btn-danger:hover { background: #c82333; }
         .btn-success { background: #28a745; color: white; }
         .btn-success:hover { background: #218838; }
+        .btn-warning { background: #ffc107; color: #333; }
+        .btn-warning:hover { background: #e0a800; }
         .btn-sm { padding: 6px 12px; font-size: 13px; }
         .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
         .alert { padding: 15px 20px; margin-bottom: 20px; border-radius: 5px; }
@@ -45,7 +50,14 @@
     <div class="header">
         <h1>SETASET</h1>
         <div class="user-info">
-            <span class="user-name">{{ Auth::guard('stafaset')->user()->nama }}</span>
+            <span class="user-name">
+                {{ Auth::guard('stafaset')->user()->nama }}
+                @if(Auth::guard('stafaset')->user()->isAdmin())
+                    <span class="role-badge role-admin">ADMIN</span>
+                @else
+                    <span class="role-badge role-staff">STAFF</span>
+                @endif
+            </span>
             <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                 @csrf
                 <button type="submit" class="btn btn-danger">Logout</button>
