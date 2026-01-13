@@ -26,6 +26,6 @@ class DatabaseSeeder extends Seeder
             StafAsetSeeder::class,
         ]);
 
-
+                    
     }
 }
