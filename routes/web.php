@@ -16,38 +16,42 @@ Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// ✅ ROUTES YANG BISA DIAKSES SEMUA USER (STAFF & ADMIN)
 Route::middleware('auth:stafaset')->group(function () {
     Route::get('/home', [HomeController::class, 'index'])->name('home');
     
-    // Lantai Routes
-    Route::post('/lantai', [HomeController::class, 'storeLantai'])->name('lantai.store');
+    // View Lantai & Ruangan (semua bisa lihat)
     Route::get('/lantai/{id}', [LantaiController::class, 'show'])->name('lantai.show');
-    Route::put('/lantai/{id}', [LantaiController::class, 'update'])->name('lantai.update');
-    Route::delete('/lantai/{id}', [LantaiController::class, 'destroy'])->name('lantai.destroy');
-    
-    // Ruangan Routes
-    Route::post('/lantai/{lantai_id}/ruangan', [LantaiController::class, 'storeRuangan'])->name('ruangan.store');
-    Route::delete('/ruangan/{id}', [LantaiController::class, 'deleteRuangan'])->name('ruangan.delete');
     Route::get('/ruangan/{id}', [RuanganController::class, 'show'])->name('ruangan.show');
-    Route::get('/ruangan/{id}/export', [RuanganController::class, 'export'])->name('ruangan.export');
-
-    // Barang Routes
+    
+    // Barang CRUD (semua bisa input data)
     Route::get('/ruangan/{ruangan_id}/barang/create', [BarangController::class, 'create'])->name('barang.create');
     Route::post('/barang', [BarangController::class, 'store'])->name('barang.store');
     Route::get('/barang/{id}/edit', [BarangController::class, 'edit'])->name('barang.edit');
     Route::put('/barang/{id}', [BarangController::class, 'update'])->name('barang.update');
     Route::delete('/barang/{id}', [BarangController::class, 'destroy'])->name('barang.destroy');
-
+    
+    // Import Barang (semua bisa)
     Route::get('/barang/import/{ruangan}', [BarangController::class, 'importForm'])->name('barang.import.form');
     Route::post('/barang/import/{ruangan}', [BarangController::class, 'import'])->name('barang.import');
+    
+    // Pemindahan Barang (semua bisa)
+    Route::get('/pemindahan/pindah', [PemindahanController::class, 'pindah'])->name('pemindahan.pindah');
+    Route::post('/pemindahan/pindah', [PemindahanController::class, 'pindahStore'])->name('pemindahan.pindah.store');
+    Route::get('/pemindahan/history', [PemindahanController::class, 'history'])->name('pemindahan.history');
+});
 
-    Route::get('/pemindahan/pindah', [PemindahanController::class, 'pindah'])
-        ->name('pemindahan.pindah');
-
-    Route::post('/pemindahan/pindah', [PemindahanController::class, 'pindahStore'])
-        ->name('pemindahan.pindah.store');
-
-    Route::get('/pemindahan/history', [PemindahanController::class, 'history'])
-        ->name('pemindahan.history');
-
+// ✅ ROUTES KHUSUS ADMIN
+Route::middleware(['auth:stafaset', 'role:admin'])->group(function () {
+    // Lantai Management (hanya admin)
+    Route::post('/lantai', [HomeController::class, 'storeLantai'])->name('lantai.store');
+    Route::put('/lantai/{id}', [LantaiController::class, 'update'])->name('lantai.update');
+    Route::delete('/lantai/{id}', [LantaiController::class, 'destroy'])->name('lantai.destroy');
+    
+    // Ruangan Management (hanya admin)
+    Route::post('/lantai/{lantai_id}/ruangan', [LantaiController::class, 'storeRuangan'])->name('ruangan.store');
+    Route::delete('/ruangan/{id}', [LantaiController::class, 'deleteRuangan'])->name('ruangan.delete');
+    
+    // Export PDF (hanya admin)
+    Route::get('/ruangan/{id}/export', [RuanganController::class, 'export'])->name('ruangan.export');
 });

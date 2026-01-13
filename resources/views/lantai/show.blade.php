@@ -7,19 +7,29 @@
     .breadcrumb { margin-bottom: 20px; color: #666; font-size: 14px; }
     .breadcrumb a { color: #ff7b3d; text-decoration: none; }
     .breadcrumb a:hover { text-decoration: underline; }
-    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 10px; }
-    .page-header h2 { font-size: 28px; color: #333; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
+    .page-header h2 { font-size: 28px; color: #333; margin: 0; }
 
-    /* Search Box */
+    /* Search Box - Diperbaiki */
     .search-box {
         display: flex;
+        align-items: center;
         gap: 10px;
     }
+    .search-box form {
+        margin: 0;
+    }
     .search-box input {
-        padding: 8px 12px;
+        padding: 10px 15px;
         border: 1px solid #ddd;
         border-radius: 6px;
-        width: 230px;
+        width: 250px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+    }
+    .search-box input:focus {
+        outline: none;
+        border-color: #ff7b3d;
     }
 
     .lantai-info { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
@@ -53,16 +63,17 @@
 </div>
 
 <div class="card">
-
     <!-- HEADER + SEARCH -->
     <div class="page-header">
         <h2>{{ $lantai->nama_lantai }}</h2>
 
         <div class="search-box">
-            <form method="GET">
+            <form method="GET" action="">
                 <input type="text" name="search" placeholder="Cari ruangan..." value="{{ request('search') }}">
             </form>
-            <button class="btn btn-primary" onclick="openAddRuanganModal()">+ Tambah Ruangan</button>
+            @if(Auth::guard('stafaset')->user()->isAdmin())
+                <button class="btn btn-primary" onclick="openAddRuanganModal()">+ Tambah Ruangan</button>
+            @endif
         </div>
     </div>
 
@@ -98,11 +109,13 @@
                     <h3>{{ $ruangan->nama_ruangan }}</h3>
                     <span class="badge badge-info">{{ $ruangan->barangs_count }} Barang</span>
                 </div>
+                @if(Auth::guard('stafaset')->user()->isAdmin())
                 <form action="{{ route('ruangan.delete', $ruangan->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus ruangan ini? Semua barang di dalamnya akan ikut terhapus!')">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="delete-btn" title="Hapus Ruangan">×</button>
                 </form>
+                @endif
             </div>
             
             @if($ruangan->penanggung_jawab)
@@ -132,6 +145,7 @@
     @endif
 </div>
 
+@if(Auth::guard('stafaset')->user()->isAdmin())
 <!-- Modal Tambah Ruangan -->
 <div id="addRuanganModal" class="modal">
     <div class="modal-content">
@@ -161,6 +175,7 @@
         </form>
     </div>
 </div>
+@endif
 @endsection
 
 @section('scripts')
