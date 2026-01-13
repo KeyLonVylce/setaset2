@@ -17,7 +17,7 @@ class StafAset extends Authenticatable
         'nama',
         'nip',
         'password',
-        'role',        // ✅ TAMBAHKAN INI
+        'role',
         'can_edit',
     ];
 
@@ -26,23 +26,40 @@ class StafAset extends Authenticatable
         'remember_token',
     ];
 
-    protected $casts = [
-        'can_edit' => 'boolean',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'can_edit' => 'boolean',
+            'password' => 'hashed',
+        ];
+    }
 
     public function getAuthPassword()
     {
         return $this->password;
     }
 
-    // ✅ TAMBAHKAN HELPER METHODS
-    public function isAdmin()
+    public function isAdmin(): bool
     {
         return $this->role === 'admin';
     }
 
-    public function isStaff()
+    public function isStaff(): bool
     {
         return $this->role === 'staff';
+    }
+
+    public function canEdit(): bool
+    {
+        return $this->can_edit === true;
+    }
+
+    public function getRoleLabelAttribute(): string
+    {
+        return match($this->role) {
+            'admin' => 'Administrator',
+            'staff' => 'Staff',
+            default => 'Unknown'
+        };
     }
 }

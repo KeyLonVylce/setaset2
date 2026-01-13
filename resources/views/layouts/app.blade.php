@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'SETASET - Inventaris Diskominfo')</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -52,11 +53,9 @@
         <div class="user-info">
             <span class="user-name">
                 {{ Auth::guard('stafaset')->user()->nama }}
-                @if(Auth::guard('stafaset')->user()->isAdmin())
-                    <span class="role-badge role-admin">ADMIN</span>
-                @else
-                    <span class="role-badge role-staff">STAFF</span>
-                @endif
+                <span class="role-badge role-{{ Auth::guard('stafaset')->user()->role }}">
+                    {{ Auth::guard('stafaset')->user()->role_label }}
+                </span>
             </span>
             <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                 @csrf

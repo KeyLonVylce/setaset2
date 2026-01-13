@@ -27,18 +27,25 @@ class AuthController extends Controller
         $staf = StafAset::where('username', $request->username)->first();
 
         if ($staf && Hash::check($request->password, $staf->password)) {
-            Auth::guard('stafaset')->login($staf, $request->remember);
-            return redirect()->route('home');
+            Auth::guard('stafaset')->login($staf, $request->filled('remember'));
+            
+            $request->session()->regenerate();
+            
+            return redirect()->route('home')->with('success', 'Selamat datang, ' . $staf->nama . '!');
         }
 
         return back()->withErrors([
             'username' => 'Username atau password salah.',
-        ])->withInput();
+        ])->withInput($request->only('username'));
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
         Auth::guard('stafaset')->logout();
-        return redirect()->route('login');
+        
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        
+        return redirect()->route('login')->with('success', 'Anda telah logout.');
     }
 }
