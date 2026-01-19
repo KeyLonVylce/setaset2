@@ -7,6 +7,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use App\Models\Barang;
 use App\Models\Ruangan;
+use App\Helpers\NotificationHelper;
 
 class BarangController extends Controller
 {
@@ -36,8 +37,15 @@ class BarangController extends Controller
 
         Barang::create($validated);
 
+        NotificationHelper::create(
+            'barang',
+            'tambah',
+            "Barang <b>{$validated['nama_barang']}</b> ditambahkan"
+        );
+
         return redirect()->route('ruangan.show', $validated['ruangan_id'])
             ->with('success', 'Barang berhasil ditambahkan!');
+
     }
 
     public function edit($id)
@@ -65,6 +73,12 @@ class BarangController extends Controller
 
         $barang = Barang::findOrFail($id);
         $barang->update($validated);
+
+        NotificationHelper::create(
+            'barang',
+            'edit',
+            "Barang <b>{$barang->nama_barang}</b> diubah"
+        );
 
         return redirect()->route('ruangan.show', $barang->ruangan_id)
             ->with('success', 'Barang berhasil diupdate!');
