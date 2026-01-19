@@ -8,13 +8,27 @@ use App\Models\Ruangan;
 
 class LantaiController extends Controller
 {
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $lantai = Lantai::with(['ruangans' => function($query) {
-            $query->withCount('barangs');
-        }])->findOrFail($id);
+        $lantai = Lantai::findOrFail($id);
+        
+        // Query ruangan dengan search dan pagination
+        $query = $lantai->ruangans()->withCount('barangs');
+        
+        // Filter search jika ada
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nama_ruangan', 'like', '%' . $search . '%')
+                  ->orWhere('penanggung_jawab', 'like', '%' . $search . '%')
+                  ->orWhere('keterangan', 'like', '%' . $search . '%');
+            });
+        }
+        
+        // Pagination dengan 4 ruangan per halaman
+        $ruangans = $query->paginate(3)->withQueryString();
 
-        return view('lantai.show', compact('lantai'));
+        return view('lantai.show', compact('lantai', 'ruangans'));
     }
 
     public function store(Request $request)

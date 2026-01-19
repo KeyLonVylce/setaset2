@@ -10,7 +10,7 @@
     .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
     .page-header h2 { font-size: 28px; color: #333; margin: 0; }
 
-    /* Search Box - Diperbaiki */
+    /* Search Box */
     .search-box {
         display: flex;
         align-items: center;
@@ -54,6 +54,82 @@
     .close { cursor: pointer; font-size: 24px; }
     .form-group { margin-bottom: 15px; }
     .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
+
+    /* Pagination Styles */
+    .pagination-wrapper { 
+        display: flex; 
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 30px; 
+        padding: 20px 0;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    .pagination-info {
+        color: #666;
+        font-size: 14px;
+    }
+    .pagination-nav {
+        display: flex;
+    }
+    .pagination { 
+        display: flex; 
+        list-style: none; 
+        gap: 5px; 
+        padding: 0; 
+        margin: 0; 
+        align-items: center;
+    }
+    .page-item { 
+        display: inline-block; 
+    }
+    .page-link { 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 8px;
+        border: 1px solid #ddd; 
+        border-radius: 50%;
+        color: #666; 
+        text-decoration: none; 
+        transition: all 0.2s;
+        background: white;
+        font-size: 14px;
+        cursor: pointer;
+    }
+    .page-link:hover { 
+        background: #f5f5f5; 
+        border-color: #bbb; 
+    }
+    .page-item.active .page-link { 
+        background: #00a8ff; 
+        color: white; 
+        border-color: #00a8ff; 
+        font-weight: 600;
+        cursor: default;
+    }
+    .page-item.disabled .page-link { 
+        color: #ccc; 
+        cursor: not-allowed; 
+        background: #fafafa;
+        border-color: #e5e5e5;
+    }
+    .page-item.disabled .page-link:hover { 
+        background: #fafafa; 
+        border-color: #e5e5e5; 
+    }
+    
+    @media (max-width: 768px) {
+        .pagination-wrapper {
+            justify-content: center;
+        }
+        .pagination-info {
+            width: 100%;
+            text-align: center;
+        }
+    }
 </style>
 @endsection
 
@@ -77,32 +153,18 @@
         </div>
     </div>
 
-    @php
-        // FILTER SEARCH
-        $ruanganFiltered = $lantai->ruangans->filter(function($r){
-            if (!request('search')) return true;
-
-            $q = strtolower(request('search'));
-
-            return str_contains(strtolower($r->nama_ruangan), $q) ||
-                   str_contains(strtolower($r->penanggung_jawab), $q) ||
-                   str_contains(strtolower($r->keterangan), $q);
-        });
-    @endphp
-
-    @if($lantai->keterangan || $lantai->ruangans->count() > 0)
+    @if($lantai->keterangan || $ruangans->total() > 0)
     <div class="lantai-info">
         @if($lantai->keterangan)
         <p><strong>Keterangan:</strong> {{ $lantai->keterangan }}</p>
         @endif
-        <p><strong>Total Ruangan:</strong> {{ $lantai->ruangans->count() }}</p>
-        <p><strong>Total Barang:</strong> {{ $lantai->ruangans->sum('barangs_count') }}</p>
+        <p><strong>Total Ruangan:</strong> {{ $ruangans->total() }}</p>
     </div>
     @endif
 
-    @if($ruanganFiltered->count() > 0)
+    @if($ruangans->count() > 0)
     <div class="ruangan-grid">
-        @foreach($ruanganFiltered as $ruangan)
+        @foreach($ruangans as $ruangan)
         <div class="ruangan-card">
             <div class="ruangan-card-header">
                 <div>
@@ -136,6 +198,64 @@
         </div>
         @endforeach
     </div>
+
+    <!-- Pagination -->
+    @if($ruangans->hasPages())
+    <div class="pagination-wrapper">
+        <div class="pagination-info">
+            Menampilkan {{ $ruangans->firstItem() }} sampai {{ $ruangans->lastItem() }} dari {{ $ruangans->total() }} entri
+        </div>
+        <div class="pagination-nav">
+            <ul class="pagination">
+                {{-- Previous Page Link --}}
+                @if ($ruangans->onFirstPage())
+                    <li class="page-item disabled">
+                        <span class="page-link">‹</span>
+                    </li>
+                @else
+                    <li class="page-item">
+                        <a class="page-link" href="{{ $ruangans->previousPageUrl() }}" rel="prev">‹</a>
+                    </li>
+                @endif
+
+                {{-- Pagination Elements --}}
+                @foreach(range(1, $ruangans->lastPage()) as $page)
+                    @if ($page == $ruangans->currentPage())
+                        <li class="page-item active">
+                            <span class="page-link">{{ $page }}</span>
+                        </li>
+                    @else
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $ruangans->url($page) }}">{{ $page }}</a>
+                        </li>
+                    @endif
+                @endforeach
+
+                {{-- Next Page Link --}}
+                @if ($ruangans->hasMorePages())
+                    <li class="page-item">
+                        <a class="page-link" href="{{ $ruangans->nextPageUrl() }}" rel="next">›</a>
+                    </li>
+                @else
+                    <li class="page-item disabled">
+                        <span class="page-link">›</span>
+                    </li>
+                @endif
+
+                {{-- Last Page Link --}}
+                @if ($ruangans->hasMorePages())
+                    <li class="page-item">
+                        <a class="page-link" href="{{ $ruangans->url($ruangans->lastPage()) }}">»</a>
+                    </li>
+                @else
+                    <li class="page-item disabled">
+                        <span class="page-link">»</span>
+                    </li>
+                @endif
+            </ul>
+        </div>
+    </div>
+    @endif
 
     @else
     <div class="empty-state">
