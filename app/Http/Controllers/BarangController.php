@@ -108,6 +108,12 @@ class BarangController extends Controller
 
         Excel::import(new BarangImport($ruangan_id), $request->file('file'));
 
+        NotificationHelper::create(
+            'barang',
+            'tambah',
+            "Data <b>Excel</b> ditambahkan"
+        );
+
         return redirect()->route('barang.import.form', $ruangan_id)
             ->with('success', 'Data barang berhasil diimport!');
     }
