@@ -38,10 +38,8 @@ class LantaiController extends Controller
         NotificationHelper::create(
             'Lantai',
             'tambah',
-            "Lantai <b>{$lantai->nama_lantai}</b> ditambahkan"
+            "Lantai <b>{$lantai->nama_lantai}</b> ditambahkan</b>"
         );
-        
-        
 
         return back()->with('success', 'Lantai berhasil ditambahkan!');
     }
