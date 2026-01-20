@@ -94,8 +94,8 @@
             </td>
         </tr>
         <tr>
-            <td class="info-label">PROVINSI</td>
-            <td colspan="6">: JAWA BARAT</td>
+        <td class="label">Tanggal Cetak</td>
+        <td colspan="3">: {{ now('Asia/Jakarta')->format('d F Y') }}</td>
         </tr>
         <tr>
             <td class="info-label">OPD</td>
@@ -197,5 +197,10 @@
         </tr>
     </table>
 
+    <div class="footer">
+        <p>Dokumen ini dicetak dari Sistem SETASET - Dinas Komunikasi dan Informatika Kota Bandung</p>
+        <p>Tanggal Cetak: {{ now('Asia/Jakarta')->format('d F Y H:i:s') }}</p>
+        <p>Tanggal Cetak: {{ now()->setTimezone('Asia/Jakarta')->format('d F Y H:i:s') }}</p>
+    </div>
 </body>
 </html>

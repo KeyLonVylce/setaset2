@@ -61,7 +61,9 @@
                 @csrf
                 <button type="submit" class="btn btn-danger">Logout</button>
             </form>
-            <span class="bell-icon">🔔</span>
+            <a href="{{ route('notifications.index') }}">
+                🔔
+            </a>
         </div>
     </div>
 

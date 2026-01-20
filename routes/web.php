@@ -7,6 +7,8 @@ use App\Http\Controllers\LantaiController;
 use App\Http\Controllers\RuanganController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\PemindahanController;
+use App\Http\Controllers\NotificationController;
+
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -44,7 +46,7 @@ Route::middleware('auth:stafaset')->group(function () {
 // ✅ ROUTES KHUSUS ADMIN
 Route::middleware(['auth:stafaset', 'role:admin'])->group(function () {
     // Lantai Management (hanya admin)
-    Route::post('/lantai', [HomeController::class, 'storeLantai'])->name('lantai.store');
+    Route::post('/lantai', [LantaiController::class, 'store'])->name('lantai.store');
     Route::put('/lantai/{id}', [LantaiController::class, 'update'])->name('lantai.update');
     Route::delete('/lantai/{id}', [LantaiController::class, 'destroy'])->name('lantai.destroy');
     
@@ -54,4 +56,8 @@ Route::middleware(['auth:stafaset', 'role:admin'])->group(function () {
     
     // Export PDF (hanya admin)
     Route::get('/ruangan/{id}/export', [RuanganController::class, 'export'])->name('ruangan.export');
+
 });
+
+Route::get('/notifications', [NotificationController::class, 'index'])
+->name('notifications.index');
