@@ -7,6 +7,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use App\Models\Barang;
 use App\Models\Ruangan;
+use App\Helpers\NotificationHelper;
 
 class BarangController extends Controller
 {
@@ -35,9 +36,17 @@ class BarangController extends Controller
         ]);
 
         Barang::create($validated);
+        $barang = Barang::with('ruangan')->create($validated);
+
+        NotificationHelper::create(
+            'barang',
+            'tambah',
+            "Barang <b>{$validated['nama_barang']}</b> ditambahkan di ruangan <b>{$barang->ruangan->nama_ruangan}</b>"
+        );
 
         return redirect()->route('ruangan.show', $validated['ruangan_id'])
             ->with('success', 'Barang berhasil ditambahkan!');
+
     }
 
     public function edit($id)
@@ -63,22 +72,40 @@ class BarangController extends Controller
             'keterangan' => 'nullable|string',
         ]);
 
-        $barang = Barang::findOrFail($id);
+        $barang = Barang::with('ruangan')->findOrFail($id);
         $barang->update($validated);
+
+        NotificationHelper::create(
+            'barang',
+            'edit',
+            "Barang <b>{$barang->nama_barang}</b> di ruangan <b>{$barang->ruangan->nama_ruangan}</b> diubah"
+        );
 
         return redirect()->route('ruangan.show', $barang->ruangan_id)
             ->with('success', 'Barang berhasil diupdate!');
     }
 
+
     public function destroy($id)
     {
-        $barang = Barang::findOrFail($id);
+        $barang = Barang::with('ruangan')->findOrFail($id);
+
+        $namaBarang = $barang->nama_barang;
+        $namaRuangan = $barang->ruangan->nama_ruangan;
         $ruangan_id = $barang->ruangan_id;
+
         $barang->delete();
+
+        NotificationHelper::create(
+            'barang',
+            'hapus',
+            "Barang <b>{$namaBarang}</b> di ruangan <b>{$namaRuangan}</b> dihapus"
+        );
 
         return redirect()->route('ruangan.show', $ruangan_id)
             ->with('success', 'Barang berhasil dihapus!');
     }
+
 
     public function importForm($ruangan_id)
     {
@@ -92,9 +119,18 @@ class BarangController extends Controller
             'file' => 'required|mimes:xlsx,xls'
         ]);
 
+        $ruangan = Ruangan::findOrFail($ruangan_id);
+
         Excel::import(new BarangImport($ruangan_id), $request->file('file'));
+
+        NotificationHelper::create(
+            'barang',
+            'tambah',
+            "Data <b>Excel</b> (Barang) ditambahkan ke ruangan <b>{$ruangan->nama_ruangan}</b>"
+        );
 
         return redirect()->route('barang.import.form', $ruangan_id)
             ->with('success', 'Data barang berhasil diimport!');
     }
+
 }
