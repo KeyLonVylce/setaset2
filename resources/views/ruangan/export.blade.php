@@ -5,164 +5,197 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kartu Inventaris - {{ $ruangan->nama_ruangan }}</title>
     <style>
-        @page { margin: 20mm; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; font-size: 11px; line-height: 1.4; color: #000; }
-        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
-        .header h1 { font-size: 18px; margin-bottom: 5px; }
-        .header h2 { font-size: 16px; margin-bottom: 5px; }
-        .header p { font-size: 12px; margin: 3px 0; }
-        .info-table { width: 100%; margin-bottom: 20px; }
-        .info-table td { padding: 3px; }
-        .info-table .label { width: 150px; font-weight: bold; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        table, th, td { border: 1px solid #000; }
-        th, td { padding: 5px; text-align: left; font-size: 10px; }
-        th { background-color: #f0f0f0; font-weight: bold; text-align: center; }
+        body { font-family: Arial, sans-serif; font-size: 11px; color: #000; }
+        
+        table { 
+            width: 100%; 
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table td, table th { 
+            border: 1px solid #000; 
+            padding: 8px;
+            vertical-align: middle;
+        }
+        
+        .title-row {
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            width: 150px;
+        }
+        
+        .table-header {
+            background-color: #f0f0f0;
+            font-weight: bold;
+            text-align: center;
+            font-size: 10px;
+        }
+        
         .center { text-align: center; }
         .right { text-align: right; }
-        .total-row { font-weight: bold; background-color: #f9f9f9; }
-        .signature-section { margin-top: 30px; display: table; width: 100%; }
-        .signature-box { display: table-cell; width: 33%; text-align: center; padding: 10px; }
-        .signature-box p { margin: 5px 0; }
-        .signature-space { height: 60px; }
-        .footer { margin-top: 20px; text-align: center; font-size: 10px; color: #666; }
+        .left { text-align: left; }
+        
+        .signature-row {
+            text-align: center;
+            padding: 10px;
+        }
+        
         @media print {
             .no-print { display: none; }
-            body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+            @page { margin: 20mm; }
         }
-        .print-button { position: fixed; top: 20px; right: 20px; padding: 10px 20px; background: #ff7b3d; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
-        .print-button:hover { background: #ff6524; }
+        
+        .button-group {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+        }
+        
+        .btn-print { background: #ff7b3d; }
+        .btn-print:hover { background: #ff6524; }
+        .btn-excel { background: #217346; }
+        .btn-excel:hover { background: #1a5c37; }
     </style>
 </head>
 <body>
-    <button onclick="window.print()" class="print-button no-print">🖨️ Print / Save PDF</button>
-
-    <div class="header">
-        <h1>PEMERINTAH KOTA BANDUNG</h1>
-        <h2>DINAS KOMUNIKASI DAN INFORMATIKA</h2>
-        <p>Jl. Wastukencana No. 2 Bandung 40117</p>
-        <p>Telp: (022) 4204871 | Email: diskominfo@bandung.go.id</p>
+    <div class="button-group no-print">
+        <button onclick="window.print()" class="btn btn-print">🖨️ Print / Save PDF</button>
+        <a href="{{ route('ruangan.export', ['id' => $ruangan->id, 'format' => 'excel']) }}" class="btn btn-excel">📊 Export ke Excel</a>
     </div>
 
-    <h3 style="text-align: center; margin-bottom: 20px;">KARTU INVENTARIS BARANG</h3>
-
-    <table class="info-table">
+    <table>
         <tr>
-            <td class="label">Ruangan</td>
-            <td>: {{ $ruangan->nama_ruangan }}</td>
-            <td class="label">Lantai</td>
-            <td>: {{ $ruangan->nama_lantai }}</td>
+            <td colspan="14" class="title-row">KARTU INVENTARIS RUANGAN</td>
         </tr>
         <tr>
-            <td class="label">Penanggung Jawab</td>
-            <td>: {{ $ruangan->penanggung_jawab ?? '-' }}</td>
-            <td class="label">NIP</td>
-            <td>: {{ $ruangan->nip_penanggung_jawab ?? '-' }}</td>
+            <td class="info-label">KABUPATEN/KOTA</td>
+            <td colspan="6">: BANDUNG</td>
+            <td colspan="7" rowspan="5" style="text-align: right; vertical-align: top; padding: 5px;">
+                NO. KODE LOKASI : {{ $ruangan->kode_lokasi ?? '11.10.00.21.01.25' }}
+            </td>
         </tr>
         <tr>
         <td class="label">Tanggal Cetak</td>
         <td colspan="3">: {{ now('Asia/Jakarta')->format('d F Y') }}</td>
         </tr>
-    </table>
-
-    @if($ruangan->barangs->count() > 0)
-    <table>
-        <thead>
-            <tr>
-                <th style="width: 30px;">No</th>
-                <th>Kode Barang</th>
-                <th>Nama Barang</th>
-                <th>Merk/Model</th>
-                <th>No. Seri</th>
-                <th>Ukuran</th>
-                <th>Bahan</th>
-                <th>Tahun</th>
-                <th style="width: 40px;">Jumlah</th>
-                <th style="width: 35px;">B</th>
-                <th style="width: 35px;">KB</th>
-                <th style="width: 35px;">RB</th>
-                <th style="width: 100px;">Harga Satuan (Rp)</th>
-                <th style="width: 120px;">Total Nilai (Rp)</th>
-            </tr>
-        </thead>
-        <tbody>
+        <tr>
+            <td class="info-label">OPD</td>
+            <td colspan="6">: DINAS KOMUNIKASI DAN INFORMATIKA</td>
+        </tr>
+        <tr>
+            <td class="info-label">UNIT</td>
+            <td colspan="6">: DINAS KOMUNIKASI DAN INFORMATIKA DAERAH PROVINSI JAWA BARAT</td>
+        </tr>
+        <tr>
+            <td class="info-label">RUANGAN</td>
+            <td colspan="6">: {{ $ruangan->nama_ruangan }}</td>
+        </tr>
+        
+        <tr class="table-header">
+            <th rowspan="2" style="width: 40px;">NO<br>URUT</th>
+            <th rowspan="2" style="width: 150px;">NAMA BARANG/JENIS<br>BARANG</th>
+            <th rowspan="2" style="width: 100px;">MERK/MODEL</th>
+            <th rowspan="2" style="width: 80px;">No. SERI<br>PABRIK</th>
+            <th rowspan="2" style="width: 80px;">UKURAN</th>
+            <th rowspan="2" style="width: 80px;">BAHAN</th>
+            <th rowspan="2" style="width: 80px;">TAHUN<br>PEMBUATAN/PEMB<br>ELIAN</th>
+            <th rowspan="2" style="width: 120px;">NO. KODE BARANG</th>
+            <th rowspan="2" style="width: 60px;">JUMLAH<br>BARANG/REGIS<br>TER X)</th>
+            <th rowspan="2" style="width: 100px;">HARGA<br>BELI/PEROLEHAN<br>(Rp. 000,00)</th>
+            <th colspan="3" style="width: 150px;">KEADAAN BARANG</th>
+            <th rowspan="2" style="width: 100px;">KETERANGAN<br>MUTASI DLL</th>
+        </tr>
+        <tr class="table-header">
+            <th style="width: 50px;">BAIK<br>(B)</th>
+            <th style="width: 50px;">KURANG<br>BAIK (KB)</th>
+            <th style="width: 50px;">RUSAK<br>BERAT (RB)</th>
+        </tr>
+        <tr class="table-header">
+            <td class="center">1</td>
+            <td class="center">2</td>
+            <td class="center">3</td>
+            <td class="center">4</td>
+            <td class="center">5</td>
+            <td class="center">6</td>
+            <td class="center">7</td>
+            <td class="center">8</td>
+            <td class="center">9</td>
+            <td class="center">10</td>
+            <td class="center">11</td>
+            <td class="center">12</td>
+            <td class="center">13</td>
+            <td class="center">14</td>
+        </tr>
+        
+        @if($ruangan->barangs->count() > 0)
             @foreach($ruangan->barangs as $index => $barang)
             <tr>
                 <td class="center">{{ $index + 1 }}</td>
-                <td class="center">{{ $barang->kode_barang ?? '-' }}</td>
-                <td>{{ $barang->nama_barang }}</td>
-                <td>{{ $barang->merk_model ?? '-' }}</td>
-                <td>{{ $barang->no_seri_pabrik ?? '-' }}</td>
-                <td>{{ $barang->ukuran ?? '-' }}</td>
-                <td>{{ $barang->bahan ?? '-' }}</td>
-                <td class="center">{{ $barang->tahun_pembuatan ?? '-' }}</td>
+                <td class="left">{{ $barang->nama_barang }}</td>
+                <td class="left">{{ $barang->merk_model ?? '' }}</td>
+                <td class="center">{{ $barang->no_seri_pabrik ?? '' }}</td>
+                <td class="center">{{ $barang->ukuran ?? '' }}</td>
+                <td class="center">{{ $barang->bahan ?? '' }}</td>
+                <td class="center">{{ $barang->tahun_pembuatan ?? '' }}</td>
+                <td class="center">{{ $barang->kode_barang ?? '' }}</td>
                 <td class="center">{{ $barang->jumlah }}</td>
-                <td class="center">{{ $barang->kondisi === 'B' ? $barang->jumlah : '-' }}</td>
-                <td class="center">{{ $barang->kondisi === 'KB' ? $barang->jumlah : '-' }}</td>
-                <td class="center">{{ $barang->kondisi === 'RB' ? $barang->jumlah : '-' }}</td>
                 <td class="right">
                     @php
                         $harga = is_numeric($barang->harga_perolehan) ? floatval($barang->harga_perolehan) : 0;
                     @endphp
-                    {{ $harga > 0 ? number_format($harga, 0, ',', '.') : '-' }}
+                    {{ $harga > 0 ? number_format($harga, 0, ',', '.') : '' }}
                 </td>
-                <td class="right">
-                    @php
-                        $total = $barang->jumlah * $harga;
-                    @endphp
-                    {{ $total > 0 ? number_format($total, 0, ',', '.') : '-' }}
-                </td>
+                <td class="center">{{ $barang->kondisi === 'B' ? $barang->jumlah : '' }}</td>
+                <td class="center">{{ $barang->kondisi === 'KB' ? $barang->jumlah : '' }}</td>
+                <td class="center">{{ $barang->kondisi === 'RB' ? $barang->jumlah : '' }}</td>
+                <td></td>
             </tr>
             @endforeach
-        </tbody>
-        <tfoot>
-            <tr class="total-row">
-                <td colspan="8" class="center">TOTAL</td>
-                <td class="center">{{ $ruangan->barangs->sum('jumlah') }}</td>
-                <td class="center">{{ $ruangan->barangs->where('kondisi', 'B')->sum('jumlah') }}</td>
-                <td class="center">{{ $ruangan->barangs->where('kondisi', 'KB')->sum('jumlah') }}</td>
-                <td class="center">{{ $ruangan->barangs->where('kondisi', 'RB')->sum('jumlah') }}</td>
-                <td class="right" colspan="2">
-                    @php
-                        $grandTotal = 0;
-                        foreach($ruangan->barangs as $item) {
-                            $harga = is_numeric($item->harga_perolehan) ? floatval($item->harga_perolehan) : 0;
-                            $grandTotal += $item->jumlah * $harga;
-                        }
-                    @endphp
-                    {{ number_format($grandTotal, 0, ',', '.') }}
-                </td>
+        @else
+            <tr>
+                <td colspan="14" class="center" style="padding: 30px;">Tidak ada data barang</td>
             </tr>
-        </tfoot>
+        @endif
+        
+        <tr><td colspan="14" style="border: none; height: 10px;"></td></tr>
+        <tr>
+            <td colspan="7" class="signature-row">
+                MENGETAHUI :<br>
+                KEPALA BAGIAN TATA USAHA
+                <div style="margin-top: 60px; font-weight: bold;">
+                    Hj. ASTRIA PRIANTIE, ST.MM<br>
+                    NIP. 197111272007012005
+                </div>
+            </td>
+            <td colspan="7" class="signature-row">
+                Bandung, {{ date('d F Y') }}<br>
+                PENGELOLA BARANG MILIK NEGARA
+                <div style="margin-top: 60px; font-weight: bold;">
+                    NANDANG SUHERMAN, A.Md<br>
+                    NIP. 197411302007011006
+                </div>
+            </td>
+        </tr>
     </table>
-    @else
-    <p style="text-align: center; padding: 40px; color: #999;">Tidak ada data barang</p>
-    @endif
-
-    <div class="signature-section">
-        <div class="signature-box">
-            <p>Mengetahui,</p>
-            <p><strong>Kepala Dinas</strong></p>
-            <div class="signature-space"></div>
-            <p>____________________</p>
-            <p>NIP. </p>
-        </div>
-        <div class="signature-box">
-            <p>Penanggung Jawab Ruangan,</p>
-            <p>&nbsp;</p>
-            <div class="signature-space"></div>
-            <p>____________________</p>
-            <p>NIP. {{ $ruangan->nip_penanggung_jawab ?? '' }}</p>
-        </div>
-        <div class="signature-box">
-            <p>Pengelola Barang,</p>
-            <p>&nbsp;</p>
-            <div class="signature-space"></div>
-            <p>____________________</p>
-            <p>NIP. </p>
-        </div>
-    </div>
 
     <div class="footer">
         <p>Dokumen ini dicetak dari Sistem SETASET - Dinas Komunikasi dan Informatika Kota Bandung</p>

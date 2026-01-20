@@ -46,7 +46,7 @@ Route::middleware('auth:stafaset')->group(function () {
 // ✅ ROUTES KHUSUS ADMIN
 Route::middleware(['auth:stafaset', 'role:admin'])->group(function () {
     // Lantai Management (hanya admin)
-    Route::post('/lantai', [HomeController::class, 'storeLantai'])->name('lantai.store');
+    Route::post('/lantai', [LantaiController::class, 'store'])->name('lantai.store');
     Route::put('/lantai/{id}', [LantaiController::class, 'update'])->name('lantai.update');
     Route::delete('/lantai/{id}', [LantaiController::class, 'destroy'])->name('lantai.destroy');
     

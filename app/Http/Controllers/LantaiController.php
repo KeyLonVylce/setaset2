@@ -26,14 +26,13 @@ class LantaiController extends Controller
             'keterangan' => 'nullable|string',
         ]);
 
-        if (!$request->urutan) {
-            $maxUrutan = Lantai::max('urutan') ?? 0;
-            $request->merge(['urutan' => $maxUrutan + 1]);
-        }
+        $urutan = $request->urutan ?? (Lantai::max('urutan') ?? 0) + 1;
 
-        $lantai = Lantai::create($request->only([
-            'nama_lantai', 'urutan', 'keterangan'
-        ]));
+        $lantai = Lantai::create([
+            'nama_lantai' => $request->nama_lantai,
+            'urutan' => $urutan,
+            'keterangan' => $request->keterangan,
+        ]);
 
         NotificationHelper::create(
             'Lantai',
@@ -54,6 +53,8 @@ class LantaiController extends Controller
             'keterangan' => 'nullable|string',
         ]);
 
+        $nama = $lantai->nama_lantai;
+
         $lantai->update($request->only([
             'nama_lantai', 'urutan', 'keterangan'
         ]));
@@ -61,7 +62,7 @@ class LantaiController extends Controller
         NotificationHelper::create(
             'Lantai',
             'edit',
-            "Lantai <b>{$lantai->nama_lantai}</b> diubah</b>"
+            "Lantai <b>{$nama}</b> diubah"
         );
 
         return back()->with('success', 'Lantai berhasil diupdate!');
@@ -81,11 +82,12 @@ class LantaiController extends Controller
         NotificationHelper::create(
             'Lantai',
             'hapus',
-            "Lantai <b>{$lantai->nama_lantai}</b> dihapus</b>"
+            "Lantai <b>{$nama}</b> dihapus"
         );
 
         return redirect()->route('home')->with('success', 'Lantai berhasil dihapus!');
     }
+
 
     public function storeRuangan(Request $request, $lantai_id)
     {
