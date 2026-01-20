@@ -9,13 +9,26 @@ use App\Helpers\NotificationHelper;
 
 class LantaiController extends Controller
 {
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $lantai = Lantai::with(['ruangans' => function ($query) {
-            $query->withCount('barangs');
-        }])->findOrFail($id);
+        // Ambil lantai
+        $lantai = Lantai::findOrFail($id);
 
-        return view('lantai.show', compact('lantai'));
+        // Query ruangan + jumlah barang
+        $ruangans = $lantai->ruangans()
+            ->withCount('barangs')
+            ->when($request->search, function ($query) use ($request) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_ruangan', 'like', "%{$search}%")
+                      ->orWhere('penanggung_jawab', 'like', "%{$search}%")
+                      ->orWhere('keterangan', 'like', "%{$search}%");
+                });
+            })
+            ->paginate(3)
+            ->withQueryString();
+
+        return view('lantai.show', compact('lantai', 'ruangans'));
     }
 
     public function store(Request $request)
@@ -35,9 +48,9 @@ class LantaiController extends Controller
         ]);
 
         NotificationHelper::create(
-            'Lantai',
+            'lantai',
             'tambah',
-            "Lantai <b>{$lantai->nama_lantai}</b> ditambahkan</b>"
+            "Lantai <b>{$lantai->nama_lantai}</b> ditambahkan"
         );
 
         return back()->with('success', 'Lantai berhasil ditambahkan!');
@@ -56,11 +69,13 @@ class LantaiController extends Controller
         $nama = $lantai->nama_lantai;
 
         $lantai->update($request->only([
-            'nama_lantai', 'urutan', 'keterangan'
+            'nama_lantai',
+            'urutan',
+            'keterangan'
         ]));
 
         NotificationHelper::create(
-            'Lantai',
+            'lantai',
             'edit',
             "Lantai <b>{$nama}</b> diubah"
         );
@@ -80,14 +95,13 @@ class LantaiController extends Controller
         $lantai->delete();
 
         NotificationHelper::create(
-            'Lantai',
+            'lantai',
             'hapus',
             "Lantai <b>{$nama}</b> dihapus"
         );
 
         return redirect()->route('home')->with('success', 'Lantai berhasil dihapus!');
     }
-
 
     public function storeRuangan(Request $request, $lantai_id)
     {

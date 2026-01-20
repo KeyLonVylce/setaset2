@@ -19,6 +19,82 @@
     .lantai-card-actions button { background: none; border: none; cursor: pointer; font-size: 18px; padding: 5px; color: #999; transition: color 0.3s; }
     .lantai-card-actions button:hover { color: #ff7b3d; }
     .empty-state { text-align: center; padding: 60px 20px; color: #999; }
+    
+    /* Pagination Styles */
+    .pagination-wrapper { 
+        display: flex; 
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 30px; 
+        padding: 20px 0;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    .pagination-info {
+        color: #666;
+        font-size: 14px;
+    }
+    .pagination-nav {
+        display: flex;
+    }
+    .pagination { 
+        display: flex; 
+        list-style: none; 
+        gap: 5px; 
+        padding: 0; 
+        margin: 0; 
+        align-items: center;
+    }
+    .page-item { 
+        display: inline-block; 
+    }
+    .page-link { 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 8px;
+        border: 1px solid #ddd; 
+        border-radius: 50%;
+        color: #666; 
+        text-decoration: none; 
+        transition: all 0.2s;
+        background: white;
+        font-size: 14px;
+        cursor: pointer;
+    }
+    .page-link:hover { 
+        background: #f5f5f5; 
+        border-color: #bbb; 
+    }
+    .page-item.active .page-link { 
+        background: #00a8ff; 
+        color: white; 
+        border-color: #00a8ff; 
+        font-weight: 600;
+        cursor: default;
+    }
+    .page-item.disabled .page-link { 
+        color: #ccc; 
+        cursor: not-allowed; 
+        background: #fafafa;
+        border-color: #e5e5e5;
+    }
+    .page-item.disabled .page-link:hover { 
+        background: #fafafa; 
+        border-color: #e5e5e5; 
+    }
+    
+    @media (max-width: 768px) {
+        .pagination-wrapper {
+            justify-content: center;
+        }
+        .pagination-info {
+            width: 100%;
+            text-align: center;
+        }
+    }
 </style>
 @endsection
 
@@ -70,6 +146,64 @@
         </div>
         @endforeach
     </div>
+    
+    <!-- Pagination -->
+    @if($lantais->hasPages())
+    <div class="pagination-wrapper">
+        <div class="pagination-info">
+            Menampilkan {{ $lantais->firstItem() }} sampai {{ $lantais->lastItem() }} dari {{ $lantais->total() }} entri
+        </div>
+        <div class="pagination-nav">
+            <ul class="pagination">
+                {{-- Previous Page Link --}}
+                @if ($lantais->onFirstPage())
+                    <li class="page-item disabled">
+                        <span class="page-link">‹</span>
+                    </li>
+                @else
+                    <li class="page-item">
+                        <a class="page-link" href="{{ $lantais->previousPageUrl() }}" rel="prev">‹</a>
+                    </li>
+                @endif
+
+                {{-- Pagination Elements --}}
+                @foreach(range(1, $lantais->lastPage()) as $page)
+                    @if ($page == $lantais->currentPage())
+                        <li class="page-item active">
+                            <span class="page-link">{{ $page }}</span>
+                        </li>
+                    @else
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $lantais->url($page) }}">{{ $page }}</a>
+                        </li>
+                    @endif
+                @endforeach
+
+                {{-- Next Page Link --}}
+                @if ($lantais->hasMorePages())
+                    <li class="page-item">
+                        <a class="page-link" href="{{ $lantais->nextPageUrl() }}" rel="next">›</a>
+                    </li>
+                @else
+                    <li class="page-item disabled">
+                        <span class="page-link">›</span>
+                    </li>
+                @endif
+
+                {{-- Last Page Link --}}
+                @if ($lantais->hasMorePages())
+                    <li class="page-item">
+                        <a class="page-link" href="{{ $lantais->url($lantais->lastPage()) }}">»</a>
+                    </li>
+                @else
+                    <li class="page-item disabled">
+                        <span class="page-link">»</span>
+                    </li>
+                @endif
+            </ul>
+        </div>
+    </div>
+    @endif
     @else
     <div class="empty-state">
         <h3>Belum Ada Lantai</h3>
@@ -167,3 +301,4 @@
         }
     }
 </script>
+@endsection

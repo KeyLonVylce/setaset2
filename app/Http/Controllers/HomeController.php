@@ -11,7 +11,7 @@ class HomeController extends Controller
     {
         $lantais = Lantai::withCount('ruangans')
             ->ordered()
-            ->get();
+            ->paginate(4); // Ubah dari get() menjadi paginate(4)
 
         return view('home', compact('lantais'));
     }
