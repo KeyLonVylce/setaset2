@@ -218,14 +218,14 @@
                     </td>
 
                     <td class="text-end">
-                        @if($b->harga_perolehan)
-                            Rp {{ number_format($b->harga_perolehan, 0, ',', '.') }}
+                        @if($b->harga_perolehan && is_numeric($b->harga_perolehan))
+                            Rp {{ number_format((float)$b->harga_perolehan, 0, ',', '.') }}
                         @else - @endif
                     </td>
 
                     <td class="text-end">
-                        @if($b->total_nilai)
-                            Rp {{ number_format($b->total_nilai, 0, ',', '.') }}
+                        @if($b->total_nilai && is_numeric($b->total_nilai))
+                            Rp {{ number_format((float)$b->total_nilai, 0, ',', '.') }}
                         @else - @endif
                     </td>
 
