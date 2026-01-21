@@ -8,6 +8,7 @@ use App\Http\Controllers\RuanganController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\PemindahanController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\StafAsetController;
 
 
 Route::get('/', function () {
@@ -41,6 +42,9 @@ Route::middleware('auth:stafaset')->group(function () {
     Route::get('/pemindahan/pindah', [PemindahanController::class, 'pindah'])->name('pemindahan.pindah');
     Route::post('/pemindahan/pindah', [PemindahanController::class, 'pindahStore'])->name('pemindahan.pindah.store');
     Route::get('/pemindahan/history', [PemindahanController::class, 'history'])->name('pemindahan.history');
+    
+    // Notifications
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
 });
 
 // ✅ ROUTES KHUSUS ADMIN
@@ -56,8 +60,12 @@ Route::middleware(['auth:stafaset', 'role:admin'])->group(function () {
     
     // Export PDF (hanya admin)
     Route::get('/ruangan/{id}/export', [RuanganController::class, 'export'])->name('ruangan.export');
-
-});
-
-Route::get('/notifications', [NotificationController::class, 'index'])
-->name('notifications.index');
+    
+    // Staff Management (hanya admin)
+    Route::get('/staff', [StafAsetController::class, 'index'])->name('staff.index');
+    Route::get('/staff/create', [StafAsetController::class, 'create'])->name('staff.create');
+    Route::post('/staff', [StafAsetController::class, 'store'])->name('staff.store');
+    Route::get('/staff/{id}/edit', [StafAsetController::class, 'edit'])->name('staff.edit');
+    Route::put('/staff/{id}', [StafAsetController::class, 'update'])->name('staff.update');
+    Route::delete('/staff/{id}', [StafAsetController::class, 'destroy'])->name('staff.destroy');
+}); 

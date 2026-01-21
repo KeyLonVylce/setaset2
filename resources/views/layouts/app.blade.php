@@ -51,6 +51,11 @@
     <div class="header">
         <h1>SETASET</h1>
         <div class="user-info">
+            @if(Auth::guard('stafaset')->user()->isAdmin())
+                <a href="{{ route('staff.index') }}" class="btn btn-warning">
+                    👥 Kelola Staff
+                </a>
+            @endif
             <span class="user-name">
                 {{ Auth::guard('stafaset')->user()->nama }}
                 <span class="role-badge role-{{ Auth::guard('stafaset')->user()->role }}">
