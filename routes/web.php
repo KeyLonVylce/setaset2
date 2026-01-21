@@ -43,8 +43,14 @@ Route::middleware('auth:stafaset')->group(function () {
     Route::post('/pemindahan/pindah', [PemindahanController::class, 'pindahStore'])->name('pemindahan.pindah.store');
     Route::get('/pemindahan/history', [PemindahanController::class, 'history'])->name('pemindahan.history');
     
-    // Notifications
-    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications', [NotificationController::class, 'index'])
+        ->name('notifications.index');
+
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])
+        ->name('notifications.read');
+
+    Route::get('/notifications/realtime', [NotificationController::class, 'realtime'])
+        ->name('notifications.realtime');
 });
 
 // ✅ ROUTES KHUSUS ADMIN

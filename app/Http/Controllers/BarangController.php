@@ -35,13 +35,14 @@ class BarangController extends Controller
             'keterangan' => 'nullable|string',
         ]);
 
-        Barang::create($validated);
-        $barang = Barang::with('ruangan')->create($validated);
+        $barang = Barang::create($validated);
+        $barang->load('ruangan');
 
         NotificationHelper::create(
             'barang',
             'tambah',
-            "Barang <b>{$validated['nama_barang']}</b> ditambahkan di ruangan <b>{$barang->ruangan->nama_ruangan}</b>"
+            "Barang <b>{$barang->nama_barang}</b> ditambahkan di ruangan <b>{$barang->ruangan->nama_ruangan}</b>",
+            'all'
         );
 
         return redirect()->route('ruangan.show', $validated['ruangan_id'])
@@ -78,7 +79,8 @@ class BarangController extends Controller
         NotificationHelper::create(
             'barang',
             'edit',
-            "Barang <b>{$barang->nama_barang}</b> di ruangan <b>{$barang->ruangan->nama_ruangan}</b> diubah"
+            "Barang <b>{$barang->nama_barang}</b> di ruangan <b>{$barang->ruangan->nama_ruangan}</b> diubah",
+            'all'
         );
 
         return redirect()->route('ruangan.show', $barang->ruangan_id)
@@ -99,7 +101,8 @@ class BarangController extends Controller
         NotificationHelper::create(
             'barang',
             'hapus',
-            "Barang <b>{$namaBarang}</b> di ruangan <b>{$namaRuangan}</b> dihapus"
+            "Barang <b>{$barang->nama_barang}</b> di ruangan <b>{$barang->ruangan->nama_ruangan}</b> dihapus",
+            'all'
         );
 
         return redirect()->route('ruangan.show', $ruangan_id)
@@ -125,8 +128,9 @@ class BarangController extends Controller
 
         NotificationHelper::create(
             'barang',
-            'tambah',
-            "Data <b>Excel</b> (Barang) ditambahkan ke ruangan <b>{$ruangan->nama_ruangan}</b>"
+            'import',
+            "Import <b>Excel</b> barang ke ruangan <b>{$ruangan->nama_ruangan}</b>",
+            'all'
         );
 
         return redirect()->route('barang.import.form', $ruangan_id)

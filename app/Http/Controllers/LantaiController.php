@@ -50,7 +50,8 @@ class LantaiController extends Controller
         NotificationHelper::create(
             'lantai',
             'tambah',
-            "Lantai <b>{$lantai->nama_lantai}</b> ditambahkan"
+            "Lantai <b>{$lantai->nama_lantai}</b> ditambahkan",
+            'admin'
         );
 
         return back()->with('success', 'Lantai berhasil ditambahkan!');
@@ -77,7 +78,8 @@ class LantaiController extends Controller
         NotificationHelper::create(
             'lantai',
             'edit',
-            "Lantai <b>{$nama}</b> diubah"
+            "Lantai <b>{$lantai->nama_lantai}</b> diubah",
+            'admin'
         );
 
         return back()->with('success', 'Lantai berhasil diupdate!');
@@ -97,7 +99,8 @@ class LantaiController extends Controller
         NotificationHelper::create(
             'lantai',
             'hapus',
-            "Lantai <b>{$nama}</b> dihapus"
+            "Lantai <b>{$lantai->nama_lantai}</b> dihapus",
+            'admin'
         );
 
         return redirect()->route('home')->with('success', 'Lantai berhasil dihapus!');
@@ -126,8 +129,9 @@ class LantaiController extends Controller
         NotificationHelper::create(
             'ruangan',
             'tambah',
-            "Ruangan <b>{$ruangan->nama_ruangan}</b> ditambahkan di lantai <b>{$lantai->nama_lantai}</b>"
-        );
+            "Ruangan <b>{$ruangan->nama_ruangan}</b> ditambahkan di lantai <b>{$lantai->nama_lantai}</b>",
+            'admin'
+        );  
 
         return back()->with('success', 'Ruangan berhasil ditambahkan!');
     }
@@ -148,8 +152,9 @@ class LantaiController extends Controller
         NotificationHelper::create(
             'ruangan',
             'hapus',
-            "Ruangan <b>{$nama}</b> di lantai <b>{$lantai}</b> dihapus"
-        );
+            "Ruangan <b>{$ruangan->nama_ruangan}</b> dihapus dari lantai <b>{$lantai->nama_lantai}</b>",
+            'admin'
+        );  
 
         return back()->with('success', 'Ruangan berhasil dihapus!');
     }

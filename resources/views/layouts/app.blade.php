@@ -46,6 +46,7 @@
         .close:hover { color: #333; }
     </style>
     @yield('styles')
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="header">
@@ -66,8 +67,9 @@
                 @csrf
                 <button type="submit" class="btn btn-danger">Logout</button>
             </form>
-            <a href="{{ route('notifications.index') }}">
+            <a href="{{ route('notifications.index') }}" class="nav-link">
                 🔔
+                <span id="notif-count" class="badge bg-danger d-none"></span>
             </a>
         </div>
     </div>
@@ -92,4 +94,22 @@
     </div>
     @yield('scripts')
 </body>
+
+<script>
+setInterval(() => {
+    fetch('{{ route('notifications.realtime') }}')
+        .then(res => res.json())
+        .then(data => {
+            let badge = document.getElementById('notif-count');
+            if (data.unread > 0) {
+                badge.innerText = data.unread;
+                badge.classList.remove('d-none');
+            } else {
+                badge.classList.add('d-none');
+            }
+        });
+}, 5000); // 5 detik
+</script>
+
 </html>
+
