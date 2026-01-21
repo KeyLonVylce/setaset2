@@ -19,8 +19,20 @@ class Notification extends Model
         'read_at' => 'datetime',
     ];
 
-    public function isRead(): bool
+    public function reads()
     {
-        return !is_null($this->read_at);
+        return $this->hasMany(NotificationRead::class);
+    }
+
+    public function isReadBy($userId)
+    {
+        return $this->reads()
+            ->where('user_id', $userId)
+            ->whereNotNull('read_at')
+            ->exists();
     }
 }
+
+
+
+

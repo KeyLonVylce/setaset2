@@ -14,7 +14,6 @@ return new class extends Migration {
             $table->text('pesan');
             $table->enum('target_role', ['admin', 'staff', 'all'])->default('all');
             $table->unsignedBigInteger('user_id')->nullable();
-            $table->timestamp('read_at')->nullable();
             $table->timestamps();
         });
     }
