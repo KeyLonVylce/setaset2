@@ -38,7 +38,7 @@ class RuanganController extends Controller
         $ruangan = Ruangan::with('barangs')->findOrFail($id);
 
         // Export Excel
-        if ($request->format === 'excel') {
+        if ($request->input('format') === 'excel') {
             $filename = 'Kartu_Inventaris_' 
                 . str_replace(' ', '_', $ruangan->nama_ruangan) 
                 . '_' . date('Y-m-d') . '.xlsx';
