@@ -166,6 +166,7 @@
 
         <p><strong>Total Barang:</strong> {{ $barangs->total() }} item</p>
     </div>
+    
 
     {{-- SEARCH BOX --}}
     <div class="search-box">

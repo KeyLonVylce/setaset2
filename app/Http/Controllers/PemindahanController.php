@@ -95,7 +95,12 @@ class PemindahanController extends Controller
             $message .= " | Catatan: {$request->notes}";
         }
         
-        NotificationHelper::create('barang', 'pindah', $message);
+        NotificationHelper::create(
+            'barang',
+            'pindah',
+            "$message",
+            'all'
+        );
     
         return redirect()->route('home')->with('success', 'Barang berhasil dipindahkan!');
     }
