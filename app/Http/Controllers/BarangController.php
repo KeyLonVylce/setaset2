@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Imports\BarangImport;
-use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Http\Request;
 use App\Models\Barang;
 use App\Models\Ruangan;
-use App\Helpers\NotificationHelper;
+use App\Models\Notification;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 
 class BarangController extends Controller
 {
@@ -38,16 +39,17 @@ class BarangController extends Controller
         $barang = Barang::create($validated);
         $barang->load('ruangan');
 
-        NotificationHelper::create(
-            'barang',
-            'tambah',
-            "Barang <b>{$barang->nama_barang}</b> ditambahkan di ruangan <b>{$barang->ruangan->nama_ruangan}</b>",
-            'all'
-        );
+        Notification::create([
+            'type'        => 'barang',
+            'aksi'        => 'tambah',
+            'pesan'       => "Barang <b>{$barang->nama_barang}</b> ditambahkan di ruangan <b>{$barang->ruangan->nama_ruangan}</b>",
+            'target_role' => 'all',
+            'user_id'     => Auth::guard('stafaset')->id(),
+        ]);
 
-        return redirect()->route('ruangan.show', $validated['ruangan_id'])
+        return redirect()
+            ->route('ruangan.show', $validated['ruangan_id'])
             ->with('success', 'Barang berhasil ditambahkan!');
-
     }
 
     public function edit($id)
@@ -76,39 +78,41 @@ class BarangController extends Controller
         $barang = Barang::with('ruangan')->findOrFail($id);
         $barang->update($validated);
 
-        NotificationHelper::create(
-            'barang',
-            'edit',
-            "Barang <b>{$barang->nama_barang}</b> di ruangan <b>{$barang->ruangan->nama_ruangan}</b> diubah",
-            'all'
-        );
+        Notification::create([
+            'type'        => 'barang',
+            'aksi'        => 'edit',
+            'pesan'       => "Barang <b>{$barang->nama_barang}</b> di ruangan <b>{$barang->ruangan->nama_ruangan}</b> diubah",
+            'target_role' => 'all',
+            'user_id'     => Auth::guard('stafaset')->id(),
+        ]);
 
-        return redirect()->route('ruangan.show', $barang->ruangan_id)
+        return redirect()
+            ->route('ruangan.show', $barang->ruangan_id)
             ->with('success', 'Barang berhasil diupdate!');
     }
-
 
     public function destroy($id)
     {
         $barang = Barang::with('ruangan')->findOrFail($id);
 
-        $namaBarang = $barang->nama_barang;
+        $namaBarang  = $barang->nama_barang;
         $namaRuangan = $barang->ruangan->nama_ruangan;
-        $ruangan_id = $barang->ruangan_id;
+        $ruangan_id  = $barang->ruangan_id;
 
         $barang->delete();
 
-        NotificationHelper::create(
-            'barang',
-            'hapus',
-            "Barang <b>{$barang->nama_barang}</b> di ruangan <b>{$barang->ruangan->nama_ruangan}</b> dihapus",
-            'all'
-        );
+        Notification::create([
+            'type'        => 'barang',
+            'aksi'        => 'hapus',
+            'pesan'       => "Barang <b>{$namaBarang}</b> di ruangan <b>{$namaRuangan}</b> dihapus",
+            'target_role' => 'all',
+            'user_id'     => Auth::guard('stafaset')->id(),
+        ]);
 
-        return redirect()->route('ruangan.show', $ruangan_id)
+        return redirect()
+            ->route('ruangan.show', $ruangan_id)
             ->with('success', 'Barang berhasil dihapus!');
     }
-
 
     public function importForm($ruangan_id)
     {
@@ -126,15 +130,16 @@ class BarangController extends Controller
 
         Excel::import(new BarangImport($ruangan_id), $request->file('file'));
 
-        NotificationHelper::create(
-            'barang',
-            'import',
-            "Import <b>Excel</b> barang ke ruangan <b>{$ruangan->nama_ruangan}</b>",
-            'all'
-        );
+        Notification::create([
+            'type'        => 'barang',
+            'aksi'        => 'import',
+            'pesan'       => "Import <b>Excel</b> barang ke ruangan <b>{$ruangan->nama_ruangan}</b>",
+            'target_role' => 'all',
+            'user_id'     => Auth::guard('stafaset')->id(),
+        ]);
 
-        return redirect()->route('barang.import.form', $ruangan_id)
+        return redirect()
+            ->route('barang.import.form', $ruangan_id)
             ->with('success', 'Data barang berhasil diimport!');
     }
-
 }

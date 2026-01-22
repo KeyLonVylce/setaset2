@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Notification;
+use App\Models\NotificationRead;
 use App\Models\Barang;
 use App\Models\Ruangan;
 use App\Models\Lantai;
 use Illuminate\Http\Request;
-use App\Helpers\NotificationHelper;
+use Illuminate\Support\Facades\Auth;
 
 class PemindahanController extends Controller
 {
@@ -94,14 +96,15 @@ class PemindahanController extends Controller
         if ($request->notes) {
             $message .= " | Catatan: {$request->notes}";
         }
-        
-        NotificationHelper::create(
-            'barang',
-            'pindah',
-            "$message",
-            'all'
-        );
-    
+
+        Notification::create([
+            'type'        => 'barang',
+            'aksi'        => 'pindah',
+            'pesan'       => $message,
+            'target_role' => 'all',
+            'user_id'     => Auth::guard('stafaset')->id(),
+        ]);
+
         return redirect()->route('home')->with('success', 'Barang berhasil dipindahkan!');
     }
 }

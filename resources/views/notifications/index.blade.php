@@ -1,3 +1,8 @@
+@php
+    use Illuminate\Support\Facades\Auth;
+    $user = Auth::guard('stafaset')->user();
+@endphp
+
 @extends('layouts.app')
 
 @section('content')
@@ -30,7 +35,7 @@
                 </div>
 
                 {{-- TYPE (ADMIN ONLY) --}}
-                @if($user->role === 'admin')
+                @if($user && $user->role === 'admin')
                 <div class="col-md-4">
                     <select id="filterType" class="form-select">
                         <option value="all">Semua Kategori</option>
@@ -44,61 +49,64 @@
             </div>
         </div>
 
-        {{-- LIST --}}
+        {{-- LIST NOTIFICATION --}}
         <ul class="list-group list-group-flush" id="notifList">
+
             @forelse($notifications as $notif)
-            @php
-                $isRead = $notif->isReadBy($user->id);
-            @endphp
+                @php
+                    $isRead = $notif->isReadBy($user->id);
+                    $type = strtolower(trim($notif->type ?? 'lainnya'));
+                @endphp
 
-            <li class="list-group-item notif-item
-                {{ $isRead ? 'read' : 'unread bg-light fw-semibold' }}"
-                data-status="{{ $isRead ? 'read' : 'unread' }}"
-                data-type="{{ strtolower(trim($notif->type)) }}"
-            >
+                <li class="list-group-item notif-item
+                    {{ $isRead ? 'read' : 'unread bg-light fw-semibold' }}"
+                    data-status="{{ $isRead ? 'read' : 'unread' }}"
+                    data-type="{{ $type }}"
+                >
 
-                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex justify-content-between align-items-start">
 
-                    <div>
-                        <div class="d-flex gap-2 align-items-center">
-                            <small class="text-muted">
-                                {{ $notif->created_at->diffForHumans() }}
-                            </small>
+                        <div>
+                            <div class="d-flex gap-2 align-items-center">
+                                <small class="text-muted">
+                                    {{ $notif->created_at->diffForHumans() }}
+                                </small>
 
-                            <span class="badge bg-secondary text-capitalize">
-                                {{ $notif->type }}
-                            </span>
+                                <span class="badge bg-secondary text-capitalize">
+                                    {{ $notif->type }}
+                                </span>
 
-                            <span class="badge bg-info text-capitalize">
-                                {{ $notif->aksi }}
-                            </span>
+                                <span class="badge bg-info text-capitalize">
+                                    {{ $notif->aksi }}
+                                </span>
+                            </div>
+
+                            <div class="mt-1">
+                                {!! $notif->pesan !!}
+                            </div>
                         </div>
 
-                        <div class="mt-1">
-                            {!! $notif->pesan !!}
-                        </div>
+                        {{-- TANDAI DIBACA --}}
+                        @if(!$isRead)
+                        <form action="{{ route('notifications.read', $notif->id) }}" method="POST">
+                            @csrf
+                            <button class="btn btn-sm btn-outline-success rounded-circle"
+                                    title="Tandai dibaca">
+                                <i class="bi bi-check-lg"></i>
+                            </button>
+                        </form>
+                        @endif
+
                     </div>
-
-                    {{-- CEKLIS --}}
-                    @if(!$isRead)
-                    <form action="{{ route('notifications.read', $notif->id) }}" method="POST">
-                        @csrf
-                        <button class="btn btn-sm btn-outline-success rounded-circle"
-                                title="Tandai dibaca">
-                            <i class="bi bi-check-lg"></i>
-                        </button>
-                    </form>
-                    @endif
-
-                </div>
-            </li>
+                </li>
 
             @empty
-            <li class="list-group-item text-center text-muted py-5">
-                <i class="bi bi-bell-slash fs-3 d-block mb-2"></i>
-                <strong>Tidak ada Notifikasi</strong>
-            </li>
+                <li class="list-group-item text-center text-muted py-5">
+                    <i class="bi bi-bell-slash fs-3 d-block mb-2"></i>
+                    <strong>Tidak ada Notifikasi</strong>
+                </li>
             @endforelse
+
         </ul>
 
         {{-- EMPTY FILTER STATE --}}
@@ -158,4 +166,5 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
+
 @endsection
