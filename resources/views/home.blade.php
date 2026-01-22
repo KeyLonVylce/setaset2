@@ -6,6 +6,58 @@
 <style>
     .welcome-card { text-align: center; padding: 40px; background: linear-gradient(135deg, #ff9a56 0%, #ff7b3d 100%); color: white; border-radius: 10px; margin-bottom: 30px; }
     .welcome-card h2 { font-size: 28px; margin-bottom: 10px; }
+    
+    /* Dashboard Stats Grid */
+    .dashboard-grid { 
+        display: grid; 
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 20px; 
+        margin-bottom: 30px; 
+    }
+    
+    .chart-container {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .chart-container h3 {
+        font-size: 14px;
+        color: #333;
+        margin-bottom: 15px;
+        font-weight: 600;
+        text-align: center;
+    }
+    
+    .chart-wrapper {
+        width: 180px;
+        height: 180px;
+    }
+    
+    .top-items-container {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .top-items-container h3 {
+        font-size: 14px;
+        color: #333;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+    
+    .bar-chart-wrapper {
+        width: 100%;
+        height: 250px;
+    }
+    
     .lantai-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .lantai-header h3 { font-size: 24px; color: #333; }
     .lantai-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-top: 20px; }
@@ -86,6 +138,12 @@
         border-color: #e5e5e5; 
     }
     
+    @media (max-width: 992px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
     @media (max-width: 768px) {
         .pagination-wrapper {
             justify-content: center;
@@ -93,6 +151,13 @@
         .pagination-info {
             width: 100%;
             text-align: center;
+        }
+        .chart-wrapper {
+            width: 150px;
+            height: 150px;
+        }
+        .bar-chart-wrapper {
+            height: 300px;
         }
     }
 </style>
@@ -104,19 +169,31 @@
     <p>Sistem Inventaris Barang Diskominfo</p>
 </div>
 
+{{-- Dashboard Statistics --}}
+<div class="dashboard-grid">
+    <div class="chart-container">
+        <h3>📊 Distribusi Kondisi Barang</h3>
+        <div class="chart-wrapper">
+            <canvas id="globalKondisiChart"></canvas>
+        </div>
+    </div>
+    
+    <div class="top-items-container">
+        <h3>📈 Top 5 Barang Terbanyak</h3>
+        <div class="bar-chart-wrapper">
+            <canvas id="topBarangsChart"></canvas>
+        </div>
+    </div>
+</div>
+
 <div class="card">
     <div class="lantai-header">
         <h3>Daftar Lantai</h3>
-        @if(Auth::guard('stafaset')->user()->isAdmin())
-            <button class="btn btn-primary" onclick="openAddLantaiModal()">+ Tambah Lantai</button>
-        @endif
-    </div>
-
-    <div class="pemindahan">
-        <div class="pemindahan-header">
-            <a href="{{ route('pemindahan.pindah') }}" class="btn btn-primary">
-                Pindahkan Barang
-            </a>
+        <div style="display: flex; gap: 10px;">
+            <a href="{{ route('pemindahan.pindah') }}" class="btn btn-primary">📦 Pindahkan Barang</a>
+            @if(Auth::guard('stafaset')->user()->isAdmin())
+                <button class="btn btn-primary" onclick="openAddLantaiModal()">+ Tambah Lantai</button>
+            @endif
         </div>
     </div>
 
@@ -269,7 +346,148 @@
 @endsection
 
 @section('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
+    // Data kondisi barang global
+    const kondisiBaik = {{ $kondisiBaik }};
+    const kondisiKurangBaik = {{ $kondisiKurangBaik }};
+    const kondisiRusakBerat = {{ $kondisiRusakBerat }};
+    const totalBarang = {{ $totalBarang }};
+    
+    // Create global pie chart
+    const ctx = document.getElementById('globalKondisiChart');
+    
+    if (totalBarang > 0) {
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Baik', 'Kurang Baik', 'Rusak Berat'],
+                datasets: [{
+                    data: [kondisiBaik, kondisiKurangBaik, kondisiRusakBerat],
+                    backgroundColor: [
+                        '#28a745',
+                        '#ffc107',
+                        '#dc3545'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 10,
+                            font: {
+                                size: 10
+                            },
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                if (data.labels.length && data.datasets.length) {
+                                    return data.labels.map((label, i) => {
+                                        const value = data.datasets[0].data[i];
+                                        const percentage = ((value / totalBarang) * 100).toFixed(1);
+                                        return {
+                                            text: `${label}: ${value.toLocaleString()} (${percentage}%)`,
+                                            fillStyle: data.datasets[0].backgroundColor[i],
+                                            hidden: false,
+                                            index: i
+                                        };
+                                    });
+                                }
+                                return [];
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                const percentage = ((value / totalBarang) * 100).toFixed(1);
+                                return label + ': ' + value.toLocaleString() + ' item (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    } else {
+        ctx.parentElement.innerHTML = '<p style="text-align: center; color: #999; padding: 40px 0;">Belum ada data barang</p>';
+    }
+
+    // Create top 5 barangs horizontal bar chart
+    const topCtx = document.getElementById('topBarangsChart');
+    const topBarangsData = @json($topBarangs);
+    
+    if (topBarangsData.length > 0) {
+        const labels = topBarangsData.map(item => item.nama_barang);
+        const values = topBarangsData.map(item => item.total);
+        
+        new Chart(topCtx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Jumlah',
+                    data: values,
+                    backgroundColor: [
+                        '#ff7b3d',
+                        '#ff9a56',
+                        '#ffb878',
+                        '#ffd19a',
+                        '#ffe4bc'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Total: ' + context.parsed.x.toLocaleString() + ' unit';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            font: {
+                                size: 11
+                            },
+                            callback: function(value, index) {
+                                const label = this.getLabelForValue(value);
+                                return label.length > 20 ? label.substring(0, 20) + '...' : label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    } else {
+        topCtx.parentElement.innerHTML = '<p style="text-align: center; color: #999; padding: 60px 0;">Belum ada data barang</p>';
+    }
+
+    // Modal functions
     function openAddLantaiModal() { 
         document.getElementById('addLantaiModal').style.display = 'block'; 
     }

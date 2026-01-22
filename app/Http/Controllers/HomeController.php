@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Lantai;
+use App\Models\Barang;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
@@ -11,9 +13,29 @@ class HomeController extends Controller
     {
         $lantais = Lantai::withCount('ruangans')
             ->ordered()
-            ->paginate(4); // Ubah dari get() menjadi paginate(4)
+            ->paginate(4);
 
-        return view('home', compact('lantais'));
+        // Hitung kondisi barang global
+        $kondisiBaik = Barang::where('kondisi', 'B')->sum('jumlah');
+        $kondisiKurangBaik = Barang::where('kondisi', 'KB')->sum('jumlah');
+        $kondisiRusakBerat = Barang::where('kondisi', 'RB')->sum('jumlah');
+        $totalBarang = $kondisiBaik + $kondisiKurangBaik + $kondisiRusakBerat;
+
+        // Ambil 5 barang terbanyak
+        $topBarangs = Barang::select('nama_barang', DB::raw('SUM(jumlah) as total'))
+            ->groupBy('nama_barang')
+            ->orderByDesc('total')
+            ->limit(5)
+            ->get();
+
+        return view('home', compact(
+            'lantais',
+            'kondisiBaik',
+            'kondisiKurangBaik',
+            'kondisiRusakBerat',
+            'totalBarang',
+            'topBarangs'
+        ));
     }
 
     public function storeLantai(Request $request)
