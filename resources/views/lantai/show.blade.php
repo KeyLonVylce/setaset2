@@ -44,14 +44,18 @@
     .badge { display: inline-block; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: 600; }
     .badge-info { background: #d1ecf1; color: #0c5460; }
     .empty-state { text-align: center; padding: 60px 20px; color: #999; }
-    .delete-btn { background: none; border: none; color: #dc3545; cursor: pointer; font-size: 20px; padding: 0; }
-    .delete-btn:hover { color: #c82333; }
+    .action-buttons { display: flex; gap: 5px; }
+    .btn-icon { background: none; border: none; cursor: pointer; font-size: 18px; padding: 5px; color: #666; transition: color 0.3s; }
+    .btn-icon:hover { color: #ff7b3d; }
+    .btn-icon.delete:hover { color: #dc3545; }
 
     /* Modal */
     .modal { display: none; position: fixed; z-index: 1000; padding-top: 100px; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background: rgba(0,0,0,0.4); }
     .modal-content { background: #fff; padding: 20px; border-radius: 10px; width: 400px; margin: auto; }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; }
-    .close { cursor: pointer; font-size: 24px; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-header h3 { margin: 0; }
+    .close { cursor: pointer; font-size: 24px; color: #999; }
+    .close:hover { color: #333; }
     .form-group { margin-bottom: 15px; }
     .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
 
@@ -172,11 +176,14 @@
                     <span class="badge badge-info">{{ $ruangan->barangs_count }} Barang</span>
                 </div>
                 @if(Auth::guard('stafaset')->user()->isAdmin())
-                <form action="{{ route('ruangan.delete', $ruangan->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus ruangan ini? Semua barang di dalamnya akan ikut terhapus!')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="delete-btn" title="Hapus Ruangan">×</button>
-                </form>
+                <div class="action-buttons">
+                    <button class="btn-icon" onclick="openEditRuanganModal({{ $ruangan->id }}, '{{ addslashes($ruangan->nama_ruangan) }}', '{{ addslashes($ruangan->penanggung_jawab ?? '') }}', '{{ addslashes($ruangan->nip_penanggung_jawab ?? '') }}', '{{ addslashes($ruangan->keterangan ?? '') }}')" title="Edit Ruangan">✏️</button>
+                    <form action="{{ route('ruangan.delete', $ruangan->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus ruangan ini? Semua barang di dalamnya akan ikut terhapus!')" style="display: inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn-icon delete" title="Hapus Ruangan">🗑️</button>
+                    </form>
+                </div>
                 @endif
             </div>
             
@@ -295,6 +302,37 @@
         </form>
     </div>
 </div>
+
+<!-- Modal Edit Ruangan -->
+<div id="editRuanganModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Edit Ruangan</h3>
+            <span class="close" onclick="closeEditRuanganModal()">&times;</span>
+        </div>
+        <form id="editRuanganForm" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="form-group">
+                <label for="edit_nama_ruangan">Nama Ruangan <span style="color: red;">*</span></label>
+                <input type="text" id="edit_nama_ruangan" name="nama_ruangan" required>
+            </div>
+            <div class="form-group">
+                <label for="edit_penanggung_jawab">Penanggung Jawab</label>
+                <input type="text" id="edit_penanggung_jawab" name="penanggung_jawab">
+            </div>
+            <div class="form-group">
+                <label for="edit_nip_penanggung_jawab">NIP Penanggung Jawab</label>
+                <input type="text" id="edit_nip_penanggung_jawab" name="nip_penanggung_jawab">
+            </div>
+            <div class="form-group">
+                <label for="edit_keterangan">Keterangan</label>
+                <textarea id="edit_keterangan" name="keterangan"></textarea>
+            </div>
+            <button type="submit" class="btn btn-success">Update</button>
+        </form>
+    </div>
+</div>
 @endif
 @endsection
 
@@ -308,11 +346,28 @@
         document.getElementById('addRuanganModal').style.display = 'none'; 
     }
     
+    function openEditRuanganModal(id, nama, penanggungJawab, nip, keterangan) {
+        document.getElementById('editRuanganForm').action = '/ruangan/' + id;
+        document.getElementById('edit_nama_ruangan').value = nama;
+        document.getElementById('edit_penanggung_jawab').value = penanggungJawab || '';
+        document.getElementById('edit_nip_penanggung_jawab').value = nip || '';
+        document.getElementById('edit_keterangan').value = keterangan || '';
+        document.getElementById('editRuanganModal').style.display = 'block';
+    }
+    
+    function closeEditRuanganModal() {
+        document.getElementById('editRuanganModal').style.display = 'none';
+    }
+    
     window.onclick = function(event) { 
-        const modal = document.getElementById('addRuanganModal'); 
-        if (event.target == modal) { 
-            modal.style.display = 'none'; 
-        } 
+        const addModal = document.getElementById('addRuanganModal'); 
+        const editModal = document.getElementById('editRuanganModal');
+        if (event.target == addModal) { 
+            addModal.style.display = 'none'; 
+        }
+        if (event.target == editModal) {
+            editModal.style.display = 'none';
+        }
     }
 </script>
 @endsection

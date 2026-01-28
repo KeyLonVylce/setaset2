@@ -6,30 +6,23 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        Schema::create('lantais', function (Blueprint $table) {
-            $table->id();
-            $table->string('nama_lantai', 50)->unique();
-            $table->integer('urutan')->default(0);
-            $table->text('keterangan')->nullable();
-            $table->timestamps();
-        });
-
-        Schema::table('ruangans', function (Blueprint $table) {
-            $table->foreignId('lantai_id')->nullable()->after('id')->constrained('lantais')->onDelete('cascade');
-            $table->string('lantai', 20)->nullable()->change();
+        Schema::table('lantais', function (Blueprint $table) {
+            $table->dropColumn('urutan');
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::table('ruangans', function (Blueprint $table) {
-            $table->dropForeign(['lantai_id']);
-            $table->dropColumn('lantai_id');
-            $table->string('lantai', 20)->nullable(false)->change();
+        Schema::table('lantais', function (Blueprint $table) {
+            $table->integer('urutan')->default(0)->after('nama_lantai');
         });
-
-        Schema::dropIfExists('lantais');
     }
 };

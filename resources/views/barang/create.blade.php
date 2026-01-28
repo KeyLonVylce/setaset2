@@ -29,6 +29,53 @@
     @media (max-width: 768px) {
         .form-grid { grid-template-columns: 1fr; }
     }
+
+
+    .form-group {
+    position: relative;
+}
+
+/* state invalid */
+.form-group input:invalid {
+    border-color: #dc2626;
+}
+
+/* popup bubble */
+.form-group input:invalid::after {
+    content: attr(data-error);
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 6px;
+
+    background: #dc2626;
+    color: #fff;
+    font-size: 0.75rem;
+    padding: 6px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+
+    z-index: 10;
+}
+
+/* arrow kecil */
+.form-group input:invalid::before {
+    content: "";
+    position: absolute;
+    top: calc(100% - 2px);
+    left: 10px;
+
+    border-width: 6px;
+    border-style: solid;
+    border-color: transparent transparent #dc2626 transparent;
+}
+
+/* biar popup cuma muncul pas focus */
+.form-group input:invalid:not(:focus)::after,
+.form-group input:invalid:not(:focus)::before {
+    display: none;
+}
+
 </style>
 @endsection
 
@@ -43,7 +90,9 @@
 <div class="card">
     <div class="page-header">
         <h2>Tambah Barang Baru</h2>
-        <p style="color: #666;">Ruangan: <strong>{{ $ruangan->nama_ruangan }}</strong> ({{ $ruangan->lantai }})</p>
+        <p style="color:#666;">
+            Ruangan: <strong>{{ $ruangan->nama_ruangan }}</strong> ({{ $ruangan->lantai }})
+        </p>
     </div>
 
     <form action="{{ route('barang.store') }}" method="POST">
@@ -51,11 +100,6 @@
         <input type="hidden" name="ruangan_id" value="{{ $ruangan->id }}">
 
         <div class="form-grid">
-            <div class="form-group">
-                <label for="no_urut">Nomor Urut</label>
-                <input type="number" id="no_urut" name="no_urut" placeholder="Opsional">
-                <div class="helper-text">Nomor urut untuk pengurutan</div>
-            </div>
 
             <div class="form-group">
                 <label for="kode_barang">Kode Barang</label>
@@ -64,49 +108,66 @@
             </div>
 
             <div class="form-group">
-                <label for="nama_barang">Nama Barang <span style="color: red;">*</span></label>
-                <input type="text" id="nama_barang" name="nama_barang" placeholder="Contoh: Laptop, Meja Kantor" required>
+                <label for="nama_barang">Nama Barang <span class="required">*</span></label>
+                <input type="text" id="nama_barang" name="nama_barang"
+                       placeholder="Contoh: Laptop, Meja Kantor" required>
             </div>
 
-
             <div class="form-group">
-                <label for="merk_model">Merk/Model</label>
-                <input type="text" id="merk_model" name="merk_model" placeholder="Contoh: Dell Latitude 5420">
+                <label for="merk_model">Merk / Model</label>
+                <input type="text" id="merk_model" name="merk_model"
+                       placeholder="Contoh: Dell Latitude 5420">
             </div>
 
             <div class="form-group">
                 <label for="no_seri_pabrik">Nomor Seri Pabrik</label>
-                <input type="text" id="no_seri_pabrik" name="no_seri_pabrik" placeholder="Serial number">
+                <input type="text" id="no_seri_pabrik" name="no_seri_pabrik"
+                       placeholder="Serial number">
             </div>
 
             <div class="form-group">
                 <label for="ukuran">Ukuran</label>
-                <input type="text" id="ukuran" name="ukuran" placeholder="Contoh: 14 inch, 120x80 cm">
+                <input type="text" id="ukuran" name="ukuran"
+                       placeholder="Contoh: 14 inch, 120x80 cm">
             </div>
 
             <div class="form-group">
                 <label for="bahan">Bahan</label>
-                <input type="text" id="bahan" name="bahan" placeholder="Contoh: Kayu Jati, Plastik">
+                <input type="text" id="bahan" name="bahan"
+                       placeholder="Contoh: Kayu Jati, Plastik">
             </div>
 
-            <div class="form-group">
-                <label for="tahun_pembuatan">Tahun Pembuatan</label>
-                <input type="number" id="tahun_pembuatan" name="tahun_pembuatan" min="1900" max="{{ date('Y') }}" placeholder="{{ date('Y') }}">
-            </div>
+<div class="form-group">
+    <label for="tahun_pembuatan">Tahun Pembuatan</label>
+    <input type="number"
+           id="tahun_pembuatan"
+           name="tahun_pembuatan"
+           min="1900"
+           max="{{ date('Y') }}"
+           placeholder="{{ date('Y') }}"
+           data-error="Tahun tidak boleh kurang dari 1900">
+</div>
 
             <div class="form-group">
                 <label for="harga_perolehan">Harga Perolehan (Rp)</label>
-                <input type="text" id="harga_perolehan" name="harga_perolehan" placeholder="0 atau -">
-                <div class="helper-text">Harga perolehan per unit (bisa menggunakan strip "-" jika tidak ada harga)</div>
+                <input type="text" id="harga_perolehan" name="harga_perolehan"
+                       placeholder="0 atau -">
+                <div class="helper-text">Boleh diisi "-" jika tidak ada harga</div>
             </div>
+
+             <div class="form-group">
+              <label for="jumlah">Jumlah <span class="required">*</span></label>
+              <input type="number"
+               id="jumlah"
+              name="jumlah"
+              min="1"
+               value="1"
+               required
+               data-error="Jumlah tidak boleh minus atau nol">
+           </div>
 
             <div class="form-group">
-                <label for="jumlah">Jumlah <span style="color: red;">*</span></label>
-                <input type="number" id="jumlah" name="jumlah" min="1" value="1" required>
-            </div>
-
-           <div class="form-group">
-                <label for="kondisi">Kondisi Barang <span style="color: red;">*</span></label>
+                <label for="kondisi">Kondisi Barang <span class="required">*</span></label>
                 <select id="kondisi" name="kondisi" required>
                     <option value="B" selected>Baik (B)</option>
                     <option value="KB">Kurang Baik (KB)</option>
@@ -114,11 +175,14 @@
                 </select>
             </div>
 
-            <div class="form-group">
+            <!-- FULL WIDTH -->
+            <div class="form-group full">
                 <label for="keterangan">Keterangan</label>
-                <textarea id="keterangan" name="keterangan" rows="4" placeholder="Keterangan tambahan tentang barang"></textarea>
+                <textarea id="keterangan" name="keterangan" rows="4"
+                          placeholder="Keterangan tambahan tentang barang"></textarea>
             </div>
 
+        </div>
 
         <div class="form-actions">
             <button type="submit" class="btn btn-success">Simpan Barang</button>
@@ -126,6 +190,7 @@
         </div>
     </form>
 </div>
+
 @endsection
 
 @section('scripts')
@@ -204,4 +269,6 @@
             .catch(error => console.log('CSRF refresh failed:', error));
     }, 300000); // 5 minutes
 </script>
+
+
 @endsection

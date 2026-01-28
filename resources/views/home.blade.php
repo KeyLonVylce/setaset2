@@ -203,7 +203,7 @@
         <div class="lantai-card-wrapper">
             @if(Auth::guard('stafaset')->user()->isAdmin())
             <div class="lantai-card-actions">
-                <button onclick="event.preventDefault(); openEditLantaiModal({{ $lantai->id }}, '{{ addslashes($lantai->nama_lantai) }}', {{ $lantai->urutan }}, '{{ addslashes($lantai->keterangan ?? '') }}')" title="Edit">✏️</button>
+                <button onclick="event.preventDefault(); openEditLantaiModal({{ $lantai->id }}, '{{ addslashes($lantai->nama_lantai) }}', '{{ addslashes($lantai->keterangan ?? '') }}')" title="Edit">✏️</button>
                 <form action="{{ route('lantai.destroy', $lantai->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Yakin ingin menghapus lantai ini? Semua ruangan dan barang akan ikut terhapus!')">
                     @csrf
                     @method('DELETE')
@@ -304,10 +304,6 @@
                 <input type="text" id="nama_lantai" name="nama_lantai" placeholder="Contoh: Lantai 1, Lantai 2, Basement" required>
             </div>
             <div class="form-group">
-                <label for="urutan">Urutan</label>
-                <input type="number" id="urutan" name="urutan" placeholder="Urutan lantai (opsional)">
-            </div>
-            <div class="form-group">
                 <label for="keterangan">Keterangan</label>
                 <textarea id="keterangan" name="keterangan" placeholder="Keterangan tambahan (opsional)"></textarea>
             </div>
@@ -329,10 +325,6 @@
             <div class="form-group">
                 <label for="edit_nama_lantai">Nama Lantai <span style="color: red;">*</span></label>
                 <input type="text" id="edit_nama_lantai" name="nama_lantai" required>
-            </div>
-            <div class="form-group">
-                <label for="edit_urutan">Urutan</label>
-                <input type="number" id="edit_urutan" name="urutan">
             </div>
             <div class="form-group">
                 <label for="edit_keterangan">Keterangan</label>
@@ -487,7 +479,7 @@
         topCtx.parentElement.innerHTML = '<p style="text-align: center; color: #999; padding: 60px 0;">Belum ada data barang</p>';
     }
 
-    // Modal functions
+    // Modal functions - TANPA URUTAN
     function openAddLantaiModal() { 
         document.getElementById('addLantaiModal').style.display = 'block'; 
     }
@@ -496,10 +488,9 @@
         document.getElementById('addLantaiModal').style.display = 'none'; 
     }
     
-    function openEditLantaiModal(id, nama, urutan, keterangan) {
+    function openEditLantaiModal(id, nama, keterangan) {
         document.getElementById('editLantaiForm').action = '/lantai/' + id;
         document.getElementById('edit_nama_lantai').value = nama;
-        document.getElementById('edit_urutan').value = urutan;
         document.getElementById('edit_keterangan').value = keterangan || '';
         document.getElementById('editLantaiModal').style.display = 'block';
     }

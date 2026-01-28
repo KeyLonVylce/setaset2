@@ -78,9 +78,16 @@
 </head>
 <body>
     <div class="button-group no-print">
-        <button onclick="window.print()" class="btn btn-print">🖨️ Print / Save PDF</button>
-        <a href="{{ route('ruangan.export', ['id' => $ruangan->id, 'format' => 'excel']) }}" class="btn btn-excel">📊 Export ke Excel</a>
-    </div>
+    <button onclick="window.print()" class="btn btn-print">
+        🖨️ Print / Save PDF
+    </button>
+
+    <a href="{{ route('ruangan.export', [$ruangan, 'format' => 'excel']) }}"
+       class="btn btn-excel">
+        📊 Export ke Excel
+    </a>
+</div>
+
 
     <table>
         <tr>
