@@ -4,8 +4,44 @@
 
 @section('styles')
 <style>
-    .welcome-card { text-align: center; padding: 40px; background: linear-gradient(135deg, #ff9a56 0%, #ff7b3d 100%); color: white; border-radius: 10px; margin-bottom: 30px; }
-    .welcome-card h2 { font-size: 28px; margin-bottom: 10px; }
+    /* Welcome Card */
+    .welcome-card { 
+        text-align: center; 
+        padding: 50px 40px; 
+        background: linear-gradient(135deg, #0066cc 0%, #004c99 100%);
+        color: white; 
+        border-radius: 16px; 
+        margin-bottom: 30px;
+        box-shadow: 0 8px 25px rgba(0, 102, 204, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .welcome-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+    
+    .welcome-card h2 { 
+        font-size: 32px; 
+        margin-bottom: 10px;
+        font-weight: 700;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .welcome-card p {
+        font-size: 16px;
+        opacity: 0.95;
+        position: relative;
+        z-index: 1;
+    }
     
     /* Dashboard Stats Grid */
     .dashboard-grid { 
@@ -17,9 +53,10 @@
     
     .chart-container {
         background: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border: 1px solid rgba(0, 102, 204, 0.1);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -27,29 +64,30 @@
     }
     
     .chart-container h3 {
-        font-size: 14px;
-        color: #333;
-        margin-bottom: 15px;
+        font-size: 15px;
+        color: #1f2937;
+        margin-bottom: 20px;
         font-weight: 600;
         text-align: center;
     }
     
     .chart-wrapper {
-        width: 180px;
-        height: 180px;
+        width: 200px;
+        height: 200px;
     }
     
     .top-items-container {
         background: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border: 1px solid rgba(0, 102, 204, 0.1);
     }
     
     .top-items-container h3 {
-        font-size: 14px;
-        color: #333;
-        margin-bottom: 15px;
+        font-size: 15px;
+        color: #1f2937;
+        margin-bottom: 20px;
         font-weight: 600;
     }
     
@@ -58,19 +96,145 @@
         height: 250px;
     }
     
-    .lantai-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .lantai-header h3 { font-size: 24px; color: #333; }
-    .lantai-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-top: 20px; }
-    .lantai-card-wrapper { position: relative; }
-    .lantai-card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center; cursor: pointer; transition: all 0.3s; text-decoration: none; color: #333; display: block; }
-    .lantai-card:hover { transform: translateY(-5px); box-shadow: 0 5px 20px rgba(255,123,61,0.3); }
-    .lantai-card h4 { font-size: 20px; margin-bottom: 10px; color: #ff7b3d; }
-    .lantai-card p { color: #666; font-size: 14px; }
-    .lantai-card .badge { display: inline-block; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: 600; background: #d1ecf1; color: #0c5460; margin: 5px; }
-    .lantai-card-actions { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; z-index: 10; }
-    .lantai-card-actions button { background: none; border: none; cursor: pointer; font-size: 18px; padding: 5px; color: #999; transition: color 0.3s; }
-    .lantai-card-actions button:hover { color: #ff7b3d; }
-    .empty-state { text-align: center; padding: 60px 20px; color: #999; }
+    /* Lantai Section */
+    .lantai-header { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    
+    .lantai-header h3 { 
+        font-size: 24px; 
+        color: #1f2937;
+        font-weight: 700;
+    }
+    
+    .lantai-header-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .lantai-grid { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+        gap: 20px; 
+        margin-top: 20px; 
+    }
+    
+    .lantai-card-wrapper { 
+        position: relative; 
+    }
+    
+    .lantai-card { 
+        background: white; 
+        padding: 30px; 
+        border-radius: 16px; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        border: 2px solid transparent;
+        text-align: center; 
+        cursor: pointer; 
+        transition: all 0.3s; 
+        text-decoration: none; 
+        color: #333; 
+        display: block;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .lantai-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #0066cc 0%, #004c99 100%);
+        transform: scaleX(0);
+        transition: transform 0.3s;
+    }
+    
+    .lantai-card:hover {
+        transform: translateY(-5px); 
+        box-shadow: 0 8px 30px rgba(0, 102, 204, 0.2);
+        border-color: #0066cc;
+    }
+    
+    .lantai-card:hover::before {
+        transform: scaleX(1);
+    }
+    
+    .lantai-card h4 { 
+        font-size: 22px; 
+        margin-bottom: 15px; 
+        color: #0066cc;
+        font-weight: 700;
+    }
+    
+    .lantai-card p { 
+        color: #6b7280; 
+        font-size: 14px;
+        line-height: 1.6;
+    }
+    
+    .lantai-card .badge { 
+        display: inline-block; 
+        padding: 6px 14px; 
+        border-radius: 20px; 
+        font-size: 13px; 
+        font-weight: 600; 
+        background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+        color: #0066cc;
+        margin: 5px;
+        border: 1px solid rgba(0, 102, 204, 0.2);
+    }
+    
+    .lantai-card-actions { 
+        position: absolute; 
+        top: 15px; 
+        right: 15px; 
+        display: flex; 
+        gap: 8px; 
+        z-index: 10; 
+    }
+    
+    .lantai-card-actions button { 
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        cursor: pointer; 
+        font-size: 16px; 
+        padding: 8px; 
+        color: #6b7280;
+        transition: all 0.3s;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .lantai-card-actions button:hover { 
+        background: white;
+        color: #0066cc;
+        border-color: #0066cc;
+        transform: scale(1.1);
+    }
+    
+    .empty-state { 
+        text-align: center; 
+        padding: 80px 20px; 
+        color: #9ca3af;
+    }
+    
+    .empty-state h3 {
+        color: #6b7280;
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
     
     /* Pagination Styles */
     .pagination-wrapper { 
@@ -82,13 +246,16 @@
         flex-wrap: wrap;
         gap: 15px;
     }
+    
     .pagination-info {
-        color: #666;
+        color: #6b7280;
         font-size: 14px;
     }
+    
     .pagination-nav {
         display: flex;
     }
+    
     .pagination { 
         display: flex; 
         list-style: none; 
@@ -97,9 +264,11 @@
         margin: 0; 
         align-items: center;
     }
+    
     .page-item { 
         display: inline-block; 
     }
+    
     .page-link { 
         display: flex;
         align-items: center;
@@ -107,35 +276,42 @@
         min-width: 36px;
         height: 36px;
         padding: 0 8px;
-        border: 1px solid #ddd; 
-        border-radius: 50%;
-        color: #666; 
+        border: 1px solid #e5e7eb; 
+        border-radius: 8px;
+        color: #6b7280; 
         text-decoration: none; 
         transition: all 0.2s;
         background: white;
         font-size: 14px;
         cursor: pointer;
+        font-weight: 500;
     }
+    
     .page-link:hover { 
-        background: #f5f5f5; 
-        border-color: #bbb; 
+        background: #f3f4f6; 
+        border-color: #0066cc;
+        color: #0066cc;
     }
+    
     .page-item.active .page-link { 
-        background: #00a8ff; 
+        background: linear-gradient(135deg, #0066cc 0%, #004c99 100%);
         color: white; 
-        border-color: #00a8ff; 
+        border-color: #0066cc; 
         font-weight: 600;
         cursor: default;
     }
+    
     .page-item.disabled .page-link { 
-        color: #ccc; 
+        color: #d1d5db; 
         cursor: not-allowed; 
-        background: #fafafa;
-        border-color: #e5e5e5;
+        background: #f9fafb;
+        border-color: #e5e7eb;
     }
+    
     .page-item.disabled .page-link:hover { 
-        background: #fafafa; 
-        border-color: #e5e5e5; 
+        background: #f9fafb; 
+        border-color: #e5e7eb;
+        color: #d1d5db;
     }
     
     @media (max-width: 992px) {
@@ -159,6 +335,10 @@
         .bar-chart-wrapper {
             height: 300px;
         }
+        .lantai-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
     }
 </style>
 @endsection
@@ -166,7 +346,7 @@
 @section('content')
 <div class="welcome-card">
     <h2>Selamat Datang di SETASET</h2>
-    <p>Sistem Inventaris Barang Diskominfo</p>
+    <p>Sistem Inventaris Aset Dinas Komunikasi dan Informatika Provinsi Jawa Barat</p>
 </div>
 
 {{-- Dashboard Statistics --}}
@@ -189,7 +369,7 @@
 <div class="card">
     <div class="lantai-header">
         <h3>Daftar Lantai</h3>
-        <div style="display: flex; gap: 10px;">
+        <div class="lantai-header-actions">
             <a href="{{ route('pemindahan.pindah') }}" class="btn btn-primary">📦 Pindahkan Barang</a>
             @if(Auth::guard('stafaset')->user()->isAdmin())
                 <button class="btn btn-primary" onclick="openAddLantaiModal()">+ Tambah Lantai</button>
@@ -266,17 +446,6 @@
                         <span class="page-link">›</span>
                     </li>
                 @endif
-
-                {{-- Last Page Link --}}
-                @if ($lantais->hasMorePages())
-                    <li class="page-item">
-                        <a class="page-link" href="{{ $lantais->url($lantais->lastPage()) }}">»</a>
-                    </li>
-                @else
-                    <li class="page-item disabled">
-                        <span class="page-link">»</span>
-                    </li>
-                @endif
             </ul>
         </div>
     </div>
@@ -297,22 +466,24 @@
             <h3>Tambah Lantai Baru</h3>
             <span class="close" onclick="closeAddLantaiModal()">&times;</span>
         </div>
-        <form action="{{ route('lantai.store') }}" method="POST">
-            @csrf
-            <div class="form-group">
-                <label for="nama_lantai">Nama Lantai <span style="color: red;">*</span></label>
-                <input type="text" id="nama_lantai" name="nama_lantai" placeholder="Contoh: Lantai 1, Lantai 2, Basement" required>
-            </div>
-            <div class="form-group">
-                <label for="urutan">Urutan</label>
-                <input type="number" id="urutan" name="urutan" placeholder="Urutan lantai (opsional)">
-            </div>
-            <div class="form-group">
-                <label for="keterangan">Keterangan</label>
-                <textarea id="keterangan" name="keterangan" placeholder="Keterangan tambahan (opsional)"></textarea>
-            </div>
-            <button type="submit" class="btn btn-success">Simpan</button>
-        </form>
+        <div class="modal-body">
+            <form action="{{ route('lantai.store') }}" method="POST">
+                @csrf
+                <div class="form-group">
+                    <label for="nama_lantai">Nama Lantai <span style="color: red;">*</span></label>
+                    <input type="text" id="nama_lantai" name="nama_lantai" placeholder="Contoh: Lantai 1, Lantai 2, Basement" required>
+                </div>
+                <div class="form-group">
+                    <label for="urutan">Urutan</label>
+                    <input type="number" id="urutan" name="urutan" placeholder="Urutan lantai (opsional)">
+                </div>
+                <div class="form-group">
+                    <label for="keterangan">Keterangan</label>
+                    <textarea id="keterangan" name="keterangan" placeholder="Keterangan tambahan (opsional)"></textarea>
+                </div>
+                <button type="submit" class="btn btn-success">Simpan</button>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -323,23 +494,25 @@
             <h3>Edit Lantai</h3>
             <span class="close" onclick="closeEditLantaiModal()">&times;</span>
         </div>
-        <form id="editLantaiForm" method="POST">
-            @csrf
-            @method('PUT')
-            <div class="form-group">
-                <label for="edit_nama_lantai">Nama Lantai <span style="color: red;">*</span></label>
-                <input type="text" id="edit_nama_lantai" name="nama_lantai" required>
-            </div>
-            <div class="form-group">
-                <label for="edit_urutan">Urutan</label>
-                <input type="number" id="edit_urutan" name="urutan">
-            </div>
-            <div class="form-group">
-                <label for="edit_keterangan">Keterangan</label>
-                <textarea id="edit_keterangan" name="keterangan"></textarea>
-            </div>
-            <button type="submit" class="btn btn-success">Update</button>
-        </form>
+        <div class="modal-body">
+            <form id="editLantaiForm" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="form-group">
+                    <label for="edit_nama_lantai">Nama Lantai <span style="color: red;">*</span></label>
+                    <input type="text" id="edit_nama_lantai" name="nama_lantai" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit_urutan">Urutan</label>
+                    <input type="number" id="edit_urutan" name="urutan">
+                </div>
+                <div class="form-group">
+                    <label for="edit_keterangan">Keterangan</label>
+                    <textarea id="edit_keterangan" name="keterangan"></textarea>
+                </div>
+                <button type="submit" class="btn btn-success">Update</button>
+            </form>
+        </div>
     </div>
 </div>
 @endif
@@ -354,7 +527,7 @@
     const kondisiRusakBerat = {{ $kondisiRusakBerat }};
     const totalBarang = {{ $totalBarang }};
     
-    // Create global pie chart
+    // Create global pie chart dengan warna biru
     const ctx = document.getElementById('globalKondisiChart');
     
     if (totalBarang > 0) {
@@ -365,9 +538,9 @@
                 datasets: [{
                     data: [kondisiBaik, kondisiKurangBaik, kondisiRusakBerat],
                     backgroundColor: [
-                        '#28a745',
-                        '#ffc107',
-                        '#dc3545'
+                        '#10b981',  // Green
+                        '#f59e0b',  // Orange
+                        '#ef4444'   // Red
                     ],
                     borderWidth: 2,
                     borderColor: '#fff'
@@ -380,9 +553,10 @@
                     legend: {
                         position: 'bottom',
                         labels: {
-                            padding: 10,
+                            padding: 12,
                             font: {
-                                size: 10
+                                size: 11,
+                                family: 'Inter'
                             },
                             generateLabels: function(chart) {
                                 const data = chart.data;
@@ -416,10 +590,10 @@
             }
         });
     } else {
-        ctx.parentElement.innerHTML = '<p style="text-align: center; color: #999; padding: 40px 0;">Belum ada data barang</p>';
+        ctx.parentElement.innerHTML = '<p style="text-align: center; color: #9ca3af; padding: 40px 0;">Belum ada data barang</p>';
     }
 
-    // Create top 5 barangs horizontal bar chart
+    // Create top 5 barangs horizontal bar chart dengan warna biru gradient
     const topCtx = document.getElementById('topBarangsChart');
     const topBarangsData = @json($topBarangs);
     
@@ -435,13 +609,14 @@
                     label: 'Jumlah',
                     data: values,
                     backgroundColor: [
-                        '#ff7b3d',
-                        '#ff9a56',
-                        '#ffb878',
-                        '#ffd19a',
-                        '#ffe4bc'
+                        '#0066cc',
+                        '#1a75d9',
+                        '#3384e0',
+                        '#4d93e6',
+                        '#66a2ed'
                     ],
-                    borderWidth: 0
+                    borderWidth: 0,
+                    borderRadius: 6
                 }]
             },
             options: {
@@ -465,26 +640,34 @@
                         beginAtZero: true,
                         ticks: {
                             font: {
-                                size: 10
+                                size: 11,
+                                family: 'Inter'
                             }
+                        },
+                        grid: {
+                            color: '#f3f4f6'
                         }
                     },
                     y: {
                         ticks: {
                             font: {
-                                size: 11
+                                size: 11,
+                                family: 'Inter'
                             },
                             callback: function(value, index) {
                                 const label = this.getLabelForValue(value);
                                 return label.length > 20 ? label.substring(0, 20) + '...' : label;
                             }
+                        },
+                        grid: {
+                            display: false
                         }
                     }
                 }
             }
         });
     } else {
-        topCtx.parentElement.innerHTML = '<p style="text-align: center; color: #999; padding: 60px 0;">Belum ada data barang</p>';
+        topCtx.parentElement.innerHTML = '<p style="text-align: center; color: #9ca3af; padding: 60px 0;">Belum ada data barang</p>';
     }
 
     // Modal functions
