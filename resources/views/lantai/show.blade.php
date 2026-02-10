@@ -44,8 +44,39 @@
     .badge { display: inline-block; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: 600; }
     .badge-info { background: #d1ecf1; color: #0c5460; }
     .empty-state { text-align: center; padding: 60px 20px; color: #999; }
-    .delete-btn { background: none; border: none; color: #dc3545; cursor: pointer; font-size: 20px; padding: 0; }
-    .delete-btn:hover { color: #c82333; }
+    
+    .ruangan-card-actions {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .ruangan-card-actions button {
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        padding: 8px;
+        color: #6b7280;
+        transition: all 0.3s;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .ruangan-card-actions button:hover {
+        background: white;
+        color: #0066cc;
+        border-color: #0066cc;
+        transform: scale(1.1);
+    }
+    
+    .ruangan-card-actions .btn-delete:hover {
+        color: #dc3545;
+        border-color: #dc3545;
+    }
 
     /* Modal */
     .modal { display: none; position: fixed; z-index: 1000; padding-top: 100px; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background: rgba(0,0,0,0.4); }
@@ -172,11 +203,14 @@
                     <span class="badge badge-info">{{ $ruangan->barangs_count }} Barang</span>
                 </div>
                 @if(Auth::guard('stafaset')->user()->isAdmin())
-                <form action="{{ route('ruangan.delete', $ruangan->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus ruangan ini? Semua barang di dalamnya akan ikut terhapus!')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="delete-btn" title="Hapus Ruangan">×</button>
-                </form>
+                <div class="ruangan-card-actions">
+                    <button onclick="event.preventDefault(); openEditRuanganModal({{ $ruangan->id }}, '{{ addslashes($ruangan->nama_ruangan) }}', '{{ addslashes($ruangan->penanggung_jawab ?? '') }}', '{{ addslashes($ruangan->nip_penanggung_jawab ?? '') }}', '{{ addslashes($ruangan->keterangan ?? '') }}')" title="Edit Ruangan">✏️</button>
+                    <form action="{{ route('ruangan.delete', $ruangan->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus ruangan ini? Semua barang di dalamnya akan ikut terhapus!')" style="display: inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn-delete" title="Hapus Ruangan">🗑️</button>
+                    </form>
+                </div>
                 @endif
             </div>
             
@@ -194,6 +228,8 @@
 
             <div class="ruangan-actions">
                 <a href="{{ route('ruangan.show', $ruangan->id) }}" class="btn btn-primary btn-sm">Lihat Detail</a>
+                @if(Auth::guard('stafaset')->user()->isAdmin())
+                @endif
             </div>
         </div>
         @endforeach
@@ -277,21 +313,58 @@
             @csrf
             <div class="form-group">
                 <label for="nama_ruangan">Nama Ruangan <span style="color: red;">*</span></label>
-                <input type="text" id="nama_ruangan" name="nama_ruangan" required>
+                <input type="text" id="nama_ruangan" name="nama_ruangan" placeholder="Contoh: Ruang Server" required>
             </div>
             <div class="form-group">
-                <label for="penanggung_jawab">Penanggung Jawab</label>
-                <input type="text" id="penanggung_jawab" name="penanggung_jawab">
+                <label for="penanggung_jawab">Nama Penanggung Jawab</label>
+                <input type="text" id="penanggung_jawab" name="penanggung_jawab" placeholder="Contoh: John Doe">
             </div>
             <div class="form-group">
                 <label for="nip_penanggung_jawab">NIP Penanggung Jawab</label>
-                <input type="text" id="nip_penanggung_jawab" name="nip_penanggung_jawab">
+                <input type="text" id="nip_penanggung_jawab" name="nip_penanggung_jawab" placeholder="Contoh: 199001012020121001">
             </div>
             <div class="form-group">
                 <label for="keterangan">Keterangan</label>
-                <textarea id="keterangan" name="keterangan"></textarea>
+                <textarea id="keterangan" name="keterangan" rows="3" placeholder="Keterangan tambahan (opsional)"></textarea>
             </div>
-            <button type="submit" class="btn btn-success">Simpan</button>
+            <div style="display: flex; gap: 10px;">
+                <button type="submit" class="btn btn-success">Simpan</button>
+                <button type="button" class="btn btn-danger" onclick="closeAddRuanganModal()">Batal</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Edit Ruangan -->
+<div id="editRuanganModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Edit Ruangan</h3>
+            <span class="close" onclick="closeEditRuanganModal()">&times;</span>
+        </div>
+        <form id="editRuanganForm" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="form-group">
+                <label for="edit_nama_ruangan">Nama Ruangan <span style="color: red;">*</span></label>
+                <input type="text" id="edit_nama_ruangan" name="nama_ruangan" placeholder="Contoh: Ruang Server" required>
+            </div>
+            <div class="form-group">
+                <label for="edit_penanggung_jawab">Nama Penanggung Jawab</label>
+                <input type="text" id="edit_penanggung_jawab" name="penanggung_jawab" placeholder="Contoh: John Doe">
+            </div>
+            <div class="form-group">
+                <label for="edit_nip_penanggung_jawab">NIP Penanggung Jawab</label>
+                <input type="text" id="edit_nip_penanggung_jawab" name="nip_penanggung_jawab" placeholder="Contoh: 199001012020121001">
+            </div>
+            <div class="form-group">
+                <label for="edit_keterangan">Keterangan</label>
+                <textarea id="edit_keterangan" name="keterangan" rows="3" placeholder="Keterangan tambahan (opsional)"></textarea>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button type="submit" class="btn btn-success">Update</button>
+                <button type="button" class="btn btn-danger" onclick="closeEditRuanganModal()">Batal</button>
+            </div>
         </form>
     </div>
 </div>
@@ -308,11 +381,28 @@
         document.getElementById('addRuanganModal').style.display = 'none'; 
     }
     
+    function openEditRuanganModal(id, nama, penanggung_jawab, nip, keterangan) {
+        document.getElementById('editRuanganForm').action = '/ruangan/' + id;
+        document.getElementById('edit_nama_ruangan').value = nama;
+        document.getElementById('edit_penanggung_jawab').value = penanggung_jawab || '';
+        document.getElementById('edit_nip_penanggung_jawab').value = nip || '';
+        document.getElementById('edit_keterangan').value = keterangan || '';
+        document.getElementById('editRuanganModal').style.display = 'block';
+    }
+    
+    function closeEditRuanganModal() {
+        document.getElementById('editRuanganModal').style.display = 'none';
+    }
+    
     window.onclick = function(event) { 
-        const modal = document.getElementById('addRuanganModal'); 
-        if (event.target == modal) { 
-            modal.style.display = 'none'; 
-        } 
+        const addModal = document.getElementById('addRuanganModal'); 
+        const editModal = document.getElementById('editRuanganModal');
+        if (event.target == addModal) { 
+            addModal.style.display = 'none'; 
+        }
+        if (event.target == editModal) {
+            editModal.style.display = 'none';
+        }
     }
 </script>
 @endsection

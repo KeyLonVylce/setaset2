@@ -42,15 +42,11 @@ class HomeController extends Controller
     {
         $request->validate([
             'nama_lantai' => 'required|string|max:50|unique:lantais,nama_lantai',
-            'urutan' => 'nullable|integer',
             'keterangan' => 'nullable|string',
         ]);
 
-        $urutan = $request->urutan ?? (Lantai::max('urutan') ?? 0) + 1;
-
         Lantai::create([
             'nama_lantai' => $request->nama_lantai,
-            'urutan' => $urutan,
             'keterangan' => $request->keterangan,
         ]);
 

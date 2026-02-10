@@ -8,9 +8,14 @@
         max-width: 900px; margin: 0 auto; }
     
     .pemindahan-header {
-        text-align: center; padding: 30px 20px; background: linear-gradient(135deg, #ff9a56 0%, #ff7b3d 100%); color: white; border-radius: 10px; margin-bottom: 30px;
-    }
-    
+    text-align: center;
+    padding: 30px 20px;
+    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    color: white;
+    border-radius: 10px;
+    margin-bottom: 30px;
+}
+
     .pemindahan-header h1 {
         font-size: 28px; margin: 0 0 10px 0; font-weight: 600;
     }
@@ -52,8 +57,10 @@
     }
     
     .form-control:focus {
-        outline: none; border-color: #ff7b3d; box-shadow: 0 0 0 3px rgba(255, 123, 61, 0.1);
-    }
+    outline: none;
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+}
     
     select.form-control {
         cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 15px center; padding-right: 40px;
@@ -91,12 +98,15 @@
     }
     
     .btn-primary {
-        background: linear-gradient(135deg, #ff9a56 0%, #ff7b3d 100%); color: white; flex: 1;
-    }
+    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    color: white;
+    flex: 1;
+}
     
     .btn-primary:hover {
-        transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 123, 61, 0.4);
-    }
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(13, 110, 253, 0.4);
+}
     
     .btn-secondary {
         background: #e9ecef; color: #495057;

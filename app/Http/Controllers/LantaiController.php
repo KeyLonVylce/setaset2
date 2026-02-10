@@ -137,6 +137,35 @@ class LantaiController extends Controller
         return back()->with('success', 'Ruangan berhasil ditambahkan!');
     }
 
+    public function updateRuangan(Request $request, $id)
+    {
+        $ruangan = Ruangan::findOrFail($id);
+
+        $request->validate([
+            'nama_ruangan' => 'required|string|max:100',
+            'penanggung_jawab' => 'nullable|string|max:100',
+            'nip_penanggung_jawab' => 'nullable|string|max:30',
+            'keterangan' => 'nullable|string',
+        ]);
+
+        $ruangan->update([
+            'nama_ruangan' => $request->nama_ruangan,
+            'penanggung_jawab' => $request->penanggung_jawab,
+            'nip_penanggung_jawab' => $request->nip_penanggung_jawab,
+            'keterangan' => $request->keterangan,
+        ]);
+
+        Notification::create([
+            'type'        => 'ruangan',
+            'aksi'        => 'edit',
+            'pesan'       => "Ruangan <b>{$ruangan->nama_ruangan}</b> di lantai <b>{$ruangan->lantai}</b> diubah",
+            'target_role' => 'admin',
+            'user_id'     => Auth::guard('stafaset')->id(),
+        ]);
+
+        return back()->with('success', 'Ruangan berhasil diupdate!');
+    }
+
     public function deleteRuangan($id)
     {
         $ruangan = Ruangan::findOrFail($id);

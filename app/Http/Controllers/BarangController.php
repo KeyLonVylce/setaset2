@@ -22,7 +22,6 @@ class BarangController extends Controller
     {
         $validated = $request->validate([
             'ruangan_id' => 'required|exists:ruangans,id',
-            'no_urut' => 'nullable|integer',
             'nama_barang' => 'required|string|max:150',
             'merk_model' => 'nullable|string|max:150',
             'no_seri_pabrik' => 'nullable|string|max:100',
@@ -61,7 +60,6 @@ class BarangController extends Controller
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'no_urut' => 'nullable|integer',
             'nama_barang' => 'required|string|max:150',
             'merk_model' => 'nullable|string|max:150',
             'no_seri_pabrik' => 'nullable|string|max:100',

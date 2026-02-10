@@ -14,18 +14,6 @@
     .form-actions { display: flex; gap: 10px; margin-top: 20px; }
     .helper-text { font-size: 12px; color: #666; margin-top: 5px; }
     
-    /* Radio button styling */
-    .radio-group { display: flex; flex-direction: column; gap: 12px; padding-top: 8px; }
-    .radio-option { display: flex; align-items: center; cursor: pointer; }
-    .radio-option input[type="radio"] { 
-        width: 18px; 
-        height: 18px; 
-        margin-right: 10px; 
-        cursor: pointer;
-        accent-color: #ff7b3d;
-    }
-    .radio-option label { cursor: pointer; font-size: 14px; }
-    
     @media (max-width: 768px) {
         .form-grid { grid-template-columns: 1fr; }
     }
@@ -52,9 +40,8 @@
 
         <div class="form-grid">
             <div class="form-group">
-                <label for="no_urut">Nomor Urut</label>
-                <input type="number" id="no_urut" name="no_urut" placeholder="Opsional">
-                <div class="helper-text">Nomor urut untuk pengurutan</div>
+                <label for="nama_barang">Nama Barang <span style="color: red;">*</span></label>
+                <input type="text" id="nama_barang" name="nama_barang" placeholder="Contoh: Laptop, Meja Kantor" required>
             </div>
 
             <div class="form-group">
@@ -62,12 +49,6 @@
                 <input type="text" id="kode_barang" name="kode_barang" placeholder="Contoh: BRG-001">
                 <div class="helper-text">Kode unik identifikasi barang</div>
             </div>
-
-            <div class="form-group">
-                <label for="nama_barang">Nama Barang <span style="color: red;">*</span></label>
-                <input type="text" id="nama_barang" name="nama_barang" placeholder="Contoh: Laptop, Meja Kantor" required>
-            </div>
-
 
             <div class="form-group">
                 <label for="merk_model">Merk/Model</label>
@@ -114,11 +95,11 @@
                 </select>
             </div>
 
-            <div class="form-group">
+            <div class="form-group form-group-full">
                 <label for="keterangan">Keterangan</label>
                 <textarea id="keterangan" name="keterangan" rows="4" placeholder="Keterangan tambahan tentang barang"></textarea>
             </div>
-
+        </div>
 
         <div class="form-actions">
             <button type="submit" class="btn btn-success">Simpan Barang</button>
@@ -130,45 +111,6 @@
 
 @section('scripts')
 <script>
-    // Handle kondisi radio buttons
-    const jumlahInput = document.getElementById('jumlah');
-    const kondisiRadios = document.querySelectorAll('input[name="kondisi"]');
-    const keadaanBaik = document.getElementById('keadaan_baik');
-    const keadaanKurangBaik = document.getElementById('keadaan_kurang_baik');
-    const keadaanRusakBerat = document.getElementById('keadaan_rusak_berat');
-
-    function updateKondisiValues() {
-        const jumlah = parseInt(jumlahInput.value) || 0;
-        const selectedKondisi = document.querySelector('input[name="kondisi"]:checked').value;
-
-        keadaanBaik.value = '0';
-        keadaanKurangBaik.value = '0';
-        keadaanRusakBerat.value = '0';
-
-        if (selectedKondisi === 'baik') {
-            keadaanBaik.value = jumlah.toString();
-        } else if (selectedKondisi === 'kurang_baik') {
-            keadaanKurangBaik.value = jumlah.toString();
-        } else if (selectedKondisi === 'rusak_berat') {
-            keadaanRusakBerat.value = jumlah.toString();
-        }
-    }
-
-    jumlahInput.addEventListener('input', updateKondisiValues);
-    kondisiRadios.forEach(radio => {
-        radio.addEventListener('change', updateKondisiValues);
-    });
-
-    // Validate on submit
-    document.querySelector('form').addEventListener('submit', function(e) {
-        const jumlah = parseInt(jumlahInput.value) || 0;
-        if (jumlah < 1) {
-            alert('Jumlah barang harus minimal 1!');
-            e.preventDefault();
-            return false;
-        }
-    });
-
     // Format ribuan (1.000.000)
     function formatRupiah(angka) {
         let number_string = angka.replace(/[^0-9]/g, "");
@@ -192,16 +134,5 @@
             hargaInput.value = harga.replace(/\./g, ""); // hapus titik untuk database
         }
     });
-
-
-    // Auto-refresh CSRF token every 5 minutes to prevent 419 error
-    setInterval(function() {
-        fetch('/refresh-csrf')
-            .then(response => response.json())
-            .then(data => {
-                document.querySelector('input[name="_token"]').value = data.token;
-            })
-            .catch(error => console.log('CSRF refresh failed:', error));
-    }, 300000); // 5 minutes
 </script>
 @endsection
