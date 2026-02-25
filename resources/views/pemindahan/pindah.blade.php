@@ -371,15 +371,29 @@ document.addEventListener('DOMContentLoaded', function () {
         selectedBarang = null;
     }
 
+    // ✅ FIXED: Ganti browser confirm() dengan custom showConfirm dialog
     form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
         const barangText = barangSelect.selectedOptions[0]?.text || '';
         const jumlah = jumlahInput.value;
         const ruanganAsalText = ruanganAsal.selectedOptions[0]?.text || '';
         const ruanganTujuanText = ruanganTujuan.selectedOptions[0]?.text || '';
 
-        if (!confirm(`Konfirmasi Pemindahan Barang\n\nBarang: ${barangText}\nJumlah: ${jumlah} unit\nDari: ${ruanganAsalText}\nKe: ${ruanganTujuanText}\n\nApakah Anda yakin ingin melanjutkan?`)) {
-            e.preventDefault();
-        }
+        showConfirm({
+            title: 'Konfirmasi Pemindahan Barang',
+            message: `<div style="line-height:1.9;font-size:14px;">
+                <div>📦 <strong>Barang:</strong> ${barangText}</div>
+                <div>🔢 <strong>Jumlah:</strong> ${jumlah} unit</div>
+                <div>📍 <strong>Dari:</strong> ${ruanganAsalText}</div>
+                <div>🎯 <strong>Ke:</strong> ${ruanganTujuanText}</div>
+            </div>`,
+            type: 'warning',
+            confirmText: '🚀 Ya, Pindahkan',
+            onConfirm: () => {
+                form.submit();
+            }
+        });
     });
 });
 </script>

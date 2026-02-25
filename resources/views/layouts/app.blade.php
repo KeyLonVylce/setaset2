@@ -16,7 +16,158 @@
             flex-direction: column;
         }
         
-        /* Header Styles */
+        /* ============================================
+           TOAST NOTIFICATION SYSTEM
+        ============================================ */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 420px;
+            width: calc(100vw - 48px);
+        }
+
+        .toast {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            background: white;
+            border-radius: 14px;
+            padding: 16px 18px;
+            box-shadow: 
+                0 4px 6px -1px rgba(0, 0, 0, 0.07),
+                0 10px 40px -5px rgba(0, 0, 0, 0.12),
+                0 0 0 1px rgba(0, 0, 0, 0.04);
+            animation: toastSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .toast.hiding {
+            animation: toastSlideOut 0.3s ease-in forwards;
+        }
+
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(calc(100% + 24px)) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+
+        @keyframes toastSlideOut {
+            from {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+                max-height: 200px;
+                margin-bottom: 0;
+            }
+            to {
+                opacity: 0;
+                transform: translateX(calc(100% + 24px)) scale(0.95);
+                max-height: 0;
+                margin-bottom: -12px;
+                padding-top: 0;
+                padding-bottom: 0;
+            }
+        }
+
+        /* Progress bar */
+        .toast::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            border-radius: 0 0 14px 14px;
+            animation: toastProgress 4.5s linear forwards;
+        }
+
+        @keyframes toastProgress {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+
+        /* Toast variants */
+        .toast-success { border-left: 4px solid #10b981; }
+        .toast-success::after { background: #10b981; }
+        .toast-success .toast-icon-wrap { background: #d1fae5; color: #10b981; }
+
+        .toast-error { border-left: 4px solid #ef4444; }
+        .toast-error::after { background: #ef4444; }
+        .toast-error .toast-icon-wrap { background: #fee2e2; color: #ef4444; }
+
+        .toast-warning { border-left: 4px solid #f59e0b; }
+        .toast-warning::after { background: #f59e0b; }
+        .toast-warning .toast-icon-wrap { background: #fef3c7; color: #f59e0b; }
+
+        .toast-info { border-left: 4px solid #0066cc; }
+        .toast-info::after { background: #0066cc; }
+        .toast-info .toast-icon-wrap { background: #dbeafe; color: #0066cc; }
+
+        .toast-icon-wrap {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .toast-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #111827;
+            margin-bottom: 3px;
+            line-height: 1.3;
+        }
+
+        .toast-message {
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #9ca3af;
+            font-size: 18px;
+            padding: 2px;
+            flex-shrink: 0;
+            transition: color 0.2s;
+            line-height: 1;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+        }
+
+        .toast-close:hover {
+            color: #374151;
+            background: #f3f4f6;
+        }
+
+        /* ============================================
+           HEADER STYLES
+        ============================================ */
         .header { 
             background: linear-gradient(135deg, #0066cc 0%, #004c99 100%);
             padding: 0;
@@ -60,20 +211,6 @@
             object-fit: contain;
         }
         
-        .logo-icon {
-            width: 50px;
-            height: 50px;
-            background: white;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 24px;
-            color: #0066cc;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        
         .header-text h1 { 
             font-size: 28px; 
             font-weight: 700; 
@@ -90,7 +227,7 @@
         .user-section {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
         }
         
         .notification-bell {
@@ -171,7 +308,9 @@
         .role-admin { background: #10b981; color: white; }
         .role-staff { background: #6366f1; color: white; }
         
-        /* Button Styles */
+        /* ============================================
+           BUTTON STYLES
+        ============================================ */
         .btn { 
             padding: 10px 20px; 
             border: none; 
@@ -229,7 +368,9 @@
         
         .btn-sm { padding: 6px 12px; font-size: 13px; }
         
-        /* Container & Card */
+        /* ============================================
+           CONTAINER & CARD
+        ============================================ */
         .container { 
             max-width: 1400px; 
             margin: 30px auto; 
@@ -246,7 +387,9 @@
             border: 1px solid rgba(0, 102, 204, 0.1);
         }
         
-        /* Alert Styles */
+        /* ============================================
+           LEGACY ALERT (keep for inline use if needed)
+        ============================================ */
         .alert { 
             padding: 15px 20px; 
             margin-bottom: 20px; 
@@ -269,7 +412,9 @@
             border-color: #ef4444;
         }
         
-        /* Form Styles */
+        /* ============================================
+           FORM STYLES
+        ============================================ */
         .form-group { margin-bottom: 20px; }
         .form-group label { 
             display: block; 
@@ -301,7 +446,9 @@
         
         .form-group textarea { resize: vertical; min-height: 100px; }
         
-        /* Table Styles */
+        /* ============================================
+           TABLE STYLES
+        ============================================ */
         table { 
             width: 100%; 
             border-collapse: separate;
@@ -333,178 +480,9 @@
         table tbody tr { transition: all 0.2s; }
         table tbody tr:hover { background: #f9fafb; }
         
-        /* Footer Styles - IMPROVED */
-        .footer {
-            width: 100%;
-            background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
-            border-top: 3px solid #0066cc;
-            margin-top: auto;
-            box-shadow: 0 -4px 20px rgba(0, 102, 204, 0.08);
-        }
-        
-        .footer-container {
-            max-width: 1400px;
-            padding: 40px 30px 25px;
-            margin: 0 auto;
-        }
-        
-        .footer-content {
-            display: flex;
-            align-items: flex-start;
-            gap: 35px;
-            margin-bottom: 25px;
-        }
-        
-        .footer-logo-section {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            padding: 20px 25px;
-            background: linear-gradient(135deg, #f0f7ff 0%, #e6f2ff 100%);
-            border-radius: 12px;
-            border: 2px solid rgba(0, 102, 204, 0.1);
-            box-shadow: 0 2px 8px rgba(0, 102, 204, 0.05);
-        }
-        
-        .footer-logo-section img {
-            width: 65px;
-            height: 65px;
-            object-fit: contain;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-        }
-        
-        .footer-divider {
-            width: 2px;
-            height: 65px;
-            background: linear-gradient(to bottom, transparent, #0066cc, transparent);
-            opacity: 0.3;
-        }
-        
-        .footer-title-section {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        
-        .footer-title {
-            font-size: 24px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #0066cc 0%, #004c99 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: 0.5px;
-            margin-bottom: 2px;
-        }
-        
-        .footer-subtitle {
-            font-size: 13px;
-            color: #6b7280;
-            font-weight: 500;
-        }
-        
-        .footer-info {
-            flex: 1;
-            padding-left: 10px;
-        }
-        
-        .footer-info-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: #1f2937;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .footer-info-title::before {
-            content: '';
-            width: 4px;
-            height: 20px;
-            background: linear-gradient(to bottom, #0066cc, #004c99);
-            border-radius: 2px;
-        }
-        
-        .footer-info-content {
-            color: #4b5563;
-            font-size: 14px;
-            line-height: 1.8;
-        }
-        
-        .footer-info-content strong {
-            color: #1f2937;
-            font-weight: 600;
-        }
-        
-        .footer-contact-row {
-            display: flex;
-            gap: 20px;
-            margin-top: 8px;
-            flex-wrap: wrap;
-        }
-        
-        .footer-contact-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            color: #6b7280;
-            font-size: 13px;
-        }
-        
-        .footer-contact-item::before {
-            font-size: 14px;
-        }
-        
-        .footer-contact-item.phone::before {
-            content: '📞';
-        }
-        
-        .footer-contact-item.email::before {
-            content: '✉️';
-        }
-        
-        .footer-contact-item.location::before {
-            content: '📍';
-        }
-        
-        .footer-bottom {
-            padding-top: 20px;
-            border-top: 2px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .footer-copyright {
-            color: #9ca3af;
-            font-size: 13px;
-            line-height: 1.6;
-        }
-        
-        .footer-links {
-            display: flex;
-            gap: 20px;
-        }
-        
-        .footer-link {
-            color: #6b7280;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.3s;
-            padding: 5px 10px;
-            border-radius: 6px;
-        }
-        
-        .footer-link:hover {
-            color: #0066cc;
-            background: #f0f7ff;
-        }
-        
-        /* Modal */
+        /* ============================================
+           MODAL STYLES
+        ============================================ */
         .modal { 
             display: none; 
             position: fixed; 
@@ -559,82 +537,217 @@
         }
         
         .close:hover { opacity: 1; }
+
+        /* ============================================
+           CONFIRM DIALOG (custom)
+        ============================================ */
+        .confirm-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 99998;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .confirm-overlay.active {
+            display: flex;
+        }
+
+        .confirm-box {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+            animation: confirmPop 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            text-align: center;
+        }
+
+        @keyframes confirmPop {
+            from { opacity: 0; transform: scale(0.85) translateY(20px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .confirm-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+
+        .confirm-icon.danger { background: #fee2e2; }
+        .confirm-icon.warning { background: #fef3c7; }
+
+        .confirm-box h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 10px;
+        }
+
+        .confirm-box p {
+            font-size: 14px;
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 28px;
+        }
+
+        .confirm-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .confirm-actions .btn {
+            min-width: 130px;
+            justify-content: center;
+        }
         
-        /* Responsive */
+        /* ============================================
+           FOOTER STYLES
+        ============================================ */
+        .footer {
+            width: 100%;
+            background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
+            border-top: 3px solid #0066cc;
+            margin-top: auto;
+            box-shadow: 0 -4px 20px rgba(0, 102, 204, 0.08);
+        }
+        
+        .footer-container {
+            max-width: 1400px;
+            padding: 40px 30px 25px;
+            margin: 0 auto;
+        }
+        
+        .footer-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 35px;
+            margin-bottom: 25px;
+        }
+        
+        .footer-logo-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px 25px;
+            background: linear-gradient(135deg, #f0f7ff 0%, #e6f2ff 100%);
+            border-radius: 12px;
+            border: 2px solid rgba(0, 102, 204, 0.1);
+        }
+        
+        .footer-logo-section img {
+            width: 65px;
+            height: 65px;
+            object-fit: contain;
+        }
+        
+        .footer-divider {
+            width: 2px;
+            height: 65px;
+            background: linear-gradient(to bottom, transparent, #0066cc, transparent);
+            opacity: 0.3;
+        }
+        
+        .footer-title-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .footer-title {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #0066cc 0%, #004c99 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .footer-subtitle {
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
+        .footer-info { flex: 1; padding-left: 10px; }
+        
+        .footer-info-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .footer-info-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(to bottom, #0066cc, #004c99);
+            border-radius: 2px;
+        }
+        
+        .footer-info-content { color: #4b5563; font-size: 14px; line-height: 1.8; }
+        
+        .footer-contact-row {
+            display: flex;
+            gap: 20px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .footer-contact-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #6b7280;
+            font-size: 13px;
+        }
+        
+        .footer-contact-item.location::before { content: '📍'; font-size: 14px; }
+        .footer-contact-item.phone::before { content: '📞'; font-size: 14px; }
+        .footer-contact-item.email::before { content: '✉️'; font-size: 14px; }
+        
+        .footer-bottom {
+            padding-top: 20px;
+            border-top: 2px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .footer-copyright { color: #9ca3af; font-size: 13px; line-height: 1.6; }
+        
+        /* ============================================
+           RESPONSIVE
+        ============================================ */
         @media (max-width: 968px) {
-            .footer-content {
-                flex-direction: column;
-                gap: 25px;
-            }
-            
-            .footer-logo-section {
-                width: 100%;
-                justify-content: center;
-            }
-            
-            .footer-info {
-                padding-left: 0;
-            }
-            
-            .footer-bottom {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .footer-links {
-                justify-content: center;
-            }
+            .footer-content { flex-direction: column; gap: 25px; }
+            .footer-logo-section { width: 100%; justify-content: center; }
+            .footer-info { padding-left: 0; }
+            .footer-bottom { flex-direction: column; text-align: center; }
         }
         
         @media (max-width: 768px) {
-            .header-container {
-                flex-direction: column;
-                gap: 15px;
-                padding: 15px 20px;
-            }
-            
-            .container {
-                padding: 0 15px;
-            }
-            
-            .user-section {
-                width: 100%;
-                justify-content: space-between;
-            }
-            
-            .header-text h1 {
-                font-size: 22px;
-            }
-            
-            .header-text p {
-                font-size: 12px;
-            }
-            
-            .footer-container {
-                padding: 30px 20px 20px;
-            }
-            
-            .footer-logo-section {
-                padding: 15px 20px;
-            }
-            
-            .footer-logo-section img {
-                width: 50px;
-                height: 50px;
-            }
-            
-            .footer-divider {
-                height: 50px;
-            }
-            
-            .footer-title {
-                font-size: 20px;
-            }
-            
-            .footer-contact-row {
-                flex-direction: column;
-                gap: 8px;
-            }
+            .header-container { flex-direction: column; gap: 15px; padding: 15px 20px; }
+            .container { padding: 0 15px; }
+            .user-section { width: 100%; justify-content: space-between; }
+            .header-text h1 { font-size: 22px; }
+            .toast-container { top: 16px; right: 16px; width: calc(100vw - 32px); }
         }
     </style>
     @yield('styles')
@@ -642,6 +755,26 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
+    <!-- ============================================
+         TOAST CONTAINER
+    ============================================ -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ============================================
+         CUSTOM CONFIRM DIALOG
+    ============================================ -->
+    <div class="confirm-overlay" id="confirmOverlay">
+        <div class="confirm-box">
+            <div class="confirm-icon danger" id="confirmIcon">⚠️</div>
+            <h3 id="confirmTitle">Konfirmasi</h3>
+            <p id="confirmMessage">Apakah Anda yakin?</p>
+            <div class="confirm-actions">
+                <button class="btn btn-danger" id="confirmYesBtn" onclick="confirmAction()">Ya, Lanjutkan</button>
+                <button class="btn" style="background:#f3f4f6;color:#374151;" onclick="closeConfirm()">Batal</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Header -->
     <div class="header">
         <div class="header-container">
@@ -687,41 +820,13 @@
 
     <!-- Content -->
     <div class="container">
-        @if(session('success'))
-        <div class="alert alert-success">
-            <span style="font-size: 20px;">✓</span>
-            <span>{{ session('success') }}</span>
-        </div>
-        @endif
-        
-        @if(session('error'))
-        <div class="alert alert-error">
-            <span style="font-size: 20px;">⚠</span>
-            <span>{{ session('error') }}</span>
-        </div>
-        @endif
-        
-        @if($errors->any())
-        <div class="alert alert-error">
-            <span style="font-size: 20px;">⚠</span>
-            <div>
-                <ul style="margin: 0; padding-left: 20px;">
-                    @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        </div>
-        @endif
-        
         @yield('content')
     </div>
     
-    <!-- Footer - IMPROVED VERSION -->
+    <!-- Footer -->
     <div class="footer">
         <div class="footer-container">
             <div class="footer-content">
-                <!-- Logo Section -->
                 <div class="footer-logo-section">
                     <img src="{{ asset('pictures/diskominfo.png') }}" alt="Diskominfo Logo">
                     <div class="footer-divider"></div>
@@ -731,7 +836,6 @@
                     </div>
                 </div>
                 
-                <!-- Info Section -->
                 <div class="footer-info">
                     <div class="footer-info-title">
                         Dinas Komunikasi dan Informatika Provinsi Jawa Barat
@@ -741,24 +845,18 @@
                             Jl. Tamansari No.55, Bandung 40142
                         </div>
                         <div class="footer-contact-row">
-                            <div class="footer-contact-item phone">
-                                (022) 7275127
-                            </div>
-                            <div class="footer-contact-item email">
-                                info@diskominfo.jabarprov.go.id
-                            </div>
+                            <div class="footer-contact-item phone">(022) 7275127</div>
+                            <div class="footer-contact-item email">info@diskominfo.jabarprov.go.id</div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Bottom Section -->
             <div class="footer-bottom">
                 <div class="footer-copyright">
                     © {{ date('Y') }} Dinas Komunikasi dan Informatika Provinsi Jawa Barat.<br>
                     Hak Cipta Dilindungi Undang-Undang.
                 </div>
-            
             </div>
         </div>
     </div>
@@ -766,6 +864,147 @@
     @yield('scripts')
     
     <script>
+    /* ============================================
+       TOAST SYSTEM
+    ============================================ */
+    function showToast(type, title, message, duration = 4500) {
+        const container = document.getElementById('toastContainer');
+        
+        const icons = {
+            success: '✓',
+            error: '✕',
+            warning: '⚠',
+            info: 'ℹ'
+        };
+
+        const titles = {
+            success: title || 'Berhasil!',
+            error: title || 'Terjadi Kesalahan',
+            warning: title || 'Perhatian',
+            info: title || 'Informasi'
+        };
+
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.innerHTML = `
+            <div class="toast-icon-wrap">${icons[type]}</div>
+            <div class="toast-body">
+                <div class="toast-title">${titles[type]}</div>
+                <div class="toast-message">${message}</div>
+            </div>
+            <button class="toast-close" onclick="dismissToast(this.parentElement)">✕</button>
+        `;
+
+        // Override progress duration
+        toast.style.setProperty('--toast-duration', duration + 'ms');
+        toast.querySelector('.toast-icon-wrap').parentElement;
+        toast.style.cssText += ``;
+        // Set progress bar duration via inline style on pseudo-element trick
+        const style = document.createElement('style');
+        const id = 'toast-' + Date.now();
+        toast.id = id;
+        style.textContent = `#${id}::after { animation-duration: ${duration}ms; }`;
+        document.head.appendChild(style);
+
+        container.appendChild(toast);
+
+        const timer = setTimeout(() => dismissToast(toast), duration);
+        toast._timer = timer;
+        toast._style = style;
+
+        return toast;
+    }
+
+    function dismissToast(toast) {
+        if (!toast || toast.classList.contains('hiding')) return;
+        clearTimeout(toast._timer);
+        if (toast._style) toast._style.remove();
+        toast.classList.add('hiding');
+        setTimeout(() => toast.remove(), 300);
+    }
+
+    /* ============================================
+       CUSTOM CONFIRM DIALOG
+    ============================================ */
+    let _confirmCallback = null;
+
+    function showConfirm(options) {
+        const { title, message, onConfirm, type = 'danger', confirmText = 'Ya, Lanjutkan' } = options;
+        
+        document.getElementById('confirmTitle').textContent = title || 'Konfirmasi';
+        document.getElementById('confirmMessage').textContent = message || 'Apakah Anda yakin?';
+        document.getElementById('confirmIcon').textContent = type === 'danger' ? '🗑️' : '⚠️';
+        document.getElementById('confirmIcon').className = `confirm-icon ${type}`;
+        document.getElementById('confirmYesBtn').textContent = confirmText;
+        
+        _confirmCallback = onConfirm;
+        document.getElementById('confirmOverlay').classList.add('active');
+    }
+
+    function confirmAction() {
+        closeConfirm();
+        if (_confirmCallback) _confirmCallback();
+    }
+
+    function closeConfirm() {
+        document.getElementById('confirmOverlay').classList.remove('active');
+        _confirmCallback = null;
+    }
+
+    // Click outside to close confirm
+    document.getElementById('confirmOverlay').addEventListener('click', function(e) {
+        if (e.target === this) closeConfirm();
+    });
+
+    /* ============================================
+       INTERCEPT ALL FORM CONFIRMS
+    ============================================ */
+    document.addEventListener('DOMContentLoaded', function() {
+        // Find all forms with onsubmit confirm
+        document.querySelectorAll('form[onsubmit]').forEach(form => {
+            const originalOnsubmit = form.getAttribute('onsubmit');
+            if (originalOnsubmit && originalOnsubmit.includes('confirm(')) {
+                // Extract the message from confirm('...')
+                const match = originalOnsubmit.match(/confirm\(['"](.+?)['"]\)/);
+                const message = match ? match[1] : 'Apakah Anda yakin?';
+                
+                form.removeAttribute('onsubmit');
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const isDelete = form.querySelector('input[name="_method"][value="DELETE"]');
+                    showConfirm({
+                        title: isDelete ? 'Hapus Data?' : 'Konfirmasi',
+                        message: message,
+                        type: isDelete ? 'danger' : 'warning',
+                        confirmText: isDelete ? '🗑️ Ya, Hapus' : 'Ya, Lanjutkan',
+                        onConfirm: () => {
+                            form.removeEventListener('submit', arguments.callee);
+                            form.submit();
+                        }
+                    });
+                });
+            }
+        });
+
+        // Show flash messages as toasts
+        @if(session('success'))
+            showToast('success', 'Berhasil!', @json(session('success')));
+        @endif
+
+        @if(session('error'))
+            showToast('error', 'Gagal!', @json(session('error')));
+        @endif
+
+        @if($errors->any())
+            const errMsgs = @json($errors->all());
+            const errText = errMsgs.join('<br>');
+            showToast('error', 'Validasi Gagal', errText, 6000);
+        @endif
+    });
+
+    /* ============================================
+       NOTIFICATION REALTIME
+    ============================================ */
     setInterval(() => {
         fetch('{{ route('notifications.realtime') }}')
             .then(res => res.json())

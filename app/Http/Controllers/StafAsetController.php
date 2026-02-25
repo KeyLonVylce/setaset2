@@ -31,7 +31,7 @@ class StafAsetController extends Controller
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
-        $validated['role'] = 'staff'; // Selalu staff
+        $validated['role'] = 'staff';
         $validated['can_edit'] = $request->has('can_edit') ? true : false;
 
         $staff = StafAset::create($validated);
@@ -39,7 +39,8 @@ class StafAsetController extends Controller
         NotificationHelper::create(
             'staff',
             'tambah',
-            "Akun staff <b>{$staff->nama}</b> ({$staff->username}) berhasil dibuat"
+            "Akun staff <b>{$staff->nama}</b> ({$staff->username}) berhasil dibuat",
+            'admin'
         );
 
         return redirect()->route('staff.index')
@@ -56,7 +57,6 @@ class StafAsetController extends Controller
     {
         $staff = StafAset::findOrFail($id);
 
-        // Cegah edit akun admin
         if ($staff->role === 'admin') {
             return back()->with('error', 'Tidak dapat mengedit akun Administrator!');
         }
@@ -82,7 +82,8 @@ class StafAsetController extends Controller
         NotificationHelper::create(
             'staff',
             'edit',
-            "Akun staff <b>{$staff->nama}</b> ({$staff->username}) diubah"
+            "Akun staff <b>{$staff->nama}</b> ({$staff->username}) diubah",
+            'admin'
         );
 
         return redirect()->route('staff.index')
@@ -93,12 +94,10 @@ class StafAsetController extends Controller
     {
         $staff = StafAset::findOrFail($id);
 
-        // Cegah hapus akun admin
         if ($staff->role === 'admin') {
             return back()->with('error', 'Tidak dapat menghapus akun Administrator!');
         }
 
-        // Cegah admin menghapus akun sendiri
         if ($staff->id === auth('stafaset')->id()) {
             return back()->with('error', 'Tidak dapat menghapus akun Anda sendiri!');
         }
@@ -111,7 +110,8 @@ class StafAsetController extends Controller
         NotificationHelper::create(
             'staff',
             'hapus',
-            "Akun staff <b>{$nama}</b> ({$username}) dihapus"
+            "Akun staff <b>{$nama}</b> ({$username}) dihapus",
+            'admin'
         );
 
         return redirect()->route('staff.index')
