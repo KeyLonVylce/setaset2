@@ -3,18 +3,17 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Notification;
 use App\Models\Lantai;
 use App\Models\Ruangan;
-use App\Helpers\NotificationHelper;
+use Illuminate\Support\Facades\Auth;
 
 class LantaiController extends Controller
 {
     public function show(Request $request, $id)
     {
-        // Ambil lantai
         $lantai = Lantai::findOrFail($id);
 
-        // Query ruangan + jumlah barang
         $ruangans = $lantai->ruangans()
             ->withCount('barangs')
             ->when($request->search, function ($query) use ($request) {
@@ -47,12 +46,13 @@ class LantaiController extends Controller
             'keterangan' => $request->keterangan,
         ]);
 
-        NotificationHelper::create(
-            'lantai',
-            'tambah',
-            "Lantai <b>{$lantai->nama_lantai}</b> ditambahkan",
-            'admin'
-        );
+        Notification::create([
+            'type'        => 'lantai',
+            'aksi'        => 'tambah',
+            'pesan'       => "Lantai <b>{$lantai->nama_lantai}</b> ditambahkan",
+            'target_role' => 'admin',
+            'user_id'     => Auth::guard('stafaset')->id(),
+        ]);
 
         return back()->with('success', 'Lantai berhasil ditambahkan!');
     }
@@ -67,20 +67,19 @@ class LantaiController extends Controller
             'keterangan' => 'nullable|string',
         ]);
 
-        $nama = $lantai->nama_lantai;
-
         $lantai->update($request->only([
             'nama_lantai',
             'urutan',
             'keterangan'
         ]));
 
-        NotificationHelper::create(
-            'lantai',
-            'edit',
-            "Lantai <b>{$lantai->nama_lantai}</b> diubah",
-            'admin'
-        );
+        Notification::create([
+            'type'        => 'lantai',
+            'aksi'        => 'edit',
+            'pesan'       => "Lantai <b>{$lantai->nama_lantai}</b> diubah",
+            'target_role' => 'admin',
+            'user_id'     => Auth::guard('stafaset')->id(),
+        ]);
 
         return back()->with('success', 'Lantai berhasil diupdate!');
     }
@@ -93,15 +92,16 @@ class LantaiController extends Controller
             return back()->with('error', 'Tidak dapat menghapus lantai yang masih memiliki ruangan!');
         }
 
-        $nama = $lantai->nama_lantai;
+        $namaLantai = $lantai->nama_lantai;
         $lantai->delete();
 
-        NotificationHelper::create(
-            'lantai',
-            'hapus',
-            "Lantai <b>{$lantai->nama_lantai}</b> dihapus",
-            'admin'
-        );
+        Notification::create([
+            'type'        => 'lantai',
+            'aksi'        => 'hapus',
+            'pesan'       => "Lantai <b>{$namaLantai}</b> dihapus",
+            'target_role' => 'admin',
+            'user_id'     => Auth::guard('stafaset')->id(),
+        ]);
 
         return redirect()->route('home')->with('success', 'Lantai berhasil dihapus!');
     }
@@ -126,14 +126,44 @@ class LantaiController extends Controller
             'keterangan' => $request->keterangan,
         ]);
 
-        NotificationHelper::create(
-            'ruangan',
-            'tambah',
-            "Ruangan <b>{$ruangan->nama_ruangan}</b> ditambahkan di lantai <b>{$lantai->nama_lantai}</b>",
-            'admin'
-        );  
+        Notification::create([
+            'type'        => 'ruangan',
+            'aksi'        => 'tambah',
+            'pesan'       => "Ruangan <b>{$ruangan->nama_ruangan}</b> ditambahkan di lantai <b>{$lantai->nama_lantai}</b>",
+            'target_role' => 'admin',
+            'user_id'     => Auth::guard('stafaset')->id(),
+        ]);
 
         return back()->with('success', 'Ruangan berhasil ditambahkan!');
+    }
+
+    public function updateRuangan(Request $request, $id)
+    {
+        $ruangan = Ruangan::findOrFail($id);
+
+        $request->validate([
+            'nama_ruangan' => 'required|string|max:100',
+            'penanggung_jawab' => 'nullable|string|max:100',
+            'nip_penanggung_jawab' => 'nullable|string|max:30',
+            'keterangan' => 'nullable|string',
+        ]);
+
+        $ruangan->update([
+            'nama_ruangan' => $request->nama_ruangan,
+            'penanggung_jawab' => $request->penanggung_jawab,
+            'nip_penanggung_jawab' => $request->nip_penanggung_jawab,
+            'keterangan' => $request->keterangan,
+        ]);
+
+        Notification::create([
+            'type'        => 'ruangan',
+            'aksi'        => 'edit',
+            'pesan'       => "Ruangan <b>{$ruangan->nama_ruangan}</b> di lantai <b>{$ruangan->lantai}</b> diubah",
+            'target_role' => 'admin',
+            'user_id'     => Auth::guard('stafaset')->id(),
+        ]);
+
+        return back()->with('success', 'Ruangan berhasil diupdate!');
     }
 
     public function deleteRuangan($id)
@@ -144,17 +174,18 @@ class LantaiController extends Controller
             return back()->with('error', 'Tidak dapat menghapus ruangan yang masih memiliki barang!');
         }
 
-        $nama = $ruangan->nama_ruangan;
-        $lantai = $ruangan->lantai;
+        $namaRuangan = $ruangan->nama_ruangan;
+        $lantaiNama  = $ruangan->lantai;
 
         $ruangan->delete();
 
-        NotificationHelper::create(
-            'ruangan',
-            'hapus',
-            "Ruangan <b>{$ruangan->nama_ruangan}</b> dihapus dari lantai <b>{$lantai->nama_lantai}</b>",
-            'admin'
-        );  
+        Notification::create([
+            'type'        => 'ruangan',
+            'aksi'        => 'hapus',
+            'pesan'       => "Ruangan <b>{$namaRuangan}</b> dihapus dari lantai <b>{$lantaiNama}</b>",
+            'target_role' => 'admin',
+            'user_id'     => Auth::guard('stafaset')->id(),
+        ]);
 
         return back()->with('success', 'Ruangan berhasil dihapus!');
     }

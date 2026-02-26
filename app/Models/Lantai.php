@@ -13,12 +13,7 @@ class Lantai extends Model
 
     protected $fillable = [
         'nama_lantai',
-        'urutan',
         'keterangan',
-    ];
-
-    protected $casts = [
-        'urutan' => 'integer',
     ];
 
     public function ruangans()
@@ -28,7 +23,7 @@ class Lantai extends Model
 
     public function scopeOrdered($query)
     {
-        return $query->orderBy('urutan')->orderBy('nama_lantai');
+        return $query->orderBy('nama_lantai');
     }
 
     public function getTotalRuanganAttribute()

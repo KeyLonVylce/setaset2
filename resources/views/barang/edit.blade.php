@@ -50,28 +50,20 @@
         @csrf
         @method('PUT')
 
-        <!-- FIXED: hidden input untuk nilai asli -->
         <input type="hidden" id="harga_perolehan_raw" name="harga_perolehan"
             value="{{ old('harga_perolehan', $barang->harga_perolehan) }}">
 
         <div class="form-grid">
-
             <div class="form-group">
-                <label for="no_urut">Nomor Urut</label>
-                <input type="number" id="no_urut" name="no_urut" 
-                    value="{{ old('no_urut', $barang->no_urut) }}">
+                <label for="nama_barang">Nama Barang <span style="color:red">*</span></label>
+                <input type="text" id="nama_barang" name="nama_barang"
+                    value="{{ old('nama_barang', $barang->nama_barang) }}" required>
             </div>
 
             <div class="form-group">
                 <label for="kode_barang">Kode Barang</label>
                 <input type="text" id="kode_barang" name="kode_barang"
                     value="{{ old('kode_barang', $barang->kode_barang) }}">
-            </div>
-
-            <div class="form-group">
-                <label for="nama_barang">Nama Barang <span style="color:red">*</span></label>
-                <input type="text" id="nama_barang" name="nama_barang"
-                    value="{{ old('nama_barang', $barang->nama_barang) }}" required>
             </div>
 
             <div class="form-group">
@@ -105,7 +97,6 @@
                     min="1900" max="{{ date('Y') }}">
             </div>
 
-            <!-- HARGA PEROLEHAN FIX -->
             <div class="form-group">
                 <label for="harga_perolehan_display">Harga Perolehan (Rp)</label>
                 <div class="currency-input-wrapper">
@@ -131,12 +122,11 @@
                 </select>
             </div>
 
-            <div class="form-group">
+            <div class="form-group form-group-full">
                 <label for="keterangan">Keterangan</label>
                 <textarea id="keterangan" name="keterangan" rows="4"
                     placeholder="Keterangan tambahan tentang barang">{{ old('keterangan', $barang->keterangan) }}</textarea>
             </div>
-
         </div>
 
         <div class="form-actions">
@@ -151,8 +141,6 @@
 
 @section('scripts')
 <script>
-// --- FORMAT RUPIAH SCRIPT (FIXED) ---
-
 const hargaDisplay = document.getElementById('harga_perolehan_display');
 const hargaRaw = document.getElementById('harga_perolehan_raw');
 
@@ -162,14 +150,12 @@ function formatCurrency(value) {
     return new Intl.NumberFormat('id-ID').format(numbers);
 }
 
-// Saat halaman dibuka
 window.addEventListener('DOMContentLoaded', function() {
     if (hargaRaw.value) {
         hargaDisplay.value = formatCurrency(hargaRaw.value);
     }
 });
 
-// Saat user mengetik
 hargaDisplay.addEventListener('input', function(e) {
     const formatted = formatCurrency(e.target.value);
     e.target.value = formatted;

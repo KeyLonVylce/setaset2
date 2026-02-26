@@ -62,6 +62,7 @@ Route::middleware(['auth:stafaset', 'role:admin'])->group(function () {
     
     // Ruangan Management (hanya admin)
     Route::post('/lantai/{lantai_id}/ruangan', [LantaiController::class, 'storeRuangan'])->name('ruangan.store');
+    Route::put('/ruangan/{id}', [LantaiController::class, 'updateRuangan'])->name('ruangan.update');
     Route::delete('/ruangan/{id}', [LantaiController::class, 'deleteRuangan'])->name('ruangan.delete');
     
     // Export PDF (hanya admin)
@@ -74,4 +75,4 @@ Route::middleware(['auth:stafaset', 'role:admin'])->group(function () {
     Route::get('/staff/{id}/edit', [StafAsetController::class, 'edit'])->name('staff.edit');
     Route::put('/staff/{id}', [StafAsetController::class, 'update'])->name('staff.update');
     Route::delete('/staff/{id}', [StafAsetController::class, 'destroy'])->name('staff.destroy');
-}); 
+});

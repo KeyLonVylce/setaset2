@@ -16,7 +16,7 @@ class Ruangan extends Model
         'nama_ruangan',
         'lantai',
         'penanggung_jawab',
-        'nip_penanggung_jawab',
+        'penanggung_jawab_id',
         'keterangan',
     ];
 
@@ -35,6 +35,11 @@ class Ruangan extends Model
         return $this->hasMany(KartuInventaris::class, 'ruangan_id');
     }
 
+    public function penanggungJawabStaf()
+    {
+        return $this->belongsTo(StafAset::class, 'penanggung_jawab_id');
+    }
+
     public function getNamaLantaiAttribute()
     {
         if ($this->lantaiRelation) {
@@ -46,5 +51,10 @@ class Ruangan extends Model
     public function getTotalBarangAttribute()
     {
         return $this->barangs()->sum('jumlah');
+    }
+
+    public function getPenanggungJawabNipAttribute()
+    {
+        return $this->penanggungJawabStaf ? $this->penanggungJawabStaf->nip : null;
     }
 }

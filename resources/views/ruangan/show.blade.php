@@ -9,8 +9,11 @@
     .breadcrumb a:hover { text-decoration: underline; }
     .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 10px; flex-wrap: wrap; }
     .page-header h2 { font-size: 28px; color: #333; }
-    .info-section { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    .info-section { background: #f9f9f9; padding: 15px; border-radius: 8px; }
     .info-section p { margin: 5px 0; color: #666; }
+    .chart-section { background: #f9f9f9; padding: 15px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; }
+    .chart-section h3 { margin-bottom: 15px; font-size: 16px; color: #333; font-weight: 600; }
     .action-flex { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
     .search-box {
         display: flex;
@@ -121,6 +124,9 @@
         .action-flex {
             width: 100%;
         }
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 @endsection
@@ -148,25 +154,32 @@
         </div>
     </div>
 
-    {{-- INFO --}}
-    <div class="info-section">
-        <p><strong>Lantai:</strong> {{ $ruangan->lantai }}</p>
+    {{-- INFO SECTION WITH CHART --}}
+    <div class="info-grid">
+        <div class="info-section">
+            <p><strong>Lantai:</strong> {{ $ruangan->lantai }}</p>
 
-        @if($ruangan->penanggung_jawab)
-        <p><strong>Penanggung Jawab:</strong> {{ $ruangan->penanggung_jawab }}</p>
-        @endif
+            @if($ruangan->penanggung_jawab)
+            <p><strong>Penanggung Jawab:</strong> {{ $ruangan->penanggung_jawab }}</p>
+            @endif
 
-        @if($ruangan->nip_penanggung_jawab)
-        <p><strong>NIP:</strong> {{ $ruangan->nip_penanggung_jawab }}</p>
-        @endif
+            @if($ruangan->nip_penanggung_jawab)
+            <p><strong>NIP:</strong> {{ $ruangan->nip_penanggung_jawab }}</p>
+            @endif
 
-        @if($ruangan->keterangan)
-        <p><strong>Keterangan:</strong> {{ $ruangan->keterangan }}</p>
-        @endif
+            @if($ruangan->keterangan)
+            <p><strong>Keterangan:</strong> {{ $ruangan->keterangan }}</p>
+            @endif
 
-        <p><strong>Total Barang:</strong> {{ $barangs->total() }} item</p>
+            <p><strong>Total Barang:</strong> {{ $barangs->total() }} item</p>
+        </div>
+
+        {{-- PIE CHART --}}
+        <div class="chart-section">
+            <h3>📊 Kondisi Barang</h3>
+            <canvas id="kondisiChart" style="max-width: 280px; max-height: 280px;"></canvas>
+        </div>
     </div>
-    
 
     {{-- SEARCH BOX --}}
     <div class="search-box">
@@ -310,4 +323,93 @@
     </div>
     @endif
 </div>
+@endsection
+
+@section('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+    // Data kondisi barang
+    const barangs = @json($barangs->items());
+    
+    let baik = 0;
+    let kurangBaik = 0;
+    let rusakBerat = 0;
+    
+    barangs.forEach(barang => {
+        if (barang.kondisi === 'B') {
+            baik += parseInt(barang.jumlah);
+        } else if (barang.kondisi === 'KB') {
+            kurangBaik += parseInt(barang.jumlah);
+        } else if (barang.kondisi === 'RB') {
+            rusakBerat += parseInt(barang.jumlah);
+        }
+    });
+    
+    const total = baik + kurangBaik + rusakBerat;
+    
+    // Create pie chart
+    const ctx = document.getElementById('kondisiChart');
+    
+    if (total > 0) {
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Baik', 'Kurang Baik', 'Rusak Berat'],
+                datasets: [{
+                    data: [baik, kurangBaik, rusakBerat],
+                    backgroundColor: [
+                        '#28a745',  // Green untuk Baik
+                        '#ffc107',  // Yellow untuk Kurang Baik
+                        '#dc3545'   // Red untuk Rusak Berat
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 12
+                            },
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                if (data.labels.length && data.datasets.length) {
+                                    return data.labels.map((label, i) => {
+                                        const value = data.datasets[0].data[i];
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return {
+                                            text: `${label}: ${value} (${percentage}%)`,
+                                            fillStyle: data.datasets[0].backgroundColor[i],
+                                            hidden: false,
+                                            index: i
+                                        };
+                                    });
+                                }
+                                return [];
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return label + ': ' + value + ' item (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    } else {
+        ctx.parentElement.innerHTML = '<p style="text-align: center; color: #999; padding: 40px 0;">Belum ada data barang</p>';
+    }
+</script>
 @endsection

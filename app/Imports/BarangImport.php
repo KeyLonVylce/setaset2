@@ -31,66 +31,48 @@ class BarangImport implements ToModel, WithStartRow
             return $value;
         };
 
-        // ============================================================
-        //   PEMUTUS PALING KUAT: jika kolom nomor urut BUKAN angka → SKIP
-        // ============================================================
-        $noUrutRaw = trim((string)($row[0] ?? ''));
-
-        // Jika kosong → skip
-        if ($noUrutRaw === '' || $noUrutRaw === null) {
-            return null;
-        }
-
-        // Jika bukan angka murni → ini pasti footer
-        if (!ctype_digit($noUrutRaw)) {
-            return null;
-        }
-
-        // Convert setelah valid
-        $no_urut = (int)$noUrutRaw;
-
         // Barang pasti punya nama barang
-        if (empty($clean($row[1]))) {
+        if (empty($clean($row[0]))) {
             return null;
         }
 
         // ==========================
-        // Mapping kolom data barang
+        // Mapping kolom data barang (shifted by -1 karena no no_urut removed)
         // ==========================
-        $nama_barang     = $clean($row[1]);
-        $merk_model      = $clean($row[3]);
-        $no_seri_pabrik  = $clean($row[4]);
-        $ukuran          = $clean($row[5]);
-        $bahan           = $clean($row[6]);
-        $tahun           = $clean($row[7]);
+        $nama_barang     = $clean($row[0]);
+        $merk_model      = $clean($row[1]);
+        $no_seri_pabrik  = $clean($row[2]);
+        $ukuran          = $clean($row[3]);
+        $bahan           = $clean($row[4]);
+        $tahun           = $clean($row[5]);
 
         $kode_barang = implode('.', array_filter([
+            $clean($row[6] ?? null),
+            $clean($row[7] ?? null),
+            $clean($row[8] ?? null),
             $clean($row[9] ?? null),
             $clean($row[10] ?? null),
             $clean($row[11] ?? null),
-            $clean($row[12] ?? null),
-            $clean($row[13] ?? null),
-            $clean($row[14] ?? null),
         ], fn($v) => $v !== null && $v !== '' && $v !== '-'));
 
-        $jumlah = $clean($row[15]);
-        $harga  = $clean($row[16]);
+        $jumlah = $clean($row[12]);
+        $harga  = $clean($row[13]);
 
         // ==========================
         // Kondisi barang
         // ==========================
         $norm = fn($v) => ($v && trim($v) !== '-' ? strtolower(trim($v)) : null);
 
-        $hasB  = $norm($row[17] ?? null);
-        $hasKB = $norm($row[18] ?? null);
-        $hasRB = $norm($row[19] ?? null);
+        $hasB  = $norm($row[14] ?? null);
+        $hasKB = $norm($row[15] ?? null);
+        $hasRB = $norm($row[16] ?? null);
 
         $kondisi = null;
         if ($hasRB) $kondisi = 'RB';
         elseif ($hasKB) $kondisi = 'KB';
         elseif ($hasB)  $kondisi = 'B';
 
-        $keterangan = $clean($row[20] ?? null);
+        $keterangan = $clean($row[17] ?? null);
 
         // ==========================
         // Parsing angka
@@ -100,7 +82,6 @@ class BarangImport implements ToModel, WithStartRow
 
         return new Barang([
             'ruangan_id'       => $this->ruangan_id,
-            'no_urut'          => $no_urut,
             'nama_barang'      => $nama_barang,
             'merk_model'       => $merk_model,
             'no_seri_pabrik'   => $no_seri_pabrik,
