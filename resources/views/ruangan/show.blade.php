@@ -15,7 +15,7 @@
     .search-box {
         display: flex;
         gap: 10px;
-        margin-bottom: 20px;
+        margin-bottom: 20px;l
     }
     .search-box input {
         padding: 8px 12px;
