@@ -383,7 +383,7 @@
         <div class="lantai-card-wrapper">
             @if(Auth::guard('stafaset')->user()->isAdmin())
             <div class="lantai-card-actions">
-                <button onclick="event.preventDefault(); openEditLantaiModal({{ $lantai->id }}, '{{ addslashes($lantai->nama_lantai) }}', {{ $lantai->urutan }}, '{{ addslashes($lantai->keterangan ?? '') }}')" title="Edit">✏️</button>
+                <button onclick="event.preventDefault(); openEditLantaiModal({{ $lantai->id }}, '{{ addslashes($lantai->nama_lantai) }}', '{{ addslashes($lantai->keterangan ?? '') }}')" title="Edit">✏️</button>
                 <form action="{{ route('lantai.destroy', $lantai->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Yakin ingin menghapus lantai ini? Semua ruangan dan barang akan ikut terhapus!')">
                     @csrf
                     @method('DELETE')
@@ -474,10 +474,6 @@
                     <input type="text" id="nama_lantai" name="nama_lantai" placeholder="Contoh: Lantai 1, Lantai 2, Basement" required>
                 </div>
                 <div class="form-group">
-                    <label for="urutan">Urutan</label>
-                    <input type="number" id="urutan" name="urutan" placeholder="Urutan lantai (opsional)">
-                </div>
-                <div class="form-group">
                     <label for="keterangan">Keterangan</label>
                     <textarea id="keterangan" name="keterangan" placeholder="Keterangan tambahan (opsional)"></textarea>
                 </div>
@@ -501,10 +497,6 @@
                 <div class="form-group">
                     <label for="edit_nama_lantai">Nama Lantai <span style="color: red;">*</span></label>
                     <input type="text" id="edit_nama_lantai" name="nama_lantai" required>
-                </div>
-                <div class="form-group">
-                    <label for="edit_urutan">Urutan</label>
-                    <input type="number" id="edit_urutan" name="urutan">
                 </div>
                 <div class="form-group">
                     <label for="edit_keterangan">Keterangan</label>
@@ -538,9 +530,9 @@
                 datasets: [{
                     data: [kondisiBaik, kondisiKurangBaik, kondisiRusakBerat],
                     backgroundColor: [
-                        '#10b981',  // Green
-                        '#f59e0b',  // Orange
-                        '#ef4444'   // Red
+                        '#10b981',
+                        '#f59e0b',
+                        '#ef4444'
                     ],
                     borderWidth: 2,
                     borderColor: '#fff'
@@ -593,7 +585,7 @@
         ctx.parentElement.innerHTML = '<p style="text-align: center; color: #9ca3af; padding: 40px 0;">Belum ada data barang</p>';
     }
 
-    // Create top 5 barangs horizontal bar chart dengan warna biru gradient
+    // Create top 5 barangs horizontal bar chart
     const topCtx = document.getElementById('topBarangsChart');
     const topBarangsData = @json($topBarangs);
     
@@ -639,29 +631,19 @@
                     x: {
                         beginAtZero: true,
                         ticks: {
-                            font: {
-                                size: 11,
-                                family: 'Inter'
-                            }
+                            font: { size: 11, family: 'Inter' }
                         },
-                        grid: {
-                            color: '#f3f4f6'
-                        }
+                        grid: { color: '#f3f4f6' }
                     },
                     y: {
                         ticks: {
-                            font: {
-                                size: 11,
-                                family: 'Inter'
-                            },
+                            font: { size: 11, family: 'Inter' },
                             callback: function(value, index) {
                                 const label = this.getLabelForValue(value);
                                 return label.length > 20 ? label.substring(0, 20) + '...' : label;
                             }
                         },
-                        grid: {
-                            display: false
-                        }
+                        grid: { display: false }
                     }
                 }
             }
@@ -679,10 +661,9 @@
         document.getElementById('addLantaiModal').style.display = 'none'; 
     }
     
-    function openEditLantaiModal(id, nama, urutan, keterangan) {
+    function openEditLantaiModal(id, nama, keterangan) {
         document.getElementById('editLantaiForm').action = '/lantai/' + id;
         document.getElementById('edit_nama_lantai').value = nama;
-        document.getElementById('edit_urutan').value = urutan;
         document.getElementById('edit_keterangan').value = keterangan || '';
         document.getElementById('editLantaiModal').style.display = 'block';
     }

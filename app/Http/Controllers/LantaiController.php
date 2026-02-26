@@ -34,15 +34,11 @@ class LantaiController extends Controller
     {
         $request->validate([
             'nama_lantai' => 'required|string|max:50|unique:lantais,nama_lantai',
-            'urutan' => 'nullable|integer',
             'keterangan' => 'nullable|string',
         ]);
 
-        $urutan = $request->urutan ?? (Lantai::max('urutan') ?? 0) + 1;
-
         $lantai = Lantai::create([
             'nama_lantai' => $request->nama_lantai,
-            'urutan' => $urutan,
             'keterangan' => $request->keterangan,
         ]);
 
@@ -63,13 +59,11 @@ class LantaiController extends Controller
 
         $request->validate([
             'nama_lantai' => 'required|string|max:50|unique:lantais,nama_lantai,' . $id,
-            'urutan' => 'nullable|integer',
             'keterangan' => 'nullable|string',
         ]);
 
         $lantai->update($request->only([
             'nama_lantai',
-            'urutan',
             'keterangan'
         ]));
 
