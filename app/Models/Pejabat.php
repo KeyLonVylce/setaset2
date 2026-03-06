@@ -5,46 +5,40 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Barang extends Model
+class Pejabat extends Model
 {
     use HasFactory;
 
-    protected $table = 'barangs';
+    protected $table = 'pejabats';
 
     protected $fillable = [
-        'ruangan_id',
-        'no_urut',
-        'nama_barang',
-        'merk_model',
-        'no_seri_pabrik',
-        'ukuran',
-        'bahan',
-        'tahun_pembuatan',
-        'kode_barang',
-        'jumlah',
-        'harga_perolehan',
-        'keadaan_baik',
-        'keadaan_kurang_baik',
-        'keadaan_rusak_berat',
+        'nama',
+        'jabatan',
+        'nip',
         'keterangan',
     ];
 
-    protected $casts = [
-        'harga_perolehan',
-        'tahun_pembuatan' => 'integer',
-        'jumlah' => 'integer',
-        'keadaan_baik' => 'integer',
-        'keadaan_kurang_baik' => 'integer',
-        'keadaan_rusak_berat' => 'integer',
-    ];
-
-    public function ruangan()
+    /**
+     * Pejabat bisa menjadi "mengetahui" di banyak kartu inventaris
+     */
+    public function kartuSebagaiMengetahui()
     {
-        return $this->belongsTo(Ruangan::class, 'ruangan_id');
+        return $this->hasMany(KartuInventaris::class, 'mengetahui_id');
     }
 
-    public function getTotalNilaiAttribute()
+    /**
+     * Pejabat bisa menjadi penanggung jawab di banyak kartu inventaris
+     */
+    public function kartuSebagaiPenanggungJawab()
     {
-        return $this->jumlah * $this->harga_perolehan;
+        return $this->hasMany(KartuInventaris::class, 'penanggung_jawab_id');
+    }
+
+    /**
+     * Pejabat bisa menjadi pengelola di banyak kartu inventaris
+     */
+    public function kartuSebagaiPengelola()
+    {
+        return $this->hasMany(KartuInventaris::class, 'pengelola_id');
     }
 }

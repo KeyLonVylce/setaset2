@@ -5,56 +5,80 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Ruangan extends Model
+class Barang extends Model
 {
     use HasFactory;
 
-    protected $table = 'ruangans';
+    protected $table = 'barangs';
 
     protected $fillable = [
-        'lantai_id',
-        'nama_ruangan',
-        'lantai',
-        'penanggung_jawab',
-        'penanggung_jawab_id',
+        'ruangan_id',
+        // 'no_urut' → DIHAPUS (redundan, dihitung saat query/tampil)
+        'nama_barang',
+        'merk_model',
+        'no_seri_pabrik',
+        'ukuran',
+        'bahan',
+        'tahun_pembuatan',
+        'kode_barang',
+        'jumlah',
+        'harga_perolehan', // sekarang decimal(15,2)
+        'kondisi',
         'keterangan',
     ];
 
-    public function lantaiRelation()
+    protected $casts = [
+        'tahun_pembuatan'  => 'integer',
+        'jumlah'           => 'integer',
+        'harga_perolehan'  => 'decimal:2', // cast ke decimal — sebelumnya string
+    ];
+
+    /**
+     * Relasi ke ruangan
+     */
+    public function ruangan()
     {
-        return $this->belongsTo(Lantai::class, 'lantai_id');
+        return $this->belongsTo(Ruangan::class, 'ruangan_id');
     }
 
-    public function barangs()
+    // =============================================
+    // ACCESSOR
+    // =============================================
+
+    /**
+     * Total nilai barang (jumlah × harga)
+     */
+    public function getTotalNilaiAttribute(): float
     {
-        return $this->hasMany(Barang::class, 'ruangan_id');
+        return (float) $this->jumlah * (float) ($this->harga_perolehan ?? 0);
     }
 
-    public function kartuInventaris()
+    /**
+     * Label kondisi yang bisa dibaca manusia
+     */
+    public function getKondisiLabelAttribute(): string
     {
-        return $this->hasMany(KartuInventaris::class, 'ruangan_id');
+        return match ($this->kondisi) {
+            'B'  => 'Baik',
+            'KB' => 'Kurang Baik',
+            'RB' => 'Rusak Berat',
+            default => '-',
+        };
     }
 
-    public function penanggungJawabStaf()
+    // Accessor backward-compat untuk view lama yang masih pakai ini
+    public function getKeadaanBaikAttribute(): int
     {
-        return $this->belongsTo(StafAset::class, 'penanggung_jawab_id');
+        return $this->kondisi === 'B' ? $this->jumlah : 0;
     }
 
-    public function getNamaLantaiAttribute()
+    public function getKeadaanKurangBaikAttribute(): int
     {
-        if ($this->lantaiRelation) {
-            return $this->lantaiRelation->nama_lantai;
-        }
-        return $this->lantai;
+        return $this->kondisi === 'KB' ? $this->jumlah : 0;
     }
 
-    public function getTotalBarangAttribute()
+    public function getKeadaanRusakBeratAttribute(): int
     {
-        return $this->barangs()->sum('jumlah');
-    }
-
-    public function getPenanggungJawabNipAttribute()
-    {
-        return $this->penanggungJawabStaf ? $this->penanggungJawabStaf->nip : null;
+        return $this->kondisi === 'RB' ? $this->jumlah : 0;
     }
 }
