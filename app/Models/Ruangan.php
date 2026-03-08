@@ -5,80 +5,31 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Barang extends Model
+class Ruangan extends Model
 {
     use HasFactory;
 
-    protected $table = 'barangs';
+    protected $table = 'ruangans';
 
     protected $fillable = [
-        'ruangan_id',
-        // 'no_urut' → DIHAPUS (redundan, dihitung saat query/tampil)
-        'nama_barang',
-        'merk_model',
-        'no_seri_pabrik',
-        'ukuran',
-        'bahan',
-        'tahun_pembuatan',
-        'kode_barang',
-        'jumlah',
-        'harga_perolehan', // sekarang decimal(15,2)
-        'kondisi',
+        'lantai_id',
+        'nama_ruangan',
+        'penanggung_jawab_id',
         'keterangan',
     ];
 
-    protected $casts = [
-        'tahun_pembuatan'  => 'integer',
-        'jumlah'           => 'integer',
-        'harga_perolehan'  => 'decimal:2', // cast ke decimal — sebelumnya string
-    ];
-
-    /**
-     * Relasi ke ruangan
-     */
-    public function ruangan()
+    public function lantai()
     {
-        return $this->belongsTo(Ruangan::class, 'ruangan_id');
+        return $this->belongsTo(Lantai::class, 'lantai_id');
     }
 
-    // =============================================
-    // ACCESSOR
-    // =============================================
-
-    /**
-     * Total nilai barang (jumlah × harga)
-     */
-    public function getTotalNilaiAttribute(): float
+    public function penanggungJawab()
     {
-        return (float) $this->jumlah * (float) ($this->harga_perolehan ?? 0);
+        return $this->belongsTo(Pejabat::class, 'penanggung_jawab_id');
     }
 
-    /**
-     * Label kondisi yang bisa dibaca manusia
-     */
-    public function getKondisiLabelAttribute(): string
+    public function barangs()
     {
-        return match ($this->kondisi) {
-            'B'  => 'Baik',
-            'KB' => 'Kurang Baik',
-            'RB' => 'Rusak Berat',
-            default => '-',
-        };
-    }
-
-    // Accessor backward-compat untuk view lama yang masih pakai ini
-    public function getKeadaanBaikAttribute(): int
-    {
-        return $this->kondisi === 'B' ? $this->jumlah : 0;
-    }
-
-    public function getKeadaanKurangBaikAttribute(): int
-    {
-        return $this->kondisi === 'KB' ? $this->jumlah : 0;
-    }
-
-    public function getKeadaanRusakBeratAttribute(): int
-    {
-        return $this->kondisi === 'RB' ? $this->jumlah : 0;
+        return $this->hasMany(Barang::class, 'ruangan_id');
     }
 }

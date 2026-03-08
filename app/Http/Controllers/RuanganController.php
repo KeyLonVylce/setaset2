@@ -2,57 +2,45 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Notification;
-use App\Models\NotificationRead;
 use App\Models\Ruangan;
 use App\Models\Barang;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\KartuInventarisExport;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class RuanganController extends Controller
 {
     public function show(Request $request, $id)
     {
-        $search = $request->search;
+        $ruangan = Ruangan::with(['lantai', 'penanggungJawab'])->findOrFail($id);
 
-        // Ambil data ruangan
-        $ruangan = Ruangan::findOrFail($id);
+        $query = Barang::where('ruangan_id', $id);
 
-        // Query barang berdasarkan ruangan
-        $barangs = Barang::where('ruangan_id', $id)
-            ->when($search, function ($query) use ($search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('nama_barang', 'LIKE', "%{$search}%")
-                      ->orWhere('kode_barang', 'LIKE', "%{$search}%")
-                      ->orWhere('merk_model', 'LIKE', "%{$search}%")
-                      ->orWhere('keterangan', 'LIKE', "%{$search}%");
-                });
-            })
-            ->paginate(10)
-            ->withQueryString();
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_barang', 'like', "%{$search}%")
+                  ->orWhere('kode_barang', 'like', "%{$search}%")
+                  ->orWhere('merk_model', 'like', "%{$search}%")
+                  ->orWhere('no_seri_pabrik', 'like', "%{$search}%")
+                  ->orWhere('keterangan', 'like', "%{$search}%");
+            });
+        }
+
+        $barangs = $query->paginate(20)->withQueryString();
 
         return view('ruangan.show', compact('ruangan', 'barangs'));
     }
 
-    public function export(Request $request, $id)
+    public function export($id)
     {
-        $ruangan = Ruangan::with('barangs')->findOrFail($id);
+        $ruangan = Ruangan::with(['lantai', 'penanggungJawab', 'barangs'])->findOrFail($id);
 
-        // Export Excel
-        if ($request->input('format') === 'excel') {
-            $filename = 'Kartu_Inventaris_' 
-                . str_replace(' ', '_', $ruangan->nama_ruangan) 
-                . '_' . date('Y-m-d') . '.xlsx';
+        $pdf = Pdf::loadView('ruangan.export', compact('ruangan'))
+                  ->setPaper('a4', 'landscape');
 
-            return Excel::download(
-                new KartuInventarisExport($ruangan),
-                $filename
-            );
-        }
+        $filename = 'kartu-inventaris-' . str_replace(' ', '-', strtolower($ruangan->nama_ruangan)) . '.pdf';
 
-        // View print / PDF
-        return view('ruangan.export', compact('ruangan'));
+        return $pdf->download($filename);
     }
 }

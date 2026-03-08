@@ -15,21 +15,9 @@
     .chart-section { background: #f9f9f9; padding: 15px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; }
     .chart-section h3 { margin-bottom: 15px; font-size: 16px; color: #333; font-weight: 600; }
     .action-flex { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-    .search-box {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 20px;
-    }
-    .search-box input {
-        padding: 8px 12px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        width: 250px;
-    }
-    .search-box input:focus {
-        outline: none;
-        border-color: #ff7b3d;
-    }
+    .search-box { display: flex; gap: 10px; margin-bottom: 20px; }
+    .search-box input { padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; width: 250px; }
+    .search-box input:focus { outline: none; border-color: #ff7b3d; }
     .table-responsive { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; }
     table th { position: sticky; top: 0; background: #ff9a56; z-index: 10; padding: 12px 8px; color: white; text-align: left; }
@@ -42,91 +30,25 @@
     .badge-kurang { background: #fff3cd; color: #856404; }
     .badge-rusak { background: #f8d7da; color: #721c24; }
     .empty-state { text-align: center; padding: 60px 20px; color: #999; }
-    
+
     /* Pagination Styles */
-    .pagination-wrapper { 
-        display: flex; 
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 30px; 
-        padding: 20px 0;
-        flex-wrap: wrap;
-        gap: 15px;
-    }
-    .pagination-info {
-        color: #666;
-        font-size: 14px;
-    }
-    .pagination-nav {
-        display: flex;
-    }
-    .pagination { 
-        display: flex; 
-        list-style: none; 
-        gap: 5px; 
-        padding: 0; 
-        margin: 0; 
-        align-items: center;
-    }
-    .page-item { 
-        display: inline-block; 
-    }
-    .page-link { 
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 36px;
-        height: 36px;
-        padding: 0 8px;
-        border: 1px solid #ddd; 
-        border-radius: 50%;
-        color: #666; 
-        text-decoration: none; 
-        transition: all 0.2s;
-        background: white;
-        font-size: 14px;
-        cursor: pointer;
-    }
-    .page-link:hover { 
-        background: #f5f5f5; 
-        border-color: #bbb; 
-    }
-    .page-item.active .page-link { 
-        background: #00a8ff; 
-        color: white; 
-        border-color: #00a8ff; 
-        font-weight: 600;
-        cursor: default;
-    }
-    .page-item.disabled .page-link { 
-        color: #ccc; 
-        cursor: not-allowed; 
-        background: #fafafa;
-        border-color: #e5e5e5;
-    }
-    .page-item.disabled .page-link:hover { 
-        background: #fafafa; 
-        border-color: #e5e5e5; 
-    }
-    
+    .pagination-wrapper { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; padding: 20px 0; flex-wrap: wrap; gap: 15px; }
+    .pagination-info { color: #666; font-size: 14px; }
+    .pagination-nav { display: flex; }
+    .pagination { display: flex; list-style: none; gap: 5px; padding: 0; margin: 0; align-items: center; }
+    .page-item { display: inline-block; }
+    .page-link { display: flex; align-items: center; justify-content: center; min-width: 36px; height: 36px; padding: 0 8px; border: 1px solid #ddd; border-radius: 50%; color: #666; text-decoration: none; transition: all 0.2s; background: white; font-size: 14px; cursor: pointer; }
+    .page-link:hover { background: #f5f5f5; border-color: #bbb; }
+    .page-item.active .page-link { background: #00a8ff; color: white; border-color: #00a8ff; font-weight: 600; cursor: default; }
+    .page-item.disabled .page-link { color: #ccc; cursor: not-allowed; background: #fafafa; border-color: #e5e5e5; }
+    .page-item.disabled .page-link:hover { background: #fafafa; border-color: #e5e5e5; }
+
     @media (max-width: 768px) {
-        .pagination-wrapper {
-            justify-content: center;
-        }
-        .pagination-info {
-            width: 100%;
-            text-align: center;
-        }
-        .page-header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        .action-flex {
-            width: 100%;
-        }
-        .info-grid {
-            grid-template-columns: 1fr;
-        }
+        .pagination-wrapper { justify-content: center; }
+        .pagination-info { width: 100%; text-align: center; }
+        .page-header { flex-direction: column; align-items: flex-start; }
+        .action-flex { width: 100%; }
+        .info-grid { grid-template-columns: 1fr; }
     }
 </style>
 @endsection
@@ -135,8 +57,8 @@
 
 {{-- Breadcrumb --}}
 <div class="breadcrumb">
-    <a href="{{ route('home') }}">Home</a> / 
-    <a href="{{ route('lantai.show', $ruangan->lantai_id) }}">{{ $ruangan->lantai }}</a> / 
+    <a href="{{ route('home') }}">Home</a> /
+    <a href="{{ route('lantai.show', $ruangan->lantai_id) }}">{{ $ruangan->lantai->nama_lantai }}</a> /
     {{ $ruangan->nama_ruangan }}
 </div>
 
@@ -157,18 +79,20 @@
     {{-- INFO SECTION WITH CHART --}}
     <div class="info-grid">
         <div class="info-section">
-            <p><strong>Lantai:</strong> {{ $ruangan->lantai }}</p>
+            <p><strong>Lantai:</strong> {{ $ruangan->lantai->nama_lantai }}</p>
 
-            @if($ruangan->penanggung_jawab)
-            <p><strong>Penanggung Jawab:</strong> {{ $ruangan->penanggung_jawab }}</p>
-            @endif
-
-            @if($ruangan->nip_penanggung_jawab)
-            <p><strong>NIP:</strong> {{ $ruangan->nip_penanggung_jawab }}</p>
+            @if($ruangan->penanggungJawab)
+                <p><strong>Penanggung Jawab:</strong> {{ $ruangan->penanggungJawab->nama }}</p>
+                @if($ruangan->penanggungJawab->nip)
+                    <p><strong>NIP:</strong> {{ $ruangan->penanggungJawab->nip }}</p>
+                @endif
+                @if($ruangan->penanggungJawab->jabatan)
+                    <p><strong>Jabatan:</strong> {{ $ruangan->penanggungJawab->jabatan }}</p>
+                @endif
             @endif
 
             @if($ruangan->keterangan)
-            <p><strong>Keterangan:</strong> {{ $ruangan->keterangan }}</p>
+                <p><strong>Keterangan:</strong> {{ $ruangan->keterangan }}</p>
             @endif
 
             <p><strong>Total Barang:</strong> {{ $barangs->total() }} item</p>
@@ -266,50 +190,30 @@
         </div>
         <div class="pagination-nav">
             <ul class="pagination">
-                {{-- Previous Page Link --}}
                 @if ($barangs->onFirstPage())
-                    <li class="page-item disabled">
-                        <span class="page-link">‹</span>
-                    </li>
+                    <li class="page-item disabled"><span class="page-link">‹</span></li>
                 @else
-                    <li class="page-item">
-                        <a class="page-link" href="{{ $barangs->previousPageUrl() }}" rel="prev">‹</a>
-                    </li>
+                    <li class="page-item"><a class="page-link" href="{{ $barangs->previousPageUrl() }}" rel="prev">‹</a></li>
                 @endif
 
-                {{-- Pagination Elements --}}
                 @foreach(range(1, $barangs->lastPage()) as $page)
                     @if ($page == $barangs->currentPage())
-                        <li class="page-item active">
-                            <span class="page-link">{{ $page }}</span>
-                        </li>
+                        <li class="page-item active"><span class="page-link">{{ $page }}</span></li>
                     @else
-                        <li class="page-item">
-                            <a class="page-link" href="{{ $barangs->url($page) }}">{{ $page }}</a>
-                        </li>
+                        <li class="page-item"><a class="page-link" href="{{ $barangs->url($page) }}">{{ $page }}</a></li>
                     @endif
                 @endforeach
 
-                {{-- Next Page Link --}}
                 @if ($barangs->hasMorePages())
-                    <li class="page-item">
-                        <a class="page-link" href="{{ $barangs->nextPageUrl() }}" rel="next">›</a>
-                    </li>
+                    <li class="page-item"><a class="page-link" href="{{ $barangs->nextPageUrl() }}" rel="next">›</a></li>
                 @else
-                    <li class="page-item disabled">
-                        <span class="page-link">›</span>
-                    </li>
+                    <li class="page-item disabled"><span class="page-link">›</span></li>
                 @endif
 
-                {{-- Last Page Link --}}
                 @if ($barangs->hasMorePages())
-                    <li class="page-item">
-                        <a class="page-link" href="{{ $barangs->url($barangs->lastPage()) }}">»</a>
-                    </li>
+                    <li class="page-item"><a class="page-link" href="{{ $barangs->url($barangs->lastPage()) }}">»</a></li>
                 @else
-                    <li class="page-item disabled">
-                        <span class="page-link">»</span>
-                    </li>
+                    <li class="page-item disabled"><span class="page-link">»</span></li>
                 @endif
             </ul>
         </div>
@@ -328,28 +232,19 @@
 @section('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
-    // Data kondisi barang
     const barangs = @json($barangs->items());
-    
-    let baik = 0;
-    let kurangBaik = 0;
-    let rusakBerat = 0;
-    
+
+    let baik = 0, kurangBaik = 0, rusakBerat = 0;
+
     barangs.forEach(barang => {
-        if (barang.kondisi === 'B') {
-            baik += parseInt(barang.jumlah);
-        } else if (barang.kondisi === 'KB') {
-            kurangBaik += parseInt(barang.jumlah);
-        } else if (barang.kondisi === 'RB') {
-            rusakBerat += parseInt(barang.jumlah);
-        }
+        if (barang.kondisi === 'B') baik += parseInt(barang.jumlah);
+        else if (barang.kondisi === 'KB') kurangBaik += parseInt(barang.jumlah);
+        else if (barang.kondisi === 'RB') rusakBerat += parseInt(barang.jumlah);
     });
-    
+
     const total = baik + kurangBaik + rusakBerat;
-    
-    // Create pie chart
     const ctx = document.getElementById('kondisiChart');
-    
+
     if (total > 0) {
         new Chart(ctx, {
             type: 'pie',
@@ -357,11 +252,7 @@
                 labels: ['Baik', 'Kurang Baik', 'Rusak Berat'],
                 datasets: [{
                     data: [baik, kurangBaik, rusakBerat],
-                    backgroundColor: [
-                        '#28a745',  // Green untuk Baik
-                        '#ffc107',  // Yellow untuk Kurang Baik
-                        '#dc3545'   // Red untuk Rusak Berat
-                    ],
+                    backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
                     borderWidth: 2,
                     borderColor: '#fff'
                 }]
@@ -374,9 +265,7 @@
                         position: 'bottom',
                         labels: {
                             padding: 15,
-                            font: {
-                                size: 12
-                            },
+                            font: { size: 12 },
                             generateLabels: function(chart) {
                                 const data = chart.data;
                                 if (data.labels.length && data.datasets.length) {
@@ -398,10 +287,9 @@
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                const label = context.label || '';
                                 const value = context.parsed || 0;
                                 const percentage = ((value / total) * 100).toFixed(1);
-                                return label + ': ' + value + ' item (' + percentage + '%)';
+                                return context.label + ': ' + value + ' item (' + percentage + '%)';
                             }
                         }
                     }

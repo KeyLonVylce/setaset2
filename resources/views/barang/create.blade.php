@@ -9,130 +9,174 @@
     .breadcrumb a:hover { text-decoration: underline; }
     .page-header { margin-bottom: 30px; }
     .page-header h2 { font-size: 28px; color: #333; }
-    .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-    .form-group-full { grid-column: 1 / -1; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 14px; }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+        box-sizing: border-box;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #ff7b3d;
+        box-shadow: 0 0 0 3px rgba(255, 123, 61, 0.1);
+    }
+    .form-group.full-width { grid-column: 1 / -1; }
     .form-actions { display: flex; gap: 10px; margin-top: 20px; }
-    .helper-text { font-size: 12px; color: #666; margin-top: 5px; }
-    
+    .required { color: red; }
+    .section-title { font-size: 16px; font-weight: 600; color: #ff7b3d; margin: 20px 0 10px; padding-bottom: 5px; border-bottom: 2px solid #ff7b3d; grid-column: 1 / -1; }
+
     @media (max-width: 768px) {
         .form-grid { grid-template-columns: 1fr; }
+        .form-group.full-width { grid-column: 1; }
+        .section-title { grid-column: 1; }
     }
 </style>
 @endsection
 
 @section('content')
+
+{{-- Breadcrumb --}}
 <div class="breadcrumb">
-    <a href="{{ route('home') }}">Home</a> / 
-    <a href="{{ route('lantai.show', $ruangan->lantai) }}">{{ $ruangan->lantai }}</a> / 
-    <a href="{{ route('ruangan.show', $ruangan->id) }}">{{ $ruangan->nama_ruangan }}</a> / 
+    <a href="{{ route('home') }}">Home</a> /
+    <a href="{{ route('lantai.show', $ruangan->lantai_id) }}">{{ $ruangan->lantai->nama_lantai }}</a> /
+    <a href="{{ route('ruangan.show', $ruangan->id) }}">{{ $ruangan->nama_ruangan }}</a> /
     Tambah Barang
 </div>
 
 <div class="card">
     <div class="page-header">
         <h2>Tambah Barang Baru</h2>
-        <p style="color: #666;">Ruangan: <strong>{{ $ruangan->nama_ruangan }}</strong> ({{ $ruangan->lantai }})</p>
+        <p style="color: #666; margin-top: 5px;">Ruangan: <strong>{{ $ruangan->nama_ruangan }}</strong> — {{ $ruangan->lantai->nama_lantai }}</p>
     </div>
 
-    <form action="{{ route('barang.store') }}" method="POST">
+    @if($errors->any())
+    <div class="alert alert-danger" style="margin-bottom: 20px; padding: 12px 15px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 6px; color: #721c24;">
+        <ul style="margin: 0; padding-left: 20px;">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
+    <form action="{{ route('barang.store', $ruangan->id) }}" method="POST">
         @csrf
-        <input type="hidden" name="ruangan_id" value="{{ $ruangan->id }}">
 
         <div class="form-grid">
+
+            <div class="section-title">Identitas Barang</div>
+
             <div class="form-group">
-                <label for="nama_barang">Nama Barang <span style="color: red;">*</span></label>
-                <input type="text" id="nama_barang" name="nama_barang" placeholder="Contoh: Laptop, Meja Kantor" required>
+                <label for="nama_barang">Nama Barang <span class="required">*</span></label>
+                <input type="text" id="nama_barang" name="nama_barang"
+                    value="{{ old('nama_barang') }}"
+                    placeholder="Contoh: Meja Kerja"
+                    required>
             </div>
 
             <div class="form-group">
                 <label for="kode_barang">Kode Barang</label>
-                <input type="text" id="kode_barang" name="kode_barang" placeholder="Contoh: BRG-001">
-                <div class="helper-text">Kode unik identifikasi barang</div>
+                <input type="text" id="kode_barang" name="kode_barang"
+                    value="{{ old('kode_barang') }}"
+                    placeholder="Contoh: MJ-001">
             </div>
 
             <div class="form-group">
-                <label for="merk_model">Merk/Model</label>
-                <input type="text" id="merk_model" name="merk_model" placeholder="Contoh: Dell Latitude 5420">
+                <label for="merk_model">Merk / Model</label>
+                <input type="text" id="merk_model" name="merk_model"
+                    value="{{ old('merk_model') }}"
+                    placeholder="Contoh: Futura Type A">
             </div>
 
             <div class="form-group">
-                <label for="no_seri_pabrik">Nomor Seri Pabrik</label>
-                <input type="text" id="no_seri_pabrik" name="no_seri_pabrik" placeholder="Serial number">
+                <label for="no_seri_pabrik">No. Seri Pabrik</label>
+                <input type="text" id="no_seri_pabrik" name="no_seri_pabrik"
+                    value="{{ old('no_seri_pabrik') }}"
+                    placeholder="Nomor seri dari pabrik">
             </div>
+
+            <div class="section-title">Spesifikasi</div>
 
             <div class="form-group">
                 <label for="ukuran">Ukuran</label>
-                <input type="text" id="ukuran" name="ukuran" placeholder="Contoh: 14 inch, 120x80 cm">
+                <input type="text" id="ukuran" name="ukuran"
+                    value="{{ old('ukuran') }}"
+                    placeholder="Contoh: 120x60x75 cm">
             </div>
 
             <div class="form-group">
                 <label for="bahan">Bahan</label>
-                <input type="text" id="bahan" name="bahan" placeholder="Contoh: Kayu Jati, Plastik">
+                <input type="text" id="bahan" name="bahan"
+                    value="{{ old('bahan') }}"
+                    placeholder="Contoh: Kayu, Besi, Plastik">
             </div>
 
             <div class="form-group">
                 <label for="tahun_pembuatan">Tahun Pembuatan</label>
-                <input type="number" id="tahun_pembuatan" name="tahun_pembuatan" min="1900" max="{{ date('Y') }}" placeholder="{{ date('Y') }}">
+                <input type="number" id="tahun_pembuatan" name="tahun_pembuatan"
+                    value="{{ old('tahun_pembuatan') }}"
+                    min="1900" max="{{ date('Y') }}"
+                    placeholder="{{ date('Y') }}">
+            </div>
+
+            <div class="form-group">
+                <label for="jumlah">Jumlah <span class="required">*</span></label>
+                <input type="number" id="jumlah" name="jumlah"
+                    value="{{ old('jumlah', 1) }}"
+                    min="1" required>
+            </div>
+
+            <div class="section-title">Kondisi & Nilai</div>
+
+            <div class="form-group">
+                <label for="kondisi">Kondisi <span class="required">*</span></label>
+                <select id="kondisi" name="kondisi" required>
+                    <option value="">-- Pilih Kondisi --</option>
+                    <option value="B"  {{ old('kondisi') === 'B'  ? 'selected' : '' }}>Baik</option>
+                    <option value="KB" {{ old('kondisi') === 'KB' ? 'selected' : '' }}>Kurang Baik</option>
+                    <option value="RB" {{ old('kondisi') === 'RB' ? 'selected' : '' }}>Rusak Berat</option>
+                </select>
             </div>
 
             <div class="form-group">
                 <label for="harga_perolehan">Harga Perolehan (Rp)</label>
-                <input type="text" id="harga_perolehan" name="harga_perolehan" placeholder="0 atau -">
-                <div class="helper-text">Harga perolehan per unit (bisa menggunakan strip "-" jika tidak ada harga)</div>
+                <input type="number" id="harga_perolehan" name="harga_perolehan"
+                    value="{{ old('harga_perolehan') }}"
+                    min="0" step="1000"
+                    placeholder="0">
             </div>
 
             <div class="form-group">
-                <label for="jumlah">Jumlah <span style="color: red;">*</span></label>
-                <input type="number" id="jumlah" name="jumlah" min="1" value="1" required>
+                <label for="total_nilai">Total Nilai (Rp)</label>
+                <input type="number" id="total_nilai" name="total_nilai"
+                    value="{{ old('total_nilai') }}"
+                    min="0" step="1000"
+                    placeholder="0">
             </div>
 
-           <div class="form-group">
-                <label for="kondisi">Kondisi Barang <span style="color: red;">*</span></label>
-                <select id="kondisi" name="kondisi" required>
-                    <option value="B" selected>Baik (B)</option>
-                    <option value="KB">Kurang Baik (KB)</option>
-                    <option value="RB">Rusak Berat (RB)</option>
-                </select>
-            </div>
-
-            <div class="form-group form-group-full">
+            <div class="form-group full-width">
                 <label for="keterangan">Keterangan</label>
-                <textarea id="keterangan" name="keterangan" rows="4" placeholder="Keterangan tambahan tentang barang"></textarea>
+                <textarea id="keterangan" name="keterangan" rows="3"
+                    placeholder="Keterangan tambahan (opsional)">{{ old('keterangan') }}</textarea>
             </div>
+
         </div>
 
         <div class="form-actions">
-            <button type="submit" class="btn btn-success">Simpan Barang</button>
+            <button type="submit" class="btn btn-success">💾 Simpan Barang</button>
             <a href="{{ route('ruangan.show', $ruangan->id) }}" class="btn btn-danger">Batal</a>
         </div>
+
     </form>
 </div>
-@endsection
-
-@section('scripts')
-<script>
-    // Format ribuan (1.000.000)
-    function formatRupiah(angka) {
-        let number_string = angka.replace(/[^0-9]/g, "");
-        return number_string.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    }
-
-    // Event ketika user mengetik
-    const hargaInput = document.getElementById('harga_perolehan');
-    hargaInput.addEventListener('input', function() {
-        if (this.value.trim() === "-") return; // biarkan "-" tetap
-        this.value = formatRupiah(this.value);
-    });
-
-    // Convert ke angka sebelum submit
-    document.querySelector('form').addEventListener('submit', function() {
-        const harga = hargaInput.value.trim();
-
-        if (harga === "-" || harga === "") {
-            hargaInput.value = ""; // simpan NULL
-        } else {
-            hargaInput.value = harga.replace(/\./g, ""); // hapus titik untuk database
-        }
-    });
-</script>
 @endsection
