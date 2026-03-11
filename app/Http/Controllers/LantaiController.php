@@ -31,7 +31,10 @@ class LantaiController extends Controller
             ->paginate(3)
             ->withQueryString();
 
-        return view('lantai.show', compact('lantai', 'ruangans'));
+        // ✅ FIX: Kirim $pejabats ke view untuk dropdown modal tambah/edit ruangan
+        $pejabats = Pejabat::orderBy('nama')->get();
+
+        return view('lantai.show', compact('lantai', 'ruangans', 'pejabats'));
     }
 
     public function store(Request $request)

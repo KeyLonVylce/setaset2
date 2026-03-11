@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Notification;
-use App\Models\NotificationRead;
 use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
@@ -22,45 +21,31 @@ class NotificationController extends Controller
         $user = Auth::guard('stafaset')->user();
 
         $notifications = $this->baseQuery($user)
-            ->with(['reads' => function ($q) use ($user) {
-                $q->where('user_id', $user->id);
-            }])
             ->latest()
             ->paginate(20);
 
         return view('notifications.index', compact('notifications', 'user'));
     }
 
-
     public function markAsRead($id)
     {
         $user = Auth::guard('stafaset')->user();
 
-        NotificationRead::updateOrCreate(
-            [
-                'notification_id' => $id,
-                'user_id' => $user->id,
-            ],
-            [
-                'read_at' => now(),
-            ]
-        );
+        $notification = Notification::findOrFail($id);
+        $notification->markReadBy($user->id);
 
         return back();
     }
 
-
     public function realtime()
     {
         $user = Auth::guard('stafaset')->user();
-    
+
         $unread = $this->baseQuery($user)
-            ->whereDoesntHave('reads', function ($q) use ($user) {
-                $q->where('user_id', $user->id)
-                  ->whereNotNull('read_at');
-            })
+            ->get()
+            ->filter(fn($n) => !$n->isReadBy($user->id))
             ->count();
-    
+
         return response()->json([
             'unread' => $unread
         ]);

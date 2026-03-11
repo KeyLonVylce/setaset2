@@ -19,26 +19,10 @@ class Pejabat extends Model
     ];
 
     /**
-     * Pejabat bisa menjadi "mengetahui" di banyak kartu inventaris
+     * Pejabat bisa menjadi penanggung jawab di banyak ruangan
      */
-    public function kartuSebagaiMengetahui()
+    public function ruangans()
     {
-        return $this->hasMany(KartuInventaris::class, 'mengetahui_id');
-    }
-
-    /**
-     * Pejabat bisa menjadi penanggung jawab di banyak kartu inventaris
-     */
-    public function kartuSebagaiPenanggungJawab()
-    {
-        return $this->hasMany(KartuInventaris::class, 'penanggung_jawab_id');
-    }
-
-    /**
-     * Pejabat bisa menjadi pengelola di banyak kartu inventaris
-     */
-    public function kartuSebagaiPengelola()
-    {
-        return $this->hasMany(KartuInventaris::class, 'pengelola_id');
+        return $this->hasMany(Ruangan::class, 'penanggung_jawab_id');
     }
 }
