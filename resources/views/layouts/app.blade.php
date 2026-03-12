@@ -932,7 +932,7 @@
         const { title, message, onConfirm, type = 'danger', confirmText = 'Ya, Lanjutkan' } = options;
         
         document.getElementById('confirmTitle').textContent = title || 'Konfirmasi';
-        document.getElementById('confirmMessage').textContent = message || 'Apakah Anda yakin?';
+        document.getElementById('confirmMessage').innerHTML = message || 'Apakah Anda yakin?';
         document.getElementById('confirmIcon').textContent = type === 'danger' ? '🗑️' : '⚠️';
         document.getElementById('confirmIcon').className = `confirm-icon ${type}`;
         document.getElementById('confirmYesBtn').textContent = confirmText;
