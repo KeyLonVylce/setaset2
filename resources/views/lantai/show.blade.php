@@ -10,27 +10,10 @@
     .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
     .page-header h2 { font-size: 28px; color: #333; margin: 0; }
 
-    /* Search Box */
-    .search-box {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    .search-box form {
-        margin: 0;
-    }
-    .search-box input {
-        padding: 10px 15px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        width: 250px;
-        font-size: 14px;
-        transition: border-color 0.3s;
-    }
-    .search-box input:focus {
-        outline: none;
-        border-color: #ff7b3d;
-    }
+    .search-box { display: flex; align-items: center; gap: 10px; }
+    .search-box form { margin: 0; }
+    .search-box input { padding: 10px 15px; border: 1px solid #ddd; border-radius: 6px; width: 250px; font-size: 14px; transition: border-color 0.3s; }
+    .search-box input:focus { outline: none; border-color: #ff7b3d; }
 
     .lantai-info { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
     .lantai-info p { margin: 5px 0; color: #666; }
@@ -45,90 +28,28 @@
     .badge-info { background: #d1ecf1; color: #0c5460; }
     .empty-state { text-align: center; padding: 60px 20px; color: #999; }
 
-    .ruangan-card-actions {
-        display: flex;
-        gap: 8px;
-    }
+    .ruangan-card-actions { display: flex; gap: 8px; }
+    .ruangan-card-actions button { background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer; font-size: 16px; padding: 8px; color: #6b7280; transition: all 0.3s; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+    .ruangan-card-actions button:hover { background: white; color: #0066cc; border-color: #0066cc; transform: scale(1.1); }
+    .ruangan-card-actions .btn-delete:hover { color: #dc3545; border-color: #dc3545; }
 
-    .ruangan-card-actions button {
-        background: rgba(255, 255, 255, 0.9);
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 16px;
-        padding: 8px;
-        color: #6b7280;
-        transition: all 0.3s;
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .ruangan-card-actions button:hover {
-        background: white;
-        color: #0066cc;
-        border-color: #0066cc;
-        transform: scale(1.1);
-    }
-
-    .ruangan-card-actions .btn-delete:hover {
-        color: #dc3545;
-        border-color: #dc3545;
-    }
-
-    /* Modal */
     .modal { display: none; position: fixed; z-index: 1000; padding-top: 100px; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background: rgba(0,0,0,0.4); }
     .modal-content { background: #fff; padding: 20px; border-radius: 10px; width: 400px; margin: auto; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; }
     .close { cursor: pointer; font-size: 24px; }
     .form-group { margin-bottom: 15px; }
     .form-group input,
-    .form-group select,
     .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
 
-    /* Pagination Styles */
-    .pagination-wrapper {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 30px;
-        padding: 20px 0;
-        flex-wrap: wrap;
-        gap: 15px;
-    }
+    .pagination-wrapper { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; padding: 20px 0; flex-wrap: wrap; gap: 15px; }
     .pagination-info { color: #666; font-size: 14px; }
     .pagination-nav { display: flex; }
-    .pagination {
-        display: flex;
-        list-style: none;
-        gap: 5px;
-        padding: 0;
-        margin: 0;
-        align-items: center;
-    }
+    .pagination { display: flex; list-style: none; gap: 5px; padding: 0; margin: 0; align-items: center; }
     .page-item { display: inline-block; }
-    .page-link {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 36px;
-        height: 36px;
-        padding: 0 8px;
-        border: 1px solid #ddd;
-        border-radius: 50%;
-        color: #666;
-        text-decoration: none;
-        transition: all 0.2s;
-        background: white;
-        font-size: 14px;
-        cursor: pointer;
-    }
+    .page-link { display: flex; align-items: center; justify-content: center; min-width: 36px; height: 36px; padding: 0 8px; border: 1px solid #ddd; border-radius: 50%; color: #666; text-decoration: none; transition: all 0.2s; background: white; font-size: 14px; cursor: pointer; }
     .page-link:hover { background: #f5f5f5; border-color: #bbb; }
     .page-item.active .page-link { background: #00a8ff; color: white; border-color: #00a8ff; font-weight: 600; cursor: default; }
     .page-item.disabled .page-link { color: #ccc; cursor: not-allowed; background: #fafafa; border-color: #e5e5e5; }
-    .page-item.disabled .page-link:hover { background: #fafafa; border-color: #e5e5e5; }
 
     @media (max-width: 768px) {
         .pagination-wrapper { justify-content: center; }
@@ -143,10 +64,8 @@
 </div>
 
 <div class="card">
-    <!-- HEADER + SEARCH -->
     <div class="page-header">
         <h2>{{ $lantai->nama_lantai }}</h2>
-
         <div class="search-box">
             <form method="GET" action="">
                 <input type="text" name="search" placeholder="Cari ruangan..." value="{{ request('search') }}">
@@ -180,11 +99,10 @@
                     <button onclick="openEditRuanganModal(
                         {{ $ruangan->id }},
                         '{{ addslashes($ruangan->nama_ruangan) }}',
-                        '{{ $ruangan->penanggung_jawab_id ?? '' }}',
                         '{{ addslashes($ruangan->keterangan ?? '') }}'
                     )" title="Edit Ruangan">✏️</button>
                     <form action="{{ route('ruangan.delete', $ruangan->id) }}" method="POST"
-                        onsubmit="return confirm('Yakin ingin menghapus ruangan ini? Semua barang di dalamnya akan ikut terhapus!')"
+                        onsubmit="return confirm('Yakin ingin menghapus ruangan ini?')"
                         style="display: inline;">
                         @csrf
                         @method('DELETE')
@@ -193,14 +111,6 @@
                 </div>
                 @endif
             </div>
-
-            @if($ruangan->penanggungJawab)
-            <p><strong>Penanggung Jawab:</strong> {{ $ruangan->penanggungJawab->nama }}</p>
-            @endif
-
-            @if($ruangan->penanggungJawab?->nip)
-            <p><strong>NIP:</strong> {{ $ruangan->penanggungJawab->nip }}</p>
-            @endif
 
             @if($ruangan->keterangan)
             <p><strong>Keterangan:</strong> {{ Str::limit($ruangan->keterangan, 100) }}</p>
@@ -213,7 +123,6 @@
         @endforeach
     </div>
 
-    <!-- Pagination -->
     @if($ruangans->hasPages())
     <div class="pagination-wrapper">
         <div class="pagination-info">
@@ -268,17 +177,6 @@
                 <input type="text" id="nama_ruangan" name="nama_ruangan" placeholder="Contoh: Ruang Server" required>
             </div>
             <div class="form-group">
-                <label for="penanggung_jawab_id">Penanggung Jawab</label>
-                <select id="penanggung_jawab_id" name="penanggung_jawab_id">
-                    <option value="">-- Pilih Pejabat --</option>
-                    @foreach($pejabats as $pejabat)
-                        <option value="{{ $pejabat->id }}">
-                            {{ $pejabat->nama }}{{ $pejabat->nip ? ' — ' . $pejabat->nip : '' }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="form-group">
                 <label for="keterangan">Keterangan</label>
                 <textarea id="keterangan" name="keterangan" rows="3" placeholder="Keterangan tambahan (opsional)"></textarea>
             </div>
@@ -305,17 +203,6 @@
                 <input type="text" id="edit_nama_ruangan" name="nama_ruangan" required>
             </div>
             <div class="form-group">
-                <label for="edit_penanggung_jawab_id">Penanggung Jawab</label>
-                <select id="edit_penanggung_jawab_id" name="penanggung_jawab_id">
-                    <option value="">-- Pilih Pejabat --</option>
-                    @foreach($pejabats as $pejabat)
-                        <option value="{{ $pejabat->id }}">
-                            {{ $pejabat->nama }}{{ $pejabat->nip ? ' — ' . $pejabat->nip : '' }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="form-group">
                 <label for="edit_keterangan">Keterangan</label>
                 <textarea id="edit_keterangan" name="keterangan" rows="3"></textarea>
             </div>
@@ -331,29 +218,17 @@
 
 @section('scripts')
 <script>
-    function openAddRuanganModal() {
-        document.getElementById('addRuanganModal').style.display = 'block';
-    }
+    function openAddRuanganModal() { document.getElementById('addRuanganModal').style.display = 'block'; }
+    function closeAddRuanganModal() { document.getElementById('addRuanganModal').style.display = 'none'; }
 
-    function closeAddRuanganModal() {
-        document.getElementById('addRuanganModal').style.display = 'none';
-    }
-
-    function openEditRuanganModal(id, nama, penanggungJawabId, keterangan) {
+    function openEditRuanganModal(id, nama, keterangan) {
         document.getElementById('editRuanganForm').action = '/ruangan/' + id;
         document.getElementById('edit_nama_ruangan').value = nama;
         document.getElementById('edit_keterangan').value = keterangan || '';
-
-        // Set selected pejabat
-        const select = document.getElementById('edit_penanggung_jawab_id');
-        select.value = penanggungJawabId || '';
-
         document.getElementById('editRuanganModal').style.display = 'block';
     }
 
-    function closeEditRuanganModal() {
-        document.getElementById('editRuanganModal').style.display = 'none';
-    }
+    function closeEditRuanganModal() { document.getElementById('editRuanganModal').style.display = 'none'; }
 
     window.onclick = function(event) {
         const addModal = document.getElementById('addRuanganModal');

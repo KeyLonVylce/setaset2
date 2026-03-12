@@ -14,18 +14,12 @@ class Ruangan extends Model
     protected $fillable = [
         'lantai_id',
         'nama_ruangan',
-        'penanggung_jawab_id',
         'keterangan',
     ];
 
     public function lantai()
     {
         return $this->belongsTo(Lantai::class, 'lantai_id');
-    }
-
-    public function penanggungJawab()
-    {
-        return $this->belongsTo(Pejabat::class, 'penanggung_jawab_id');
     }
 
     public function barangs()

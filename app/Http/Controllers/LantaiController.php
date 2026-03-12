@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\Notification;
 use App\Models\Lantai;
 use App\Models\Ruangan;
-use App\Models\Pejabat;
 use Illuminate\Support\Facades\Auth;
 
 class LantaiController extends Controller
@@ -16,25 +15,18 @@ class LantaiController extends Controller
         $lantai = Lantai::findOrFail($id);
 
         $ruangans = $lantai->ruangans()
-            ->with('penanggungJawab')
             ->withCount('barangs')
             ->when($request->search, function ($query) use ($request) {
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
                     $q->where('nama_ruangan', 'like', "%{$search}%")
-                      ->orWhere('keterangan', 'like', "%{$search}%")
-                      ->orWhereHas('penanggungJawab', function ($q2) use ($search) {
-                          $q2->where('nama', 'like', "%{$search}%");
-                      });
+                      ->orWhere('keterangan', 'like', "%{$search}%");
                 });
             })
             ->paginate(3)
             ->withQueryString();
 
-        // ✅ FIX: Kirim $pejabats ke view untuk dropdown modal tambah/edit ruangan
-        $pejabats = Pejabat::orderBy('nama')->get();
-
-        return view('lantai.show', compact('lantai', 'ruangans', 'pejabats'));
+        return view('lantai.show', compact('lantai', 'ruangans'));
     }
 
     public function store(Request $request)
@@ -109,16 +101,14 @@ class LantaiController extends Controller
         $lantai = Lantai::findOrFail($lantai_id);
 
         $request->validate([
-            'nama_ruangan'        => 'required|string|max:100',
-            'penanggung_jawab_id' => 'nullable|exists:pejabats,id',
-            'keterangan'          => 'nullable|string',
+            'nama_ruangan' => 'required|string|max:100',
+            'keterangan'   => 'nullable|string',
         ]);
 
         $ruangan = Ruangan::create([
-            'lantai_id'           => $lantai_id,
-            'nama_ruangan'        => $request->nama_ruangan,
-            'penanggung_jawab_id' => $request->penanggung_jawab_id ?: null,
-            'keterangan'          => $request->keterangan,
+            'lantai_id'    => $lantai_id,
+            'nama_ruangan' => $request->nama_ruangan,
+            'keterangan'   => $request->keterangan,
         ]);
 
         Notification::create([
@@ -137,15 +127,13 @@ class LantaiController extends Controller
         $ruangan = Ruangan::findOrFail($id);
 
         $request->validate([
-            'nama_ruangan'        => 'required|string|max:100',
-            'penanggung_jawab_id' => 'nullable|exists:pejabats,id',
-            'keterangan'          => 'nullable|string',
+            'nama_ruangan' => 'required|string|max:100',
+            'keterangan'   => 'nullable|string',
         ]);
 
         $ruangan->update([
-            'nama_ruangan'        => $request->nama_ruangan,
-            'penanggung_jawab_id' => $request->penanggung_jawab_id ?: null,
-            'keterangan'          => $request->keterangan,
+            'nama_ruangan' => $request->nama_ruangan,
+            'keterangan'   => $request->keterangan,
         ]);
 
         Notification::create([

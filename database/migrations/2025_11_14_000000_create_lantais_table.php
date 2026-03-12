@@ -16,16 +16,11 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // Tambah FK di ruangans setelah tabel lantais & pejabats sudah ada
+        // Tambah FK di ruangans setelah tabel lantais sudah ada
         Schema::table('ruangans', function (Blueprint $table) {
             $table->foreign('lantai_id')
                 ->references('id')
                 ->on('lantais')
-                ->onDelete('set null');
-
-            $table->foreign('penanggung_jawab_id')
-                ->references('id')
-                ->on('pejabats')
                 ->onDelete('set null');
         });
     }
@@ -34,7 +29,6 @@ return new class extends Migration
     {
         Schema::table('ruangans', function (Blueprint $table) {
             $table->dropForeign(['lantai_id']);
-            $table->dropForeign(['penanggung_jawab_id']);
         });
 
         Schema::dropIfExists('lantais');

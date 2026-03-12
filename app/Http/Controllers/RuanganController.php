@@ -12,7 +12,7 @@ class RuanganController extends Controller
 {
     public function show(Request $request, $id)
     {
-        $ruangan = Ruangan::with(['lantai', 'penanggungJawab'])->findOrFail($id);
+        $ruangan = Ruangan::with(['lantai'])->findOrFail($id);
 
         $query = Barang::where('ruangan_id', $id);
 
@@ -34,7 +34,7 @@ class RuanganController extends Controller
 
     public function export($id)
     {
-        $ruangan = Ruangan::with(['lantai', 'penanggungJawab', 'barangs'])->findOrFail($id);
+        $ruangan = Ruangan::with(['lantai', 'barangs'])->findOrFail($id);
 
         $pdf = Pdf::loadView('ruangan.export', compact('ruangan'))
                   ->setPaper('a4', 'landscape');

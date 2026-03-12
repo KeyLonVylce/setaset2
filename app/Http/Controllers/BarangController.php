@@ -13,7 +13,7 @@ class BarangController extends Controller
 {
     public function create($ruangan_id)
     {
-        $ruangan = Ruangan::with(['lantai', 'penanggungJawab'])->findOrFail($ruangan_id);
+        $ruangan = Ruangan::with(['lantai'])->findOrFail($ruangan_id);
 
         return view('barang.create', compact('ruangan'));
     }
@@ -41,13 +41,14 @@ class BarangController extends Controller
 
         Barang::create($validated);
 
-        // Notifikasi
         $lantaiNama = $ruangan->lantai->nama_lantai ?? 'Lantai tidak diketahui';
 
         \App\Models\Notification::create([
-            'stafaset_id' => Auth::guard('stafaset')->id(),
-            'message'     => 'Barang baru "' . $validated['nama_barang'] . '" ditambahkan ke ruangan ' . $ruangan->nama_ruangan . ' (' . $lantaiNama . ')',
-            'type'        => 'barang_added',
+            'type'        => 'barang',
+            'aksi'        => 'tambah',
+            'pesan'       => 'Barang <b>' . $validated['nama_barang'] . '</b> ditambahkan ke ruangan <b>' . $ruangan->nama_ruangan . '</b> (' . $lantaiNama . ')',
+            'target_role' => 'admin',
+            'user_id'     => Auth::guard('stafaset')->id(),
         ]);
 
         return redirect()
@@ -58,7 +59,7 @@ class BarangController extends Controller
     public function edit($id)
     {
         $barang  = Barang::findOrFail($id);
-        $ruangan = Ruangan::with(['lantai', 'penanggungJawab'])->findOrFail($barang->ruangan_id);
+        $ruangan = Ruangan::with(['lantai'])->findOrFail($barang->ruangan_id);
 
         return view('barang.edit', compact('barang', 'ruangan'));
     }
@@ -85,13 +86,14 @@ class BarangController extends Controller
 
         $barang->update($validated);
 
-        // Notifikasi
         $lantaiNama = $ruangan->lantai->nama_lantai ?? 'Lantai tidak diketahui';
 
         \App\Models\Notification::create([
-            'stafaset_id' => Auth::guard('stafaset')->id(),
-            'message'     => 'Barang "' . $barang->nama_barang . '" diperbarui di ruangan ' . $ruangan->nama_ruangan . ' (' . $lantaiNama . ')',
-            'type'        => 'barang_updated',
+            'type'        => 'barang',
+            'aksi'        => 'edit',
+            'pesan'       => 'Barang <b>' . $barang->nama_barang . '</b> diperbarui di ruangan <b>' . $ruangan->nama_ruangan . '</b> (' . $lantaiNama . ')',
+            'target_role' => 'admin',
+            'user_id'     => Auth::guard('stafaset')->id(),
         ]);
 
         return redirect()
@@ -111,9 +113,11 @@ class BarangController extends Controller
         $barang->delete();
 
         \App\Models\Notification::create([
-            'stafaset_id' => Auth::guard('stafaset')->id(),
-            'message'     => 'Barang "' . $namaBarang . '" dihapus dari ruangan ' . $ruangan->nama_ruangan . ' (' . $lantaiNama . ')',
-            'type'        => 'barang_deleted',
+            'type'        => 'barang',
+            'aksi'        => 'hapus',
+            'pesan'       => 'Barang <b>' . $namaBarang . '</b> dihapus dari ruangan <b>' . $ruangan->nama_ruangan . '</b> (' . $lantaiNama . ')',
+            'target_role' => 'admin',
+            'user_id'     => Auth::guard('stafaset')->id(),
         ]);
 
         return redirect()
@@ -123,7 +127,7 @@ class BarangController extends Controller
 
     public function importForm($ruangan_id)
     {
-        $ruangan = Ruangan::with(['lantai', 'penanggungJawab'])->findOrFail($ruangan_id);
+        $ruangan = Ruangan::with(['lantai'])->findOrFail($ruangan_id);
 
         return view('barang.import', compact('ruangan'));
     }
@@ -141,9 +145,11 @@ class BarangController extends Controller
         $lantaiNama = $ruangan->lantai->nama_lantai ?? 'Lantai tidak diketahui';
 
         \App\Models\Notification::create([
-            'stafaset_id' => Auth::guard('stafaset')->id(),
-            'message'     => 'Import barang ke ruangan ' . $ruangan->nama_ruangan . ' (' . $lantaiNama . ') berhasil dilakukan.',
-            'type'        => 'barang_imported',
+            'type'        => 'barang',
+            'aksi'        => 'import',
+            'pesan'       => 'Import barang ke ruangan <b>' . $ruangan->nama_ruangan . '</b> (' . $lantaiNama . ') berhasil dilakukan.',
+            'target_role' => 'admin',
+            'user_id'     => Auth::guard('stafaset')->id(),
         ]);
 
         return redirect()
