@@ -388,7 +388,7 @@
         }
         
         /* ============================================
-           LEGACY ALERT (keep for inline use if needed)
+           LEGACY ALERT
         ============================================ */
         .alert { 
             padding: 15px 20px; 
@@ -539,7 +539,7 @@
         .close:hover { opacity: 1; }
 
         /* ============================================
-           CONFIRM DIALOG (custom)
+           CONFIRM DIALOG
         ============================================ */
         .confirm-overlay {
             display: none;
@@ -755,14 +755,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
-    <!-- ============================================
-         TOAST CONTAINER
-    ============================================ -->
+    <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <!-- ============================================
-         CUSTOM CONFIRM DIALOG
-    ============================================ -->
+    <!-- Custom Confirm Dialog -->
     <div class="confirm-overlay" id="confirmOverlay">
         <div class="confirm-box">
             <div class="confirm-icon danger" id="confirmIcon">⚠️</div>
@@ -886,6 +882,10 @@
 
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
+
+        const id = 'toast-' + Date.now();
+        toast.id = id;
+
         toast.innerHTML = `
             <div class="toast-icon-wrap">${icons[type]}</div>
             <div class="toast-body">
@@ -895,22 +895,15 @@
             <button class="toast-close" onclick="dismissToast(this.parentElement)">✕</button>
         `;
 
-        // Override progress duration
-        toast.style.setProperty('--toast-duration', duration + 'ms');
-        toast.querySelector('.toast-icon-wrap').parentElement;
-        toast.style.cssText += ``;
-        // Set progress bar duration via inline style on pseudo-element trick
         const style = document.createElement('style');
-        const id = 'toast-' + Date.now();
-        toast.id = id;
         style.textContent = `#${id}::after { animation-duration: ${duration}ms; }`;
         document.head.appendChild(style);
+        toast._style = style;
 
         container.appendChild(toast);
 
         const timer = setTimeout(() => dismissToast(toast), duration);
         toast._timer = timer;
-        toast._style = style;
 
         return toast;
     }
@@ -951,42 +944,48 @@
         _confirmCallback = null;
     }
 
-    // Click outside to close confirm
     document.getElementById('confirmOverlay').addEventListener('click', function(e) {
         if (e.target === this) closeConfirm();
     });
 
     /* ============================================
-       INTERCEPT ALL FORM CONFIRMS
+       INTERCEPT FORM CONFIRMS — FIXED
     ============================================ */
     document.addEventListener('DOMContentLoaded', function() {
-        // Find all forms with onsubmit confirm
-        document.querySelectorAll('form[onsubmit]').forEach(form => {
-            const originalOnsubmit = form.getAttribute('onsubmit');
-            if (originalOnsubmit && originalOnsubmit.includes('confirm(')) {
-                // Extract the message from confirm('...')
-                const match = originalOnsubmit.match(/confirm\(['"](.+?)['"]\)/);
-                const message = match ? match[1] : 'Apakah Anda yakin?';
-                
-                form.removeAttribute('onsubmit');
-                form.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    const isDelete = form.querySelector('input[name="_method"][value="DELETE"]');
-                    showConfirm({
-                        title: isDelete ? 'Hapus Data?' : 'Konfirmasi',
-                        message: message,
-                        type: isDelete ? 'danger' : 'warning',
-                        confirmText: isDelete ? '🗑️ Ya, Hapus' : 'Ya, Lanjutkan',
-                        onConfirm: () => {
-                            form.removeEventListener('submit', arguments.callee);
-                            form.submit();
-                        }
-                    });
+
+        document.querySelectorAll('form[onsubmit]').forEach(function(form) {
+            var originalOnsubmit = form.getAttribute('onsubmit');
+            if (!originalOnsubmit || !originalOnsubmit.includes('confirm(')) return;
+
+            var match = originalOnsubmit.match(/confirm\(['"](.+?)['"]\)/);
+            var message = match ? match[1] : 'Apakah Anda yakin?';
+
+            form.removeAttribute('onsubmit');
+
+            // ✅ Named function — bukan arrow function, bukan arguments.callee
+            function submitHandler(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                var isDelete = form.querySelector('input[name="_method"][value="DELETE"]');
+
+                showConfirm({
+                    title: isDelete ? 'Hapus Data?' : 'Konfirmasi',
+                    message: message,
+                    type: isDelete ? 'danger' : 'warning',
+                    confirmText: isDelete ? '🗑️ Ya, Hapus' : 'Ya, Lanjutkan',
+                    onConfirm: function() {
+                        // Hapus listener dulu baru submit agar tidak loop
+                        form.removeEventListener('submit', submitHandler);
+                        form.submit();
+                    }
                 });
             }
+
+            form.addEventListener('submit', submitHandler);
         });
 
-        // Show flash messages as toasts
+        // Flash messages sebagai toast
         @if(session('success'))
             showToast('success', 'Berhasil!', @json(session('success')));
         @endif
@@ -996,8 +995,8 @@
         @endif
 
         @if($errors->any())
-            const errMsgs = @json($errors->all());
-            const errText = errMsgs.join('<br>');
+            var errMsgs = @json($errors->all());
+            var errText = errMsgs.join('<br>');
             showToast('error', 'Validasi Gagal', errText, 6000);
         @endif
     });
@@ -1005,11 +1004,11 @@
     /* ============================================
        NOTIFICATION REALTIME
     ============================================ */
-    setInterval(() => {
+    setInterval(function() {
         fetch('{{ route('notifications.realtime') }}')
-            .then(res => res.json())
-            .then(data => {
-                let badge = document.getElementById('notif-count');
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                var badge = document.getElementById('notif-count');
                 if (data.unread > 0) {
                     badge.innerText = data.unread;
                     badge.classList.remove('d-none');
