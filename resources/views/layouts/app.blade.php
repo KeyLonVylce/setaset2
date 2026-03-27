@@ -750,9 +750,9 @@
             .toast-container { top: 16px; right: 16px; width: calc(100vw - 32px); }
         }
     </style>
-    @yield('styles')
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    @yield('styles')
 </head>
 <body>
     <!-- Toast Container -->
@@ -934,10 +934,11 @@
         document.getElementById('confirmOverlay').classList.add('active');
     }
 
-    function confirmAction() {
-        closeConfirm();
-        if (_confirmCallback) _confirmCallback();
-    }
+function confirmAction() {
+    var cb = _confirmCallback;  
+    closeConfirm();
+    if (cb) cb();
+}
 
     function closeConfirm() {
         document.getElementById('confirmOverlay').classList.remove('active');
@@ -951,55 +952,23 @@
     /* ============================================
        INTERCEPT FORM CONFIRMS — FIXED
     ============================================ */
-    document.addEventListener('DOMContentLoaded', function() {
+   document.addEventListener('DOMContentLoaded', function() {
 
-        document.querySelectorAll('form[onsubmit]').forEach(function(form) {
-            var originalOnsubmit = form.getAttribute('onsubmit');
-            if (!originalOnsubmit || !originalOnsubmit.includes('confirm(')) return;
+    // Flash messages sebagai toast
+    @if(session('success'))
+        showToast('success', 'Berhasil!', @json(session('success')));
+    @endif
 
-            var match = originalOnsubmit.match(/confirm\(['"](.+?)['"]\)/);
-            var message = match ? match[1] : 'Apakah Anda yakin?';
+    @if(session('error'))
+        showToast('error', 'Gagal!', @json(session('error')));
+    @endif
 
-            form.removeAttribute('onsubmit');
-
-            // ✅ Named function — bukan arrow function, bukan arguments.callee
-            function submitHandler(e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                var isDelete = form.querySelector('input[name="_method"][value="DELETE"]');
-
-                showConfirm({
-                    title: isDelete ? 'Hapus Data?' : 'Konfirmasi',
-                    message: message,
-                    type: isDelete ? 'danger' : 'warning',
-                    confirmText: isDelete ? '🗑️ Ya, Hapus' : 'Ya, Lanjutkan',
-                    onConfirm: function() {
-                        // Hapus listener dulu baru submit agar tidak loop
-                        form.removeEventListener('submit', submitHandler);
-                        form.submit();
-                    }
-                });
-            }
-
-            form.addEventListener('submit', submitHandler);
-        });
-
-        // Flash messages sebagai toast
-        @if(session('success'))
-            showToast('success', 'Berhasil!', @json(session('success')));
-        @endif
-
-        @if(session('error'))
-            showToast('error', 'Gagal!', @json(session('error')));
-        @endif
-
-        @if($errors->any())
-            var errMsgs = @json($errors->all());
-            var errText = errMsgs.join('<br>');
-            showToast('error', 'Validasi Gagal', errText, 6000);
-        @endif
-    });
+    @if($errors->any())
+        var errMsgs = @json($errors->all());
+        var errText = errMsgs.join('<br>');
+        showToast('error', 'Validasi Gagal', errText, 6000);
+    @endif
+});
 
     /* ============================================
        NOTIFICATION REALTIME

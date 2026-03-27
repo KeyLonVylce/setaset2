@@ -171,10 +171,21 @@
 
                     <td style="white-space: nowrap;">
                         <a href="{{ route('barang.edit', $b->id) }}" class="btn btn-sm btn-primary">Edit</a>
-                        <form action="{{ route('barang.destroy', $b->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Hapus barang ini?')">
-                            @csrf @method('DELETE')
-                            <button class="btn btn-sm btn-danger">Hapus</button>
-                        </form>
+                        
+<form action="{{ route('barang.destroy', $b->id) }}" method="POST" style="display: inline;">
+    @csrf @method('DELETE')
+    <button type="button" class="btn btn-sm btn-danger"
+        onclick="var f=this.closest('form'); showConfirm({
+            title: 'Hapus Barang?',
+            message: 'Yakin ingin menghapus barang ini? Data tidak dapat dikembalikan.',
+            type: 'danger',
+            confirmText: '🗑️ Ya, Hapus',
+            onConfirm: function() { f.submit(); }
+        })">Hapus</button>
+</form>
+
+
+
                     </td>
                 </tr>
                 @endforeach

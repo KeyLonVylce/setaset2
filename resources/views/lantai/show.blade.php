@@ -101,13 +101,20 @@
                         '{{ addslashes($ruangan->nama_ruangan) }}',
                         '{{ addslashes($ruangan->keterangan ?? '') }}'
                     )" title="Edit Ruangan">✏️</button>
-                    <form action="{{ route('ruangan.delete', $ruangan->id) }}" method="POST"
-                        onsubmit="return confirm('Yakin ingin menghapus ruangan ini?')"
-                        style="display: inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn-delete" title="Hapus Ruangan">🗑️</button>
-                    </form>
+
+                   <form action="{{ route('ruangan.delete', $ruangan->id) }}" method="POST"
+    style="display: inline;">
+    @csrf
+    @method('DELETE')
+    <button type="button" class="btn-delete" title="Hapus Ruangan"
+        onclick="showConfirm({
+            title: 'Hapus Ruangan?',
+            message: 'Yakin ingin menghapus ruangan <strong>{{ addslashes($ruangan->nama_ruangan) }}</strong>?<br>Semua barang di dalamnya akan ikut terhapus.',
+            type: 'danger',
+            confirmText: '🗑️ Ya, Hapus',
+            onConfirm: function() { this.closest('form').submit(); }.bind(this)
+        })">🗑️</button>
+</form>
                 </div>
                 @endif
             </div>
