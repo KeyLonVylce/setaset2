@@ -10,27 +10,10 @@
     .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
     .page-header h2 { font-size: 28px; color: #333; margin: 0; }
 
-    /* Search Box */
-    .search-box {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    .search-box form {
-        margin: 0;
-    }
-    .search-box input {
-        padding: 10px 15px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        width: 250px;
-        font-size: 14px;
-        transition: border-color 0.3s;
-    }
-    .search-box input:focus {
-        outline: none;
-        border-color: #ff7b3d;
-    }
+    .search-box { display: flex; align-items: center; gap: 10px; }
+    .search-box form { margin: 0; }
+    .search-box input { padding: 10px 15px; border: 1px solid #ddd; border-radius: 6px; width: 250px; font-size: 14px; transition: border-color 0.3s; }
+    .search-box input:focus { outline: none; border-color: #ff7b3d; }
 
     .lantai-info { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
     .lantai-info p { margin: 5px 0; color: #666; }
@@ -44,122 +27,33 @@
     .badge { display: inline-block; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: 600; }
     .badge-info { background: #d1ecf1; color: #0c5460; }
     .empty-state { text-align: center; padding: 60px 20px; color: #999; }
-    
-    .ruangan-card-actions {
-        display: flex;
-        gap: 8px;
-    }
-    
-    .ruangan-card-actions button {
-        background: rgba(255, 255, 255, 0.9);
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 16px;
-        padding: 8px;
-        color: #6b7280;
-        transition: all 0.3s;
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .ruangan-card-actions button:hover {
-        background: white;
-        color: #0066cc;
-        border-color: #0066cc;
-        transform: scale(1.1);
-    }
-    
-    .ruangan-card-actions .btn-delete:hover {
-        color: #dc3545;
-        border-color: #dc3545;
-    }
 
-    /* Modal */
+    .ruangan-card-actions { display: flex; gap: 8px; }
+    .ruangan-card-actions button { background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer; font-size: 16px; padding: 8px; color: #6b7280; transition: all 0.3s; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+    .ruangan-card-actions button:hover { background: white; color: #0066cc; border-color: #0066cc; transform: scale(1.1); }
+    .ruangan-card-actions .btn-delete:hover { color: #dc3545; border-color: #dc3545; }
+
     .modal { display: none; position: fixed; z-index: 1000; padding-top: 100px; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background: rgba(0,0,0,0.4); }
     .modal-content { background: #fff; padding: 20px; border-radius: 10px; width: 400px; margin: auto; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; }
     .close { cursor: pointer; font-size: 24px; }
     .form-group { margin-bottom: 15px; }
-    .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
+    .form-group input,
+    .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
 
-    /* Pagination Styles */
-    .pagination-wrapper { 
-        display: flex; 
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 30px; 
-        padding: 20px 0;
-        flex-wrap: wrap;
-        gap: 15px;
-    }
-    .pagination-info {
-        color: #666;
-        font-size: 14px;
-    }
-    .pagination-nav {
-        display: flex;
-    }
-    .pagination { 
-        display: flex; 
-        list-style: none; 
-        gap: 5px; 
-        padding: 0; 
-        margin: 0; 
-        align-items: center;
-    }
-    .page-item { 
-        display: inline-block; 
-    }
-    .page-link { 
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 36px;
-        height: 36px;
-        padding: 0 8px;
-        border: 1px solid #ddd; 
-        border-radius: 50%;
-        color: #666; 
-        text-decoration: none; 
-        transition: all 0.2s;
-        background: white;
-        font-size: 14px;
-        cursor: pointer;
-    }
-    .page-link:hover { 
-        background: #f5f5f5; 
-        border-color: #bbb; 
-    }
-    .page-item.active .page-link { 
-        background: #00a8ff; 
-        color: white; 
-        border-color: #00a8ff; 
-        font-weight: 600;
-        cursor: default;
-    }
-    .page-item.disabled .page-link { 
-        color: #ccc; 
-        cursor: not-allowed; 
-        background: #fafafa;
-        border-color: #e5e5e5;
-    }
-    .page-item.disabled .page-link:hover { 
-        background: #fafafa; 
-        border-color: #e5e5e5; 
-    }
-    
+    .pagination-wrapper { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; padding: 20px 0; flex-wrap: wrap; gap: 15px; }
+    .pagination-info { color: #666; font-size: 14px; }
+    .pagination-nav { display: flex; }
+    .pagination { display: flex; list-style: none; gap: 5px; padding: 0; margin: 0; align-items: center; }
+    .page-item { display: inline-block; }
+    .page-link { display: flex; align-items: center; justify-content: center; min-width: 36px; height: 36px; padding: 0 8px; border: 1px solid #ddd; border-radius: 50%; color: #666; text-decoration: none; transition: all 0.2s; background: white; font-size: 14px; cursor: pointer; }
+    .page-link:hover { background: #f5f5f5; border-color: #bbb; }
+    .page-item.active .page-link { background: #00a8ff; color: white; border-color: #00a8ff; font-weight: 600; cursor: default; }
+    .page-item.disabled .page-link { color: #ccc; cursor: not-allowed; background: #fafafa; border-color: #e5e5e5; }
+
     @media (max-width: 768px) {
-        .pagination-wrapper {
-            justify-content: center;
-        }
-        .pagination-info {
-            width: 100%;
-            text-align: center;
-        }
+        .pagination-wrapper { justify-content: center; }
+        .pagination-info { width: 100%; text-align: center; }
     }
 </style>
 @endsection
@@ -170,10 +64,8 @@
 </div>
 
 <div class="card">
-    <!-- HEADER + SEARCH -->
     <div class="page-header">
         <h2>{{ $lantai->nama_lantai }}</h2>
-
         <div class="search-box">
             <form method="GET" action="">
                 <input type="text" name="search" placeholder="Cari ruangan..." value="{{ request('search') }}">
@@ -204,38 +96,40 @@
                 </div>
                 @if(Auth::guard('stafaset')->user()->isAdmin())
                 <div class="ruangan-card-actions">
-                    <button onclick="event.preventDefault(); openEditRuanganModal({{ $ruangan->id }}, '{{ addslashes($ruangan->nama_ruangan) }}', '{{ addslashes($ruangan->penanggung_jawab ?? '') }}', '{{ addslashes($ruangan->nip_penanggung_jawab ?? '') }}', '{{ addslashes($ruangan->keterangan ?? '') }}')" title="Edit Ruangan">✏️</button>
-                    <form action="{{ route('ruangan.delete', $ruangan->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus ruangan ini? Semua barang di dalamnya akan ikut terhapus!')" style="display: inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn-delete" title="Hapus Ruangan">🗑️</button>
-                    </form>
+                    <button onclick="openEditRuanganModal(
+                        {{ $ruangan->id }},
+                        '{{ addslashes($ruangan->nama_ruangan) }}',
+                        '{{ addslashes($ruangan->keterangan ?? '') }}'
+                    )" title="Edit Ruangan">✏️</button>
+
+                   <form action="{{ route('ruangan.delete', $ruangan->id) }}" method="POST"
+    style="display: inline;">
+    @csrf
+    @method('DELETE')
+    <button type="button" class="btn-delete" title="Hapus Ruangan"
+        onclick="showConfirm({
+            title: 'Hapus Ruangan?',
+            message: 'Yakin ingin menghapus ruangan <strong>{{ addslashes($ruangan->nama_ruangan) }}</strong>?<br>Semua barang di dalamnya akan ikut terhapus.',
+            type: 'danger',
+            confirmText: '🗑️ Ya, Hapus',
+            onConfirm: function() { this.closest('form').submit(); }.bind(this)
+        })">🗑️</button>
+</form>
                 </div>
                 @endif
             </div>
-            
-            @if($ruangan->penanggung_jawab)
-            <p><strong>Penanggung Jawab:</strong> {{ $ruangan->penanggung_jawab }}</p>
-            @endif
-            
-            @if($ruangan->nip_penanggung_jawab)
-            <p><strong>NIP:</strong> {{ $ruangan->nip_penanggung_jawab }}</p>
-            @endif
-            
+
             @if($ruangan->keterangan)
             <p><strong>Keterangan:</strong> {{ Str::limit($ruangan->keterangan, 100) }}</p>
             @endif
 
             <div class="ruangan-actions">
                 <a href="{{ route('ruangan.show', $ruangan->id) }}" class="btn btn-primary btn-sm">Lihat Detail</a>
-                @if(Auth::guard('stafaset')->user()->isAdmin())
-                @endif
             </div>
         </div>
         @endforeach
     </div>
 
-    <!-- Pagination -->
     @if($ruangans->hasPages())
     <div class="pagination-wrapper">
         <div class="pagination-info">
@@ -243,50 +137,24 @@
         </div>
         <div class="pagination-nav">
             <ul class="pagination">
-                {{-- Previous Page Link --}}
                 @if ($ruangans->onFirstPage())
-                    <li class="page-item disabled">
-                        <span class="page-link">‹</span>
-                    </li>
+                    <li class="page-item disabled"><span class="page-link">‹</span></li>
                 @else
-                    <li class="page-item">
-                        <a class="page-link" href="{{ $ruangans->previousPageUrl() }}" rel="prev">‹</a>
-                    </li>
+                    <li class="page-item"><a class="page-link" href="{{ $ruangans->previousPageUrl() }}" rel="prev">‹</a></li>
                 @endif
 
-                {{-- Pagination Elements --}}
                 @foreach(range(1, $ruangans->lastPage()) as $page)
                     @if ($page == $ruangans->currentPage())
-                        <li class="page-item active">
-                            <span class="page-link">{{ $page }}</span>
-                        </li>
+                        <li class="page-item active"><span class="page-link">{{ $page }}</span></li>
                     @else
-                        <li class="page-item">
-                            <a class="page-link" href="{{ $ruangans->url($page) }}">{{ $page }}</a>
-                        </li>
+                        <li class="page-item"><a class="page-link" href="{{ $ruangans->url($page) }}">{{ $page }}</a></li>
                     @endif
                 @endforeach
 
-                {{-- Next Page Link --}}
                 @if ($ruangans->hasMorePages())
-                    <li class="page-item">
-                        <a class="page-link" href="{{ $ruangans->nextPageUrl() }}" rel="next">›</a>
-                    </li>
+                    <li class="page-item"><a class="page-link" href="{{ $ruangans->nextPageUrl() }}" rel="next">›</a></li>
                 @else
-                    <li class="page-item disabled">
-                        <span class="page-link">›</span>
-                    </li>
-                @endif
-
-                {{-- Last Page Link --}}
-                @if ($ruangans->hasMorePages())
-                    <li class="page-item">
-                        <a class="page-link" href="{{ $ruangans->url($ruangans->lastPage()) }}">»</a>
-                    </li>
-                @else
-                    <li class="page-item disabled">
-                        <span class="page-link">»</span>
-                    </li>
+                    <li class="page-item disabled"><span class="page-link">›</span></li>
                 @endif
             </ul>
         </div>
@@ -316,14 +184,6 @@
                 <input type="text" id="nama_ruangan" name="nama_ruangan" placeholder="Contoh: Ruang Server" required>
             </div>
             <div class="form-group">
-                <label for="penanggung_jawab">Nama Penanggung Jawab</label>
-                <input type="text" id="penanggung_jawab" name="penanggung_jawab" placeholder="Contoh: John Doe">
-            </div>
-            <div class="form-group">
-                <label for="nip_penanggung_jawab">NIP Penanggung Jawab</label>
-                <input type="text" id="nip_penanggung_jawab" name="nip_penanggung_jawab" placeholder="Contoh: 199001012020121001">
-            </div>
-            <div class="form-group">
                 <label for="keterangan">Keterangan</label>
                 <textarea id="keterangan" name="keterangan" rows="3" placeholder="Keterangan tambahan (opsional)"></textarea>
             </div>
@@ -347,19 +207,11 @@
             @method('PUT')
             <div class="form-group">
                 <label for="edit_nama_ruangan">Nama Ruangan <span style="color: red;">*</span></label>
-                <input type="text" id="edit_nama_ruangan" name="nama_ruangan" placeholder="Contoh: Ruang Server" required>
-            </div>
-            <div class="form-group">
-                <label for="edit_penanggung_jawab">Nama Penanggung Jawab</label>
-                <input type="text" id="edit_penanggung_jawab" name="penanggung_jawab" placeholder="Contoh: John Doe">
-            </div>
-            <div class="form-group">
-                <label for="edit_nip_penanggung_jawab">NIP Penanggung Jawab</label>
-                <input type="text" id="edit_nip_penanggung_jawab" name="nip_penanggung_jawab" placeholder="Contoh: 199001012020121001">
+                <input type="text" id="edit_nama_ruangan" name="nama_ruangan" required>
             </div>
             <div class="form-group">
                 <label for="edit_keterangan">Keterangan</label>
-                <textarea id="edit_keterangan" name="keterangan" rows="3" placeholder="Keterangan tambahan (opsional)"></textarea>
+                <textarea id="edit_keterangan" name="keterangan" rows="3"></textarea>
             </div>
             <div style="display: flex; gap: 10px;">
                 <button type="submit" class="btn btn-success">Update</button>
@@ -373,36 +225,23 @@
 
 @section('scripts')
 <script>
-    function openAddRuanganModal() { 
-        document.getElementById('addRuanganModal').style.display = 'block'; 
-    }
-    
-    function closeAddRuanganModal() { 
-        document.getElementById('addRuanganModal').style.display = 'none'; 
-    }
-    
-    function openEditRuanganModal(id, nama, penanggung_jawab, nip, keterangan) {
+    function openAddRuanganModal() { document.getElementById('addRuanganModal').style.display = 'block'; }
+    function closeAddRuanganModal() { document.getElementById('addRuanganModal').style.display = 'none'; }
+
+    function openEditRuanganModal(id, nama, keterangan) {
         document.getElementById('editRuanganForm').action = '/ruangan/' + id;
         document.getElementById('edit_nama_ruangan').value = nama;
-        document.getElementById('edit_penanggung_jawab').value = penanggung_jawab || '';
-        document.getElementById('edit_nip_penanggung_jawab').value = nip || '';
         document.getElementById('edit_keterangan').value = keterangan || '';
         document.getElementById('editRuanganModal').style.display = 'block';
     }
-    
-    function closeEditRuanganModal() {
-        document.getElementById('editRuanganModal').style.display = 'none';
-    }
-    
-    window.onclick = function(event) { 
-        const addModal = document.getElementById('addRuanganModal'); 
+
+    function closeEditRuanganModal() { document.getElementById('editRuanganModal').style.display = 'none'; }
+
+    window.onclick = function(event) {
+        const addModal = document.getElementById('addRuanganModal');
         const editModal = document.getElementById('editRuanganModal');
-        if (event.target == addModal) { 
-            addModal.style.display = 'none'; 
-        }
-        if (event.target == editModal) {
-            editModal.style.display = 'none';
-        }
+        if (event.target == addModal) addModal.style.display = 'none';
+        if (event.target == editModal) editModal.style.display = 'none';
     }
 </script>
 @endsection

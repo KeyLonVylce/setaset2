@@ -12,27 +12,32 @@ class Notification extends Model
         'pesan',
         'target_role',
         'user_id',
-        'read_at',
+        'read_by',
     ];
 
     protected $casts = [
-        'read_at' => 'datetime',
+        'read_by' => 'array',
     ];
 
-    public function reads()
+    /**
+     * Cek apakah notifikasi sudah dibaca oleh user tertentu.
+     */
+    public function isReadBy(int $userId): bool
     {
-        return $this->hasMany(NotificationRead::class);
+        $readBy = $this->read_by ?? [];
+        return in_array($userId, $readBy);
     }
 
-    public function isReadBy($userId)
+    /**
+     * Tandai notifikasi sebagai sudah dibaca oleh user tertentu.
+     */
+    public function markReadBy(int $userId): void
     {
-        return $this->reads()
-            ->where('user_id', $userId)
-            ->whereNotNull('read_at')
-            ->exists();
+        $readBy = $this->read_by ?? [];
+
+        if (!in_array($userId, $readBy)) {
+            $readBy[] = $userId;
+            $this->update(['read_by' => $readBy]);
+        }
     }
 }
-
-
-
-

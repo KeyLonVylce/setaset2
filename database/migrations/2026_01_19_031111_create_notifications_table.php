@@ -9,11 +9,12 @@ return new class extends Migration {
     {
         Schema::create('notifications', function (Blueprint $table) {
             $table->id();
-            $table->string('type'); // barang, ruangan, lantai
-            $table->string('aksi'); // tambah, edit, hapus, pindah, import
+            $table->string('type');         // barang, ruangan, lantai, staff
+            $table->string('aksi');         // tambah, edit, hapus, pindah, import
             $table->text('pesan');
             $table->enum('target_role', ['admin', 'staff', 'all'])->default('all');
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable(); // siapa yang melakukan aksi
+            $table->json('read_by')->nullable();               // array user_id yang sudah baca
             $table->timestamps();
         });
     }

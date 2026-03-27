@@ -20,7 +20,6 @@ class LantaiController extends Controller
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
                     $q->where('nama_ruangan', 'like', "%{$search}%")
-                      ->orWhere('penanggung_jawab', 'like', "%{$search}%")
                       ->orWhere('keterangan', 'like', "%{$search}%");
                 });
             })
@@ -34,16 +33,12 @@ class LantaiController extends Controller
     {
         $request->validate([
             'nama_lantai' => 'required|string|max:50|unique:lantais,nama_lantai',
-            'urutan' => 'nullable|integer',
-            'keterangan' => 'nullable|string',
+            'keterangan'  => 'nullable|string',
         ]);
-
-        $urutan = $request->urutan ?? (Lantai::max('urutan') ?? 0) + 1;
 
         $lantai = Lantai::create([
             'nama_lantai' => $request->nama_lantai,
-            'urutan' => $urutan,
-            'keterangan' => $request->keterangan,
+            'keterangan'  => $request->keterangan,
         ]);
 
         Notification::create([
@@ -63,15 +58,10 @@ class LantaiController extends Controller
 
         $request->validate([
             'nama_lantai' => 'required|string|max:50|unique:lantais,nama_lantai,' . $id,
-            'urutan' => 'nullable|integer',
-            'keterangan' => 'nullable|string',
+            'keterangan'  => 'nullable|string',
         ]);
 
-        $lantai->update($request->only([
-            'nama_lantai',
-            'urutan',
-            'keterangan'
-        ]));
+        $lantai->update($request->only(['nama_lantai', 'keterangan']));
 
         Notification::create([
             'type'        => 'lantai',
@@ -112,18 +102,13 @@ class LantaiController extends Controller
 
         $request->validate([
             'nama_ruangan' => 'required|string|max:100',
-            'penanggung_jawab' => 'nullable|string|max:100',
-            'nip_penanggung_jawab' => 'nullable|string|max:30',
-            'keterangan' => 'nullable|string',
+            'keterangan'   => 'nullable|string',
         ]);
 
         $ruangan = Ruangan::create([
-            'lantai_id' => $lantai_id,
+            'lantai_id'    => $lantai_id,
             'nama_ruangan' => $request->nama_ruangan,
-            'lantai' => $lantai->nama_lantai,
-            'penanggung_jawab' => $request->penanggung_jawab,
-            'nip_penanggung_jawab' => $request->nip_penanggung_jawab,
-            'keterangan' => $request->keterangan,
+            'keterangan'   => $request->keterangan,
         ]);
 
         Notification::create([
@@ -143,22 +128,18 @@ class LantaiController extends Controller
 
         $request->validate([
             'nama_ruangan' => 'required|string|max:100',
-            'penanggung_jawab' => 'nullable|string|max:100',
-            'nip_penanggung_jawab' => 'nullable|string|max:30',
-            'keterangan' => 'nullable|string',
+            'keterangan'   => 'nullable|string',
         ]);
 
         $ruangan->update([
             'nama_ruangan' => $request->nama_ruangan,
-            'penanggung_jawab' => $request->penanggung_jawab,
-            'nip_penanggung_jawab' => $request->nip_penanggung_jawab,
-            'keterangan' => $request->keterangan,
+            'keterangan'   => $request->keterangan,
         ]);
 
         Notification::create([
             'type'        => 'ruangan',
             'aksi'        => 'edit',
-            'pesan'       => "Ruangan <b>{$ruangan->nama_ruangan}</b> di lantai <b>{$ruangan->lantai}</b> diubah",
+            'pesan'       => "Ruangan <b>{$ruangan->nama_ruangan}</b> di lantai <b>{$ruangan->lantai->nama_lantai}</b> diubah",
             'target_role' => 'admin',
             'user_id'     => Auth::guard('stafaset')->id(),
         ]);
@@ -175,14 +156,14 @@ class LantaiController extends Controller
         }
 
         $namaRuangan = $ruangan->nama_ruangan;
-        $lantaiNama  = $ruangan->lantai;
+        $namaLantai  = $ruangan->lantai->nama_lantai;
 
         $ruangan->delete();
 
         Notification::create([
             'type'        => 'ruangan',
             'aksi'        => 'hapus',
-            'pesan'       => "Ruangan <b>{$namaRuangan}</b> dihapus dari lantai <b>{$lantaiNama}</b>",
+            'pesan'       => "Ruangan <b>{$namaRuangan}</b> dihapus dari lantai <b>{$namaLantai}</b>",
             'target_role' => 'admin',
             'user_id'     => Auth::guard('stafaset')->id(),
         ]);

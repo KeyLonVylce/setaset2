@@ -14,9 +14,6 @@ class KartuInventaris extends Model
     protected $fillable = [
         'ruangan_id',
         'tanggal',
-        'mengetahui_id',
-        'penanggung_jawab_id',
-        'pengelola_id',
         'keterangan',
     ];
 
@@ -27,20 +24,5 @@ class KartuInventaris extends Model
     public function ruangan()
     {
         return $this->belongsTo(Ruangan::class, 'ruangan_id');
-    }
-
-    public function mengetahui()
-    {
-        return $this->belongsTo(Pejabat::class, 'mengetahui_id');
-    }
-
-    public function penanggungJawab()
-    {
-        return $this->belongsTo(Pejabat::class, 'penanggung_jawab_id');
-    }
-
-    public function pengelola()
-    {
-        return $this->belongsTo(Pejabat::class, 'pengelola_id');
     }
 }

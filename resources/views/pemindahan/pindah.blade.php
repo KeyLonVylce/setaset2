@@ -160,9 +160,7 @@
             @csrf
 
             <div class="form-group">
-                <label for="lantai_asal">
-                    Pilih Lantai Asal
-                </label>
+                <label for="lantai_asal">Pilih Lantai Asal</label>
                 <select id="lantai_asal" class="form-control">
                     <option value="">-- Pilih lantai --</option>
                     @foreach($lantais as $lantai)
@@ -172,18 +170,14 @@
             </div>
 
             <div class="form-group">
-                <label for="ruangan_asal">
-                    Pilih Ruangan Asal
-                </label>
+                <label for="ruangan_asal">Pilih Ruangan Asal</label>
                 <select id="ruangan_asal" class="form-control" disabled>
                     <option value="">-- Pilih lantai terlebih dahulu --</option>
                 </select>
             </div>
 
             <div class="form-group">
-                <label for="barang_id">
-                    Pilih Barang yang Akan Dipindahkan
-                </label>
+                <label for="barang_id">Pilih Barang yang Akan Dipindahkan</label>
                 <select name="barang_id" id="barang_id" class="form-control" required disabled>
                     <option value="">-- Pilih ruangan terlebih dahulu --</option>
                 </select>
@@ -200,9 +194,7 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="jumlah_pindah">
-                        Jumlah yang Dipindahkan
-                    </label>
+                    <label for="jumlah_pindah">Jumlah yang Dipindahkan</label>
                     <input 
                         type="number" 
                         name="jumlah_pindah" 
@@ -216,24 +208,16 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="ruangan_tujuan">
-                        Ruangan Tujuan
-                    </label>
+                    <label for="ruangan_tujuan">Ruangan Tujuan</label>
+                    {{-- FIX: dropdown dikosongkan, diisi JS pakai r.lantai_nama (string) --}}
                     <select name="ruangan_tujuan" id="ruangan_tujuan" class="form-control" required>
                         <option value="">-- Pilih lokasi tujuan --</option>
-                        @foreach($ruangans as $ruang)
-                            <option value="{{ $ruang->id }}">
-                                {{ $ruang->nama_ruangan }} ({{ $ruang->lantai }})
-                            </option>
-                        @endforeach
                     </select>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="notes">
-                    Catatan (Opsional)
-                </label>
+                <label for="notes">Catatan (Opsional)</label>
                 <textarea 
                     name="notes" 
                     id="notes" 
@@ -247,7 +231,8 @@
                 <a href="{{ route('home') }}" class="btn btn-secondary">
                     ← Kembali
                 </a>
-                <button type="submit" class="btn btn-primary" id="submitBtn">
+                {{-- FIX: disabled by default, diaktifkan JS setelah form valid --}}
+                <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
                     Konfirmasi Pemindahan
                 </button>
             </div>
@@ -259,47 +244,47 @@
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const lantaiAsal = document.getElementById('lantai_asal');
-    const ruanganAsal = document.getElementById('ruangan_asal');
-    const barangSelect = document.getElementById('barang_id');
-    const jumlahInput = document.getElementById('jumlah_pindah');
-    const stockInfo = document.getElementById('stock_info');
-    const stockAmount = document.getElementById('stock_amount');
-    const submitBtn = document.getElementById('submitBtn');
+    const lantaiAsal    = document.getElementById('lantai_asal');
+    const ruanganAsal   = document.getElementById('ruangan_asal');
+    const barangSelect  = document.getElementById('barang_id');
+    const jumlahInput   = document.getElementById('jumlah_pindah');
+    const stockInfo     = document.getElementById('stock_info');
+    const stockAmount   = document.getElementById('stock_amount');
+    const submitBtn     = document.getElementById('submitBtn');
     const ruanganTujuan = document.getElementById('ruangan_tujuan');
-    const form = document.getElementById('moveForm');
+    const form          = document.getElementById('moveForm');
 
+    // FIX: ruangans sekarang array of plain objects dengan key lantai_nama (string)
     const ruangans = @json($ruangans);
-    const barangs = @json($barangs);
+    const barangs  = @json($barangs);
 
-    let selectedBarang = null;
-
-    lantaiAsal.addEventListener('change', function() {
+    lantaiAsal.addEventListener('change', function () {
         const lantaiId = this.value;
         ruanganAsal.innerHTML = '<option value="">-- Pilih ruangan --</option>';
         barangSelect.innerHTML = '<option value="">-- Pilih ruangan terlebih dahulu --</option>';
-        
+        barangSelect.disabled = true;
+        resetForm();
+
         if (lantaiId) {
-            const filteredRuangans = ruangans.filter(r => r.lantai_id == lantaiId);
-            filteredRuangans.forEach(r => {
+            const filtered = ruangans.filter(r => r.lantai_id == lantaiId);
+            filtered.forEach(r => {
                 ruanganAsal.innerHTML += `<option value="${r.id}">${r.nama_ruangan}</option>`;
             });
             ruanganAsal.disabled = false;
         } else {
             ruanganAsal.disabled = true;
-            barangSelect.disabled = true;
-            resetForm();
         }
     });
 
-    ruanganAsal.addEventListener('change', function() {
+    ruanganAsal.addEventListener('change', function () {
         const ruanganId = this.value;
         barangSelect.innerHTML = '<option value="">-- Pilih barang --</option>';
-        
+        resetForm();
+
         if (ruanganId) {
-            const filteredBarangs = barangs.filter(b => b.ruangan_id == ruanganId);
-            if (filteredBarangs.length > 0) {
-                filteredBarangs.forEach(b => {
+            const filtered = barangs.filter(b => b.ruangan_id == ruanganId);
+            if (filtered.length > 0) {
+                filtered.forEach(b => {
                     barangSelect.innerHTML += `<option value="${b.id}" data-jumlah="${b.jumlah}">${b.nama_barang} (${b.kode_barang || '-'})</option>`;
                 });
                 barangSelect.disabled = false;
@@ -309,58 +294,44 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         } else {
             barangSelect.disabled = true;
-            resetForm();
         }
     });
 
-        barangSelect.addEventListener('change', function() {
-        const selectedOption = this.selectedOptions[0];
-        
+    barangSelect.addEventListener('change', function () {
         if (this.value) {
-            const stok = parseInt(selectedOption.dataset.jumlah);
-            selectedBarang = barangs.find(b => b.id == this.value);
-            
+            const stok = parseInt(this.selectedOptions[0].dataset.jumlah);
             stockAmount.textContent = stok;
             stockInfo.style.display = 'block';
             jumlahInput.disabled = false;
             jumlahInput.max = stok;
             jumlahInput.value = '';
-            
+
+            // FIX: pakai r.lantai_nama (string), bukan r.lantai (object)
             updateRuanganTujuan();
         } else {
             resetForm();
         }
     });
 
-    jumlahInput.addEventListener('input', function() {
-        validateForm();
-    });
-
-    ruanganTujuan.addEventListener('change', function() {
-        validateForm();
-    });
+    jumlahInput.addEventListener('input', validateForm);
+    ruanganTujuan.addEventListener('change', validateForm);
 
     function updateRuanganTujuan() {
-        const ruanganAsalId = ruanganAsal.value;
+        const asalId = ruanganAsal.value;
         ruanganTujuan.innerHTML = '<option value="">-- Pilih lokasi tujuan --</option>';
-        
         ruangans.forEach(r => {
-            if (r.id != ruanganAsalId) {
-                ruanganTujuan.innerHTML += `<option value="${r.id}">${r.nama_ruangan} (${r.lantai})</option>`;
+            if (r.id != asalId) {
+                // FIX: r.lantai_nama adalah string, tidak lagi [object Object]
+                ruanganTujuan.innerHTML += `<option value="${r.id}">${r.nama_ruangan} (${r.lantai_nama})</option>`;
             }
         });
     }
 
     function validateForm() {
-        const jumlah = parseInt(jumlahInput.value);
+        const jumlah  = parseInt(jumlahInput.value);
         const maxStok = parseInt(jumlahInput.max);
-        const tujuan = ruanganTujuan.value;
-
-        if (jumlah > 0 && jumlah <= maxStok && tujuan) {
-            submitBtn.disabled = false;
-        } else {
-            submitBtn.disabled = true;
-        }
+        const tujuan  = ruanganTujuan.value;
+        submitBtn.disabled = !(jumlah > 0 && jumlah <= maxStok && tujuan);
     }
 
     function resetForm() {
@@ -368,31 +339,28 @@ document.addEventListener('DOMContentLoaded', function () {
         jumlahInput.disabled = true;
         jumlahInput.value = '';
         submitBtn.disabled = true;
-        selectedBarang = null;
     }
 
-    // ✅ FIXED: Ganti browser confirm() dengan custom showConfirm dialog
-    form.addEventListener('submit', function(e) {
+    // Intercept submit → tampil custom confirm dialog
+    form.addEventListener('submit', function (e) {
         e.preventDefault();
 
-        const barangText = barangSelect.selectedOptions[0]?.text || '';
-        const jumlah = jumlahInput.value;
-        const ruanganAsalText = ruanganAsal.selectedOptions[0]?.text || '';
+        const barangText        = barangSelect.selectedOptions[0]?.text || '';
+        const jumlah            = jumlahInput.value;
+        const ruanganAsalText   = ruanganAsal.selectedOptions[0]?.text || '';
         const ruanganTujuanText = ruanganTujuan.selectedOptions[0]?.text || '';
 
         showConfirm({
             title: 'Konfirmasi Pemindahan Barang',
-            message: `<div style="line-height:1.9;font-size:14px;">
-                <div>📦 <strong>Barang:</strong> ${barangText}</div>
-                <div>🔢 <strong>Jumlah:</strong> ${jumlah} unit</div>
-                <div>📍 <strong>Dari:</strong> ${ruanganAsalText}</div>
-                <div>🎯 <strong>Ke:</strong> ${ruanganTujuanText}</div>
+            message: `<div style="line-height:1.9;font-size:14px;text-align:left;">
+                <div><strong>Barang:</strong> ${barangText}</div>
+                <div><strong>Jumlah:</strong> ${jumlah} unit</div>
+                <div><strong>Dari:</strong> ${ruanganAsalText}</div>
+                <div><strong>Ke:</strong> ${ruanganTujuanText}</div>
             </div>`,
             type: 'warning',
             confirmText: '🚀 Ya, Pindahkan',
-            onConfirm: () => {
-                form.submit();
-            }
+            onConfirm: () => form.submit()
         });
     });
 });
