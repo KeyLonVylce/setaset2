@@ -102,7 +102,7 @@
                         '{{ addslashes($ruangan->keterangan ?? '') }}'
                     )" title="Edit Ruangan">✏️</button>
 
-                   <form action="{{ route('ruangan.delete', $ruangan->id) }}" method="POST"
+                   <form action="{{ route('ruangan.destroy', $ruangan->id) }}" method="POST"
     style="display: inline;">
     @csrf
     @method('DELETE')
@@ -229,7 +229,7 @@
     function closeAddRuanganModal() { document.getElementById('addRuanganModal').style.display = 'none'; }
 
     function openEditRuanganModal(id, nama, keterangan) {
-        document.getElementById('editRuanganForm').action = '/ruangan/' + id;
+        document.getElementById('editRuanganForm').action = '/admin/ruangan/' + id;
         document.getElementById('edit_nama_ruangan').value = nama;
         document.getElementById('edit_keterangan').value = keterangan || '';
         document.getElementById('editRuanganModal').style.display = 'block';

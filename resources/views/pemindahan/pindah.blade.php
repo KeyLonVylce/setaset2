@@ -156,7 +156,7 @@
     @endif
 
     <div class="pemindahan-card">
-        <form id="moveForm" action="{{ route('pemindahan.pindah.store') }}" method="POST">
+        <form id="moveForm" action="{{ route('barang.pindah.store') }}" method="POST">
             @csrf
 
             <div class="form-group">

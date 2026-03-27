@@ -370,7 +370,7 @@
     <div class="lantai-header">
         <h3>Daftar Lantai</h3>
         <div class="lantai-header-actions">
-            <a href="{{ route('pemindahan.pindah') }}" class="btn btn-primary">📦 Pindahkan Barang</a>
+            <a href="{{ route('barang.pindah.form') }}" class="btn btn-primary">📦 Pindahkan Barang</a>
             @if(Auth::guard('stafaset')->user()->isAdmin())
                 <button class="btn btn-primary" onclick="openAddLantaiModal()">+ Tambah Lantai</button>
             @endif
@@ -669,7 +669,7 @@
     }
     
     function openEditLantaiModal(id, nama, keterangan) {
-        document.getElementById('editLantaiForm').action = '/lantai/' + id;
+        document.getElementById('editLantaiForm').action = '/admin/lantai/' + id; // tambah prefix admin
         document.getElementById('edit_nama_lantai').value = nama;
         document.getElementById('edit_keterangan').value = keterangan || '';
         document.getElementById('editLantaiModal').style.display = 'block';

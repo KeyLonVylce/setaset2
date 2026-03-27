@@ -5,11 +5,44 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Notification;
 use App\Models\Lantai;
-use App\Models\Ruangan;
+use App\Models\Barang;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class LantaiController extends Controller
 {
+    public function index()
+    {
+        $lantais = Lantai::withCount('ruangans')
+            ->ordered()
+            ->paginate(4);
+
+        // Hitung kondisi barang global
+        $kondisiBaik = Barang::where('kondisi', 'B')->sum('jumlah');
+        $kondisiKurangBaik = Barang::where('kondisi', 'KB')->sum('jumlah');
+        $kondisiRusakBerat = Barang::where('kondisi', 'RB')->sum('jumlah');
+        $totalBarang = $kondisiBaik + $kondisiKurangBaik + $kondisiRusakBerat;
+
+        // Ambil 5 barang terbanyak
+        $topBarangs = Barang::select('nama_barang', DB::raw('SUM(jumlah) as total'))
+            ->groupBy('nama_barang')
+            ->orderByDesc('total')
+            ->limit(5)
+            ->get();
+
+        return view('home', compact(
+            'lantais',
+            'kondisiBaik',
+            'kondisiKurangBaik',
+            'kondisiRusakBerat',
+            'totalBarang',
+            'topBarangs'
+        ));
+    }
+
+    /**
+     * Menampilkan detail lantai beserta ruangan-ruangan
+     */
     public function show(Request $request, $id)
     {
         $lantai = Lantai::findOrFail($id);
@@ -29,6 +62,9 @@ class LantaiController extends Controller
         return view('lantai.show', compact('lantai', 'ruangans'));
     }
 
+    /**
+     * Store lantai baru (admin)
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -52,6 +88,9 @@ class LantaiController extends Controller
         return back()->with('success', 'Lantai berhasil ditambahkan!');
     }
 
+    /**
+     * Update lantai (admin)
+     */
     public function update(Request $request, $id)
     {
         $lantai = Lantai::findOrFail($id);
@@ -74,6 +113,9 @@ class LantaiController extends Controller
         return back()->with('success', 'Lantai berhasil diupdate!');
     }
 
+    /**
+     * Hapus lantai (admin)
+     */
     public function destroy($id)
     {
         $lantai = Lantai::findOrFail($id);
@@ -94,80 +136,5 @@ class LantaiController extends Controller
         ]);
 
         return redirect()->route('home')->with('success', 'Lantai berhasil dihapus!');
-    }
-
-    public function storeRuangan(Request $request, $lantai_id)
-    {
-        $lantai = Lantai::findOrFail($lantai_id);
-
-        $request->validate([
-            'nama_ruangan' => 'required|string|max:100',
-            'keterangan'   => 'nullable|string',
-        ]);
-
-        $ruangan = Ruangan::create([
-            'lantai_id'    => $lantai_id,
-            'nama_ruangan' => $request->nama_ruangan,
-            'keterangan'   => $request->keterangan,
-        ]);
-
-        Notification::create([
-            'type'        => 'ruangan',
-            'aksi'        => 'tambah',
-            'pesan'       => "Ruangan <b>{$ruangan->nama_ruangan}</b> ditambahkan di lantai <b>{$lantai->nama_lantai}</b>",
-            'target_role' => 'admin',
-            'user_id'     => Auth::guard('stafaset')->id(),
-        ]);
-
-        return back()->with('success', 'Ruangan berhasil ditambahkan!');
-    }
-
-    public function updateRuangan(Request $request, $id)
-    {
-        $ruangan = Ruangan::findOrFail($id);
-
-        $request->validate([
-            'nama_ruangan' => 'required|string|max:100',
-            'keterangan'   => 'nullable|string',
-        ]);
-
-        $ruangan->update([
-            'nama_ruangan' => $request->nama_ruangan,
-            'keterangan'   => $request->keterangan,
-        ]);
-
-        Notification::create([
-            'type'        => 'ruangan',
-            'aksi'        => 'edit',
-            'pesan'       => "Ruangan <b>{$ruangan->nama_ruangan}</b> di lantai <b>{$ruangan->lantai->nama_lantai}</b> diubah",
-            'target_role' => 'admin',
-            'user_id'     => Auth::guard('stafaset')->id(),
-        ]);
-
-        return back()->with('success', 'Ruangan berhasil diupdate!');
-    }
-
-    public function deleteRuangan($id)
-    {
-        $ruangan = Ruangan::findOrFail($id);
-
-        if ($ruangan->barangs()->count() > 0) {
-            return back()->with('error', 'Tidak dapat menghapus ruangan yang masih memiliki barang!');
-        }
-
-        $namaRuangan = $ruangan->nama_ruangan;
-        $namaLantai  = $ruangan->lantai->nama_lantai;
-
-        $ruangan->delete();
-
-        Notification::create([
-            'type'        => 'ruangan',
-            'aksi'        => 'hapus',
-            'pesan'       => "Ruangan <b>{$namaRuangan}</b> dihapus dari lantai <b>{$namaLantai}</b>",
-            'target_role' => 'admin',
-            'user_id'     => Auth::guard('stafaset')->id(),
-        ]);
-
-        return back()->with('success', 'Ruangan berhasil dihapus!');
     }
 }

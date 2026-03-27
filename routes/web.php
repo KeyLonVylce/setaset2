@@ -2,73 +2,69 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LantaiController;
 use App\Http\Controllers\RuanganController;
 use App\Http\Controllers\BarangController;
-use App\Http\Controllers\PemindahanController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\StafAsetController;
-
 
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
+// Auth
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// ✅ ROUTES YANG BISA DIAKSES SEMUA USER (STAFF & ADMIN)
+// Routes yang bisa diakses semua user yang login (staff & admin)
 Route::middleware('auth:stafaset')->group(function () {
-    Route::get('/home', [HomeController::class, 'index'])->name('home');
+    Route::get('/home', [LantaiController::class, 'index'])->name('home');
 
-    // View Lantai & Ruangan (semua bisa lihat)
+    // Lantai - hanya view
     Route::get('/lantai/{id}', [LantaiController::class, 'show'])->name('lantai.show');
+
+    // Ruangan - semua bisa lihat, tapi CRUD hanya admin (akan di-group terpisah)
     Route::get('/ruangan/{id}', [RuanganController::class, 'show'])->name('ruangan.show');
 
-    // Barang CRUD (semua bisa input data)
-    Route::get('/ruangan/{ruangan_id}/barang/create', [BarangController::class, 'create'])->name('barang.create');
-    Route::post('/ruangan/{ruangan_id}/barang', [BarangController::class, 'store'])->name('barang.store');
-    Route::get('/barang/{id}/edit', [BarangController::class, 'edit'])->name('barang.edit');
-    Route::put('/barang/{id}', [BarangController::class, 'update'])->name('barang.update');
-    Route::delete('/barang/{id}', [BarangController::class, 'destroy'])->name('barang.destroy');
+    // Barang - semua bisa CRUD
+    Route::prefix('barang')->group(function () {
+        Route::get('/create/{ruangan_id}', [BarangController::class, 'create'])->name('barang.create');
+        Route::post('/store/{ruangan_id}', [BarangController::class, 'store'])->name('barang.store');
+        Route::get('/edit/{id}', [BarangController::class, 'edit'])->name('barang.edit');
+        Route::put('/update/{id}', [BarangController::class, 'update'])->name('barang.update');
+        Route::delete('/destroy/{id}', [BarangController::class, 'destroy'])->name('barang.destroy');
+        Route::get('/import/{ruangan_id}', [BarangController::class, 'importForm'])->name('barang.import.form');
+        Route::post('/import/{ruangan_id}', [BarangController::class, 'import'])->name('barang.import');
+        Route::get('/pindah', [BarangController::class, 'pindahForm'])->name('barang.pindah.form');
+        Route::post('/pindah', [BarangController::class, 'pindahStore'])->name('barang.pindah.store');
+        Route::get('/history', [BarangController::class, 'history'])->name('barang.history');
+    });
 
-    // Import Barang (semua bisa)
-    Route::get('/barang/import/{ruangan}', [BarangController::class, 'importForm'])->name('barang.import.form');
-    Route::post('/barang/import/{ruangan}', [BarangController::class, 'import'])->name('barang.import');
-
-    // Pemindahan Barang (semua bisa)
-    Route::get('/pemindahan/pindah', [PemindahanController::class, 'pindah'])->name('pemindahan.pindah');
-    Route::post('/pemindahan/pindah', [PemindahanController::class, 'pindahStore'])->name('pemindahan.pindah.store');
-    Route::get('/pemindahan/history', [PemindahanController::class, 'history'])->name('pemindahan.history');
-
-    Route::get('/notifications', [NotificationController::class, 'index'])
-        ->name('notifications.index');
-
-    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])
-        ->name('notifications.read');
-
-    Route::get('/notifications/realtime', [NotificationController::class, 'realtime'])
-        ->name('notifications.realtime');
+    // Notifikasi
+    Route::prefix('notifications')->group(function () {
+        Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::post('/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+        Route::get('/realtime', [NotificationController::class, 'realtime'])->name('notifications.realtime');
+    });
 });
 
-// ✅ ROUTES KHUSUS ADMIN
-Route::middleware(['auth:stafaset', 'role:admin'])->group(function () {
-    // Lantai Management (hanya admin)
+// Routes khusus admin
+Route::middleware(['auth:stafaset', 'role:admin'])->prefix('admin')->group(function () {
+    // Lantai Management
     Route::post('/lantai', [LantaiController::class, 'store'])->name('lantai.store');
     Route::put('/lantai/{id}', [LantaiController::class, 'update'])->name('lantai.update');
     Route::delete('/lantai/{id}', [LantaiController::class, 'destroy'])->name('lantai.destroy');
 
-    // Ruangan Management (hanya admin)
-    Route::post('/lantai/{lantai_id}/ruangan', [LantaiController::class, 'storeRuangan'])->name('ruangan.store');
-    Route::put('/ruangan/{id}', [LantaiController::class, 'updateRuangan'])->name('ruangan.update');
-    Route::delete('/ruangan/{id}', [LantaiController::class, 'deleteRuangan'])->name('ruangan.delete');
+    // Ruangan Management
+    Route::post('/ruangan/{lantai_id}', [RuanganController::class, 'store'])->name('ruangan.store');
+    Route::put('/ruangan/{id}', [RuanganController::class, 'update'])->name('ruangan.update');
+    Route::delete('/ruangan/{id}', [RuanganController::class, 'destroy'])->name('ruangan.destroy');
 
-    // Export PDF (hanya admin)
+    // Export PDF
     Route::get('/ruangan/{id}/export', [RuanganController::class, 'export'])->name('ruangan.export');
 
-    // Staff Management (hanya admin)
+    // Staff Management
     Route::get('/staff', [StafAsetController::class, 'index'])->name('staff.index');
     Route::get('/staff/create', [StafAsetController::class, 'create'])->name('staff.create');
     Route::post('/staff', [StafAsetController::class, 'store'])->name('staff.store');

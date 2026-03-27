@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('barangs', function (Blueprint $table) {
@@ -18,7 +15,6 @@ return new class extends Migration
                 ->constrained('ruangans')
                 ->onDelete('cascade');
 
-            // no_urut dihapus — dihitung pakai $loop->iteration di Blade atau row_number() di query
             $table->string('nama_barang', 150)->nullable();
             $table->string('merk_model', 150)->nullable();
             $table->string('no_seri_pabrik', 100)->nullable();
@@ -28,19 +24,18 @@ return new class extends Migration
             $table->string('kode_barang', 50)->nullable();
             $table->integer('jumlah')->default(0);
 
-            // decimal(15,2) untuk nilai uang — bukan integer/string
+            // ✅ Tetap decimal (ini yang benar untuk uang)
             $table->decimal('harga_perolehan', 15, 2)->nullable();
 
+            // ✅ Langsung pakai kondisi (tidak perlu kolom lama)
             $table->enum('kondisi', ['B', 'KB', 'RB'])->default('B');
+
             $table->text('keterangan')->nullable();
 
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('barangs');

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Barang;
 use App\Models\Ruangan;
+use App\Models\Lantai;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
@@ -47,7 +49,7 @@ class BarangController extends Controller
             'type'        => 'barang',
             'aksi'        => 'tambah',
             'pesan'       => 'Barang <b>' . $validated['nama_barang'] . '</b> ditambahkan ke ruangan <b>' . $ruangan->nama_ruangan . '</b> (' . $lantaiNama . ')',
-            'target_role' => 'admin',
+            'target_role' => 'all',
             'user_id'     => Auth::guard('stafaset')->id(),
         ]);
 
@@ -92,7 +94,7 @@ class BarangController extends Controller
             'type'        => 'barang',
             'aksi'        => 'edit',
             'pesan'       => 'Barang <b>' . $barang->nama_barang . '</b> diperbarui di ruangan <b>' . $ruangan->nama_ruangan . '</b> (' . $lantaiNama . ')',
-            'target_role' => 'admin',
+            'target_role' => 'all',
             'user_id'     => Auth::guard('stafaset')->id(),
         ]);
 
@@ -116,7 +118,7 @@ class BarangController extends Controller
             'type'        => 'barang',
             'aksi'        => 'hapus',
             'pesan'       => 'Barang <b>' . $namaBarang . '</b> dihapus dari ruangan <b>' . $ruangan->nama_ruangan . '</b> (' . $lantaiNama . ')',
-            'target_role' => 'admin',
+            'target_role' => 'all',
             'user_id'     => Auth::guard('stafaset')->id(),
         ]);
 
@@ -155,5 +157,99 @@ class BarangController extends Controller
         return redirect()
             ->route('ruangan.show', $ruangan_id)
             ->with('success', 'Import barang berhasil.');
+    }
+
+    /**
+     * Form pemindahan barang
+     */
+    public function pindahForm()
+    {
+        $lantais = Lantai::orderBy('urutan')->get();
+        $barangs = Barang::with('ruangan')->get();
+        $ruangans = Ruangan::with('lantai')->get()->map(fn($r) => [
+            'id'           => $r->id,
+            'nama_ruangan' => $r->nama_ruangan,
+            'lantai_id'    => $r->lantai_id,
+            'lantai_nama'  => $r->lantai->nama_lantai ?? '-',
+        ]);
+
+        return view('pemindahan.pindah', compact('lantais', 'barangs', 'ruangans'));
+    }
+
+    /**
+     * Proses pemindahan barang
+     */
+    public function pindahStore(Request $request)
+    {
+        $request->validate([
+            'barang_id'       => 'required|exists:barangs,id',
+            'ruangan_tujuan'  => 'required|exists:ruangans,id',
+            'jumlah_pindah'   => 'required|integer|min:1',
+            'notes'           => 'nullable|string',
+        ]);
+
+        $barang = Barang::with('ruangan')->findOrFail($request->barang_id);
+        $jumlahPindah = (int)$request->jumlah_pindah;
+
+        if ($jumlahPindah > $barang->jumlah) {
+            return back()->withErrors(['jumlah_pindah' => 'Jumlah yang dipindahkan melebihi stok tersedia!']);
+        }
+
+        if ($request->ruangan_tujuan == $barang->ruangan_id) {
+            return back()->withErrors(['ruangan_tujuan' => 'Tidak bisa memindahkan ke ruangan yang sama!']);
+        }
+
+        $ruanganAsal   = $barang->ruangan->nama_ruangan;
+        $ruanganTujuan = Ruangan::findOrFail($request->ruangan_tujuan);
+
+        if ($jumlahPindah == $barang->jumlah) {
+            $barang->ruangan_id = $request->ruangan_tujuan;
+            $barang->save();
+            $message = "Barang <b>{$barang->nama_barang}</b> ({$jumlahPindah} unit) dipindahkan dari <b>{$ruanganAsal}</b> ke <b>{$ruanganTujuan->nama_ruangan}</b>";
+        } else {
+            $barang->jumlah -= $jumlahPindah;
+            $barang->save();
+
+            $barangTujuan = Barang::where('ruangan_id', $request->ruangan_tujuan)
+                ->where('nama_barang', $barang->nama_barang)
+                ->where('kode_barang', $barang->kode_barang)
+                ->where('merk_model', $barang->merk_model)
+                ->first();
+
+            if ($barangTujuan) {
+                $barangTujuan->jumlah += $jumlahPindah;
+                $barangTujuan->save();
+            } else {
+                $barangBaru             = $barang->replicate();
+                $barangBaru->ruangan_id = $request->ruangan_tujuan;
+                $barangBaru->jumlah     = $jumlahPindah;
+                $barangBaru->save();
+            }
+
+            $message = "Barang <b>{$barang->nama_barang}</b> sebanyak <b>{$jumlahPindah} unit</b> dipindahkan dari <b>{$ruanganAsal}</b> (sisa: {$barang->jumlah}) ke <b>{$ruanganTujuan->nama_ruangan}</b>";
+        }
+
+        if ($request->notes) {
+            $message .= " | Catatan: {$request->notes}";
+        }
+
+        Notification::create([
+            'type'        => 'barang',
+            'aksi'        => 'pindah',
+            'pesan'       => $message,
+            'target_role' => 'all',
+            'user_id'     => Auth::guard('stafaset')->id(),
+        ]);
+
+        return redirect()->route('home')->with('success', 'Barang berhasil dipindahkan!');
+    }
+
+    /**
+     * History pemindahan (bisa diimplementasikan nanti)
+     */
+    public function history()
+    {
+        // Bisa pakai view history pemindahan
+        return view('barang.history');
     }
 }
