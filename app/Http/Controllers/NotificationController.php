@@ -18,12 +18,36 @@ class NotificationController extends Controller
 
     public function index()
     {
-        $user = Auth::guard('stafaset')->user();
-
-        $notifications = $this->baseQuery($user)
-            ->latest()
-            ->paginate(20);
-
+        $user = auth()->user();
+    
+        $query = \App\Models\Notification::query();
+    
+        // FILTER STATUS
+        if (request('status') == 'read') {
+            $query->whereJsonContains('read_by', $user->id);
+        }
+    
+        if (request('status') == 'unread') {
+            $query->where(function ($q) use ($user) {
+                $q->whereNull('read_by')
+                  ->orWhereJsonDoesntContain('read_by', $user->id);
+            });
+        }
+    
+        // FILTER TYPE
+        if (request('type') && request('type') != 'all') {
+            $query->where('type', request('type'));
+        }
+    
+        // FILTER ROLE (punya kamu sebelumnya)
+        $query->where(function ($q) use ($user) {
+            $q->whereNull('target_role')
+              ->orWhere('target_role', 'all')
+              ->orWhere('target_role', $user->role);
+        });
+    
+        $notifications = $query->latest()->paginate(10)->withQueryString();
+    
         return view('notifications.index', compact('notifications', 'user'));
     }
 

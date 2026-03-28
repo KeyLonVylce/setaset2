@@ -56,7 +56,7 @@ class LantaiController extends Controller
                       ->orWhere('keterangan', 'like', "%{$search}%");
                 });
             })
-            ->paginate(3)
+            ->paginate(4)
             ->withQueryString();
 
         return view('lantai.show', compact('lantai', 'ruangans'));

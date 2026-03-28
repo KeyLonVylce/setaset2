@@ -53,6 +53,11 @@
         text-decoration: none;
         color: #374151;
     }
+    .invalid-feedback {
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: 5px;
+    }
 </style>
 @endsection
 
@@ -83,7 +88,7 @@
         </div>
     @endif
 
-    <form action="{{ route('profile.update') }}" method="POST">
+    <form action="{{ route('profile.update') }}" method="POST" id="profileForm">
         @csrf
         @method('PUT')
 
@@ -109,7 +114,8 @@
 
         <div class="form-group">
             <label for="password">Password Baru <span style="font-weight: normal; color: #6b7280;">(kosongkan jika tidak diubah)</span></label>
-            <input type="password" id="password" name="password">
+            <input type="password" id="password" name="password" minlength="6">
+            <div class="invalid-feedback" id="passwordError" style="display: none;">Password minimal 6 karakter.</div>
         </div>
 
         <div class="form-actions">
@@ -118,4 +124,20 @@
         </div>
     </form>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    document.getElementById('profileForm').addEventListener('submit', function(e) {
+        const password = document.getElementById('password');
+        const errorDiv = document.getElementById('passwordError');
+        if (password.value.length > 0 && password.value.length < 6) {
+            e.preventDefault();
+            errorDiv.style.display = 'block';
+            password.focus();
+        } else {
+            errorDiv.style.display = 'none';
+        }
+    });
+</script>
 @endsection

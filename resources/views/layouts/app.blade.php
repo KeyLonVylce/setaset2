@@ -661,6 +661,7 @@
 
         .staff-icon {
             font-size: 16px;
+            height: 30px;
         }
 
         .staff-text {
