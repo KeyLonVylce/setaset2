@@ -5,23 +5,23 @@
 @section('styles')
 <style>
     .breadcrumb { margin-bottom: 20px; color: #666; font-size: 14px; }
-    .breadcrumb a { color: #ff7b3d; text-decoration: none; }
+    .breadcrumb a { color: #0066cc; text-decoration: none; }
     .breadcrumb a:hover { text-decoration: underline; }
     .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
-    .page-header h2 { font-size: 28px; color: #333; margin: 0; }
+    .page-header h2 { font-size: 28px; color: #0066cc; margin: 0; } /* biru */
 
     .search-box { display: flex; align-items: center; gap: 10px; }
     .search-box form { margin: 0; }
     .search-box input { padding: 10px 15px; border: 1px solid #ddd; border-radius: 6px; width: 250px; font-size: 14px; transition: border-color 0.3s; }
-    .search-box input:focus { outline: none; border-color: #ff7b3d; }
+    .search-box input:focus { outline: none; border-color: #0066cc; } /* biru */
 
     .lantai-info { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
     .lantai-info p { margin: 5px 0; color: #666; }
     .ruangan-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
     .ruangan-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: all 0.3s; }
-    .ruangan-card:hover { transform: translateY(-5px); box-shadow: 0 5px 20px rgba(255,123,61,0.3); }
+    .ruangan-card:hover { transform: translateY(-5px); box-shadow: 0 5px 20px rgba(0,102,204,0.3); } /* biru */
     .ruangan-card-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px; }
-    .ruangan-card h3 { font-size: 18px; color: #ff7b3d; margin-bottom: 5px; }
+    .ruangan-card h3 { font-size: 18px; color: #0066cc; margin-bottom: 5px; } /* biru */
     .ruangan-card p { color: #666; font-size: 14px; margin: 5px 0; }
     .ruangan-actions { display: flex; gap: 10px; margin-top: 15px; }
     .badge { display: inline-block; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: 600; }
@@ -33,14 +33,155 @@
     .ruangan-card-actions button:hover { background: white; color: #0066cc; border-color: #0066cc; transform: scale(1.1); }
     .ruangan-card-actions .btn-delete:hover { color: #dc3545; border-color: #dc3545; }
 
-    .modal { display: none; position: fixed; z-index: 1000; padding-top: 100px; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background: rgba(0,0,0,0.4); }
-    .modal-content { background: #fff; padding: 20px; border-radius: 10px; width: 400px; margin: auto; }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; }
-    .close { cursor: pointer; font-size: 24px; }
-    .form-group { margin-bottom: 15px; }
-    .form-group input,
-    .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
+    /* ============================================
+       MODAL ENHANCEMENTS (FULL SCREEN, NO WHITE GAPS)
+    ============================================ */
+    .modal {
+        display: none;
+        position: fixed;
+        inset: 0;               /* cover seluruh layar */
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
 
+    .modal.active {
+        display: flex;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 20px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        animation: modalSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        overflow: hidden;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-30px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, #0066cc 0%, #004c99 100%);
+        color: white;
+        padding: 20px 24px;
+        border-bottom: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h3 {
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0;
+        letter-spacing: -0.3px;
+    }
+
+    .modal-header .close {
+        font-size: 28px;
+        font-weight: 300;
+        cursor: pointer;
+        color: white;
+        opacity: 0.8;
+        transition: opacity 0.2s;
+        line-height: 1;
+    }
+
+    .modal-header .close:hover {
+        opacity: 1;
+    }
+
+    .modal-body {
+        padding: 24px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        color: #1f2937;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #0066cc;
+        box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    .modal-footer {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        padding: 0 24px 24px;
+        background: white;
+    }
+
+    .modal-footer .btn {
+        padding: 10px 20px;
+        font-weight: 500;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .modal-footer .btn-primary {
+        background: linear-gradient(135deg, #0066cc, #004c99);
+        color: white;
+        border: none;
+        box-shadow: 0 2px 6px rgba(0, 102, 204, 0.3);
+    }
+
+    .modal-footer .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 102, 204, 0.4);
+    }
+
+    .modal-footer .btn-secondary {
+        background: #f3f4f6;
+        color: #374151;
+        border: 1px solid #e5e7eb;
+    }
+
+    .modal-footer .btn-secondary:hover {
+        background: #e5e7eb;
+    }
+
+    /* Pagination */
     .pagination-wrapper { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; padding: 20px 0; flex-wrap: wrap; gap: 15px; }
     .pagination-info { color: #666; font-size: 14px; }
     .pagination-nav { display: flex; }
@@ -48,12 +189,16 @@
     .page-item { display: inline-block; }
     .page-link { display: flex; align-items: center; justify-content: center; min-width: 36px; height: 36px; padding: 0 8px; border: 1px solid #ddd; border-radius: 50%; color: #666; text-decoration: none; transition: all 0.2s; background: white; font-size: 14px; cursor: pointer; }
     .page-link:hover { background: #f5f5f5; border-color: #bbb; }
-    .page-item.active .page-link { background: #00a8ff; color: white; border-color: #00a8ff; font-weight: 600; cursor: default; }
+    .page-item.active .page-link { background: #0066cc; color: white; border-color: #0066cc; font-weight: 600; cursor: default; }
     .page-item.disabled .page-link { color: #ccc; cursor: not-allowed; background: #fafafa; border-color: #e5e5e5; }
 
     @media (max-width: 768px) {
         .pagination-wrapper { justify-content: center; }
         .pagination-info { width: 100%; text-align: center; }
+        .modal-content { width: 95%; margin: 0 auto; }
+        .modal-header { padding: 16px 20px; }
+        .modal-body { padding: 20px; }
+        .modal-footer { padding: 0 20px 20px; }
     }
 </style>
 @endsection
@@ -102,19 +247,18 @@
                         '{{ addslashes($ruangan->keterangan ?? '') }}'
                     )" title="Edit Ruangan">✏️</button>
 
-                   <form action="{{ route('ruangan.destroy', $ruangan->id) }}" method="POST"
-    style="display: inline;">
-    @csrf
-    @method('DELETE')
-    <button type="button" class="btn-delete" title="Hapus Ruangan"
-        onclick="showConfirm({
-            title: 'Hapus Ruangan?',
-            message: 'Yakin ingin menghapus ruangan <strong>{{ addslashes($ruangan->nama_ruangan) }}</strong>?<br>Semua barang di dalamnya akan ikut terhapus.',
-            type: 'danger',
-            confirmText: '🗑️ Ya, Hapus',
-            onConfirm: function() { this.closest('form').submit(); }.bind(this)
-        })">🗑️</button>
-</form>
+                    <form action="{{ route('ruangan.destroy', $ruangan->id) }}" method="POST" style="display: inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="button" class="btn-delete" title="Hapus Ruangan"
+                            onclick="showConfirm({
+                                title: 'Hapus Ruangan?',
+                                message: 'Yakin ingin menghapus ruangan <strong>{{ addslashes($ruangan->nama_ruangan) }}</strong>?<br>Semua barang di dalamnya akan ikut terhapus.',
+                                type: 'danger',
+                                confirmText: '🗑️ Ya, Hapus',
+                                onConfirm: function() { this.closest('form').submit(); }.bind(this)
+                            })">🗑️</button>
+                    </form>
                 </div>
                 @endif
             </div>
@@ -177,21 +321,23 @@
             <h3>Tambah Ruangan Baru</h3>
             <span class="close" onclick="closeAddRuanganModal()">&times;</span>
         </div>
-        <form action="{{ route('ruangan.store', $lantai->id) }}" method="POST">
-            @csrf
-            <div class="form-group">
-                <label for="nama_ruangan">Nama Ruangan <span style="color: red;">*</span></label>
-                <input type="text" id="nama_ruangan" name="nama_ruangan" placeholder="Contoh: Ruang Server" required>
-            </div>
-            <div class="form-group">
-                <label for="keterangan">Keterangan</label>
-                <textarea id="keterangan" name="keterangan" rows="3" placeholder="Keterangan tambahan (opsional)"></textarea>
-            </div>
-            <div style="display: flex; gap: 10px;">
-                <button type="submit" class="btn btn-success">Simpan</button>
-                <button type="button" class="btn btn-danger" onclick="closeAddRuanganModal()">Batal</button>
-            </div>
-        </form>
+        <div class="modal-body">
+            <form id="addRuanganForm" action="{{ route('ruangan.store', $lantai->id) }}" method="POST">
+                @csrf
+                <div class="form-group">
+                    <label for="nama_ruangan">Nama Ruangan <span style="color: red;">*</span></label>
+                    <input type="text" id="nama_ruangan" name="nama_ruangan" placeholder="Contoh: Ruang Server" required>
+                </div>
+                <div class="form-group">
+                    <label for="keterangan">Keterangan</label>
+                    <textarea id="keterangan" name="keterangan" rows="3" placeholder="Keterangan tambahan (opsional)"></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" form="addRuanganForm" class="btn btn-primary">Simpan</button>
+            <button type="button" class="btn btn-secondary" onclick="closeAddRuanganModal()">Batal</button>
+        </div>
     </div>
 </div>
 
@@ -202,22 +348,24 @@
             <h3>Edit Ruangan</h3>
             <span class="close" onclick="closeEditRuanganModal()">&times;</span>
         </div>
-        <form id="editRuanganForm" method="POST">
-            @csrf
-            @method('PUT')
-            <div class="form-group">
-                <label for="edit_nama_ruangan">Nama Ruangan <span style="color: red;">*</span></label>
-                <input type="text" id="edit_nama_ruangan" name="nama_ruangan" required>
-            </div>
-            <div class="form-group">
-                <label for="edit_keterangan">Keterangan</label>
-                <textarea id="edit_keterangan" name="keterangan" rows="3"></textarea>
-            </div>
-            <div style="display: flex; gap: 10px;">
-                <button type="submit" class="btn btn-success">Update</button>
-                <button type="button" class="btn btn-danger" onclick="closeEditRuanganModal()">Batal</button>
-            </div>
-        </form>
+        <div class="modal-body">
+            <form id="editRuanganForm" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="form-group">
+                    <label for="edit_nama_ruangan">Nama Ruangan <span style="color: red;">*</span></label>
+                    <input type="text" id="edit_nama_ruangan" name="nama_ruangan" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit_keterangan">Keterangan</label>
+                    <textarea id="edit_keterangan" name="keterangan" rows="3"></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" form="editRuanganForm" class="btn btn-primary">Update</button>
+            <button type="button" class="btn btn-secondary" onclick="closeEditRuanganModal()">Batal</button>
+        </div>
     </div>
 </div>
 @endif
@@ -225,23 +373,29 @@
 
 @section('scripts')
 <script>
-    function openAddRuanganModal() { document.getElementById('addRuanganModal').style.display = 'block'; }
-    function closeAddRuanganModal() { document.getElementById('addRuanganModal').style.display = 'none'; }
+    function openAddRuanganModal() {
+        document.getElementById('addRuanganModal').style.display = 'flex';
+    }
+    function closeAddRuanganModal() {
+        document.getElementById('addRuanganModal').style.display = 'none';
+    }
 
     function openEditRuanganModal(id, nama, keterangan) {
         document.getElementById('editRuanganForm').action = '/admin/ruangan/' + id;
         document.getElementById('edit_nama_ruangan').value = nama;
         document.getElementById('edit_keterangan').value = keterangan || '';
-        document.getElementById('editRuanganModal').style.display = 'block';
+        document.getElementById('editRuanganModal').style.display = 'flex';
     }
 
-    function closeEditRuanganModal() { document.getElementById('editRuanganModal').style.display = 'none'; }
+    function closeEditRuanganModal() {
+        document.getElementById('editRuanganModal').style.display = 'none';
+    }
 
     window.onclick = function(event) {
         const addModal = document.getElementById('addRuanganModal');
         const editModal = document.getElementById('editRuanganModal');
-        if (event.target == addModal) addModal.style.display = 'none';
-        if (event.target == editModal) editModal.style.display = 'none';
+        if (event.target === addModal) addModal.style.display = 'none';
+        if (event.target === editModal) editModal.style.display = 'none';
     }
 </script>
 @endsection

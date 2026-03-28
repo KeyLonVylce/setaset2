@@ -5,7 +5,7 @@
 @section('styles')
 <style>
     .breadcrumb { margin-bottom: 20px; color: #666; font-size: 14px; }
-    .breadcrumb a { color: #ff7b3d; text-decoration: none; }
+    .breadcrumb a { color: #0066cc; text-decoration: none; }
     .breadcrumb a:hover { text-decoration: underline; }
     .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 10px; flex-wrap: wrap; }
     .page-header h2 { font-size: 28px; color: #333; }
@@ -17,21 +17,39 @@
     .action-flex { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
     .search-box { display: flex; gap: 10px; margin-bottom: 20px; }
     .search-box input { padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; width: 250px; }
-    .search-box input:focus { outline: none; border-color: #ff7b3d; }
-    .table-responsive { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; }
-    table th { position: sticky; top: 0; background: #ff9a56; z-index: 10; padding: 12px 8px; color: white; text-align: left; }
-    table td { padding: 10px 8px; border-bottom: 1px solid #e0e0e0; }
-    table tbody tr:hover { background: #f9f9f9; }
-    .text-center { text-align: center; }
-    .text-end { text-align: right; }
-    .badge-kondisi { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; display: inline-block; }
-    .badge-baik { background: #d4edda; color: #155724; }
-    .badge-kurang { background: #fff3cd; color: #856404; }
-    .badge-rusak { background: #f8d7da; color: #721c24; }
+    .search-box input:focus { outline: none; border-color: #0066cc; }
+
+    /* Table */
+    .table-responsive { overflow-x: auto; border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; background: white; }
+    table th { background: #0066cc; color: white; padding: 12px 10px; text-align: left; font-size: 13px; font-weight: 600; }
+    table td { padding: 12px 10px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+    table tbody tr:hover { background: #f9fafb; }
+
+    /* Checkbox column – hidden by default */
+    .checkbox-col {
+        width: 40px;
+        text-align: center;
+        display: none;
+    }
+    .select-mode .checkbox-col {
+        display: table-cell;
+    }
+    .select-all-checkbox, .barang-checkbox {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+
+    /* Badge kondisi */
+    .badge-kondisi { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
+    .badge-baik { background: #d1fae5; color: #065f46; }
+    .badge-kurang { background: #fef3c7; color: #92400e; }
+    .badge-rusak { background: #fee2e2; color: #991b1b; }
+
     .empty-state { text-align: center; padding: 60px 20px; color: #999; }
 
-    /* Pagination Styles */
+    /* Pagination */
     .pagination-wrapper { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; padding: 20px 0; flex-wrap: wrap; gap: 15px; }
     .pagination-info { color: #666; font-size: 14px; }
     .pagination-nav { display: flex; }
@@ -39,9 +57,13 @@
     .page-item { display: inline-block; }
     .page-link { display: flex; align-items: center; justify-content: center; min-width: 36px; height: 36px; padding: 0 8px; border: 1px solid #ddd; border-radius: 50%; color: #666; text-decoration: none; transition: all 0.2s; background: white; font-size: 14px; cursor: pointer; }
     .page-link:hover { background: #f5f5f5; border-color: #bbb; }
-    .page-item.active .page-link { background: #00a8ff; color: white; border-color: #00a8ff; font-weight: 600; cursor: default; }
+    .page-item.active .page-link { background: #0066cc; color: white; border-color: #0066cc; font-weight: 600; cursor: default; }
     .page-item.disabled .page-link { color: #ccc; cursor: not-allowed; background: #fafafa; border-color: #e5e5e5; }
-    .page-item.disabled .page-link:hover { background: #fafafa; border-color: #e5e5e5; }
+
+    /* Bulk actions bar – hidden by default */
+    .bulk-actions { display: none; align-items: center; gap: 12px; margin-bottom: 20px; padding: 12px 0; border-bottom: 1px solid #e5e7eb; }
+    .selected-info { background: #eef2ff; padding: 8px 16px; border-radius: 20px; font-size: 13px; color: #1e40af; display: inline-flex; align-items: center; gap: 6px; }
+    .selected-info span { font-weight: 700; }
 
     @media (max-width: 768px) {
         .pagination-wrapper { justify-content: center; }
@@ -49,6 +71,7 @@
         .page-header { flex-direction: column; align-items: flex-start; }
         .action-flex { width: 100%; }
         .info-grid { grid-template-columns: 1fr; }
+        .bulk-actions { flex-wrap: wrap; }
     }
 </style>
 @endsection
@@ -72,7 +95,7 @@
                 <a href="{{ route('ruangan.export', $ruangan->id) }}" class="btn btn-success" target="_blank">📄 Export PDF</a>
             @endif
             <a href="{{ route('barang.create', $ruangan->id) }}" class="btn btn-primary">+ Tambah Barang</a>
-            <a href="{{ route('barang.import.form', $ruangan->id) }}" class="btn btn-warning">⬆️ Import Excel</a>
+            <a href="{{ route('barang.import.form', $ruangan->id) }}" class="btn btn-primary">⬆️ Import Excel</a>
         </div>
     </div>
 
@@ -80,25 +103,16 @@
     <div class="info-grid">
         <div class="info-section">
             <p><strong>Lantai:</strong> {{ $ruangan->lantai->nama_lantai }}</p>
-
             @if($ruangan->penanggungJawab)
                 <p><strong>Penanggung Jawab:</strong> {{ $ruangan->penanggungJawab->nama }}</p>
-                @if($ruangan->penanggungJawab->nip)
-                    <p><strong>NIP:</strong> {{ $ruangan->penanggungJawab->nip }}</p>
-                @endif
-                @if($ruangan->penanggungJawab->jabatan)
-                    <p><strong>Jabatan:</strong> {{ $ruangan->penanggungJawab->jabatan }}</p>
-                @endif
+                <p><strong>NIP:</strong> {{ $ruangan->penanggungJawab->nip ?? '-' }}</p>
+                <p><strong>Jabatan:</strong> {{ $ruangan->penanggungJawab->jabatan ?? '-' }}</p>
             @endif
-
             @if($ruangan->keterangan)
                 <p><strong>Keterangan:</strong> {{ $ruangan->keterangan }}</p>
             @endif
-
             <p><strong>Total Barang:</strong> {{ $barangs->total() }} item</p>
         </div>
-
-        {{-- PIE CHART --}}
         <div class="chart-section">
             <h3>📊 Kondisi Barang</h3>
             <canvas id="kondisiChart" style="max-width: 280px; max-height: 280px;"></canvas>
@@ -110,14 +124,39 @@
         <form method="GET" action="">
             <input type="text" name="search" placeholder="Cari barang..." value="{{ request('search') }}">
         </form>
+        {{-- Tombol Pilih / Batal --}}
+            <button type="button" id="toggleSelectBtn" class="btn btn-success">✓ Pilih</button>
+            <button type="button" id="cancelSelectBtn" class="btn btn-secondary" style="display: none;">✕ Batal</button>
     </div>
+    
 
     @if($barangs->count() > 0)
 
-    <div class="table-responsive">
-        <table class="table table-bordered">
+    {{-- FORM UNTUK HAPUS BULK --}}
+    <form id="bulkDeleteForm" action="{{ route('barang.bulk.destroy') }}" method="POST">
+        @csrf
+        @method('DELETE')
+        <input type="hidden" name="ids" id="selectedIdsInput" value="">
+    </form>
+
+    {{-- BARIS AKSI BULK (muncul saat mode seleksi aktif) --}}
+    <div id="bulkActions" class="bulk-actions">
+        <div class="selected-info">
+            <span>✓</span>
+            <span id="selectedCount">0</span> barang dipilih
+        </div>
+        <button type="button" class="btn btn-danger" id="deleteSelectedBtn">
+            🗑️ Hapus Terpilih
+        </button>
+    </div>
+
+    <div class="table-responsive" id="tableContainer">
+        <table class="table">
             <thead>
                 <tr>
+                    <th class="checkbox-col">
+                        <input type="checkbox" id="selectAllCheckbox" class="select-all-checkbox">
+                    </th>
                     <th>No</th>
                     <th>Kode</th>
                     <th>Nama Barang</th>
@@ -134,10 +173,12 @@
                     <th>Aksi</th>
                 </tr>
             </thead>
-
             <tbody>
                 @foreach($barangs as $i => $b)
                 <tr>
+                    <td class="checkbox-col text-center">
+                        <input type="checkbox" name="barang_ids[]" value="{{ $b->id }}" class="barang-checkbox">
+                    </td>
                     <td>{{ $barangs->firstItem() + $i }}</td>
                     <td>{{ $b->kode_barang ?? '-' }}</td>
                     <td>{{ $b->nama_barang }}</td>
@@ -147,45 +188,39 @@
                     <td>{{ $b->bahan ?? '-' }}</td>
                     <td>{{ $b->tahun_pembuatan ?? '-' }}</td>
                     <td class="text-center">{{ $b->jumlah }}</td>
-
                     <td>
-                        @if($b->kondisi === 'B') <span class="badge-baik badge-kondisi">Baik</span>
-                        @elseif($b->kondisi === 'KB') <span class="badge-kurang badge-kondisi">Kurang Baik</span>
-                        @elseif($b->kondisi === 'RB') <span class="badge-rusak badge-kondisi">Rusak Berat</span>
+                        @if($b->kondisi === 'B')
+                            <span class="badge-kondisi badge-baik">Baik</span>
+                        @elseif($b->kondisi === 'KB')
+                            <span class="badge-kondisi badge-kurang">Kurang Baik</span>
+                        @elseif($b->kondisi === 'RB')
+                            <span class="badge-kondisi badge-rusak">Rusak Berat</span>
                         @else - @endif
                     </td>
-
                     <td class="text-end">
                         @if($b->harga_perolehan && is_numeric($b->harga_perolehan))
                             Rp {{ number_format((float)$b->harga_perolehan, 0, ',', '.') }}
                         @else - @endif
                     </td>
-
                     <td class="text-end">
                         @if($b->total_nilai && is_numeric($b->total_nilai))
                             Rp {{ number_format((float)$b->total_nilai, 0, ',', '.') }}
                         @else - @endif
                     </td>
-
                     <td>{{ $b->keterangan ?? '-' }}</td>
-
                     <td style="white-space: nowrap;">
                         <a href="{{ route('barang.edit', $b->id) }}" class="btn btn-sm btn-primary">Edit</a>
-                        
-<form action="{{ route('barang.destroy', $b->id) }}" method="POST" style="display: inline;">
-    @csrf @method('DELETE')
-    <button type="button" class="btn btn-sm btn-danger"
-        onclick="var f=this.closest('form'); showConfirm({
-            title: 'Hapus Barang?',
-            message: 'Yakin ingin menghapus barang ini? Data tidak dapat dikembalikan.',
-            type: 'danger',
-            confirmText: '🗑️ Ya, Hapus',
-            onConfirm: function() { f.submit(); }
-        })">Hapus</button>
-</form>
-
-
-
+                        <form action="{{ route('barang.destroy', $b->id) }}" method="POST" style="display: inline;">
+                            @csrf @method('DELETE')
+                            <button type="button" class="btn btn-sm btn-danger"
+                                onclick="var f=this.closest('form'); showConfirm({
+                                    title: 'Hapus Barang?',
+                                    message: 'Yakin ingin menghapus barang ini? Data tidak dapat dikembalikan.',
+                                    type: 'danger',
+                                    confirmText: '🗑️ Ya, Hapus',
+                                    onConfirm: function() { f.submit(); }
+                                })">Hapus</button>
+                        </form>
                     </td>
                 </tr>
                 @endforeach
@@ -207,24 +242,30 @@
                     <li class="page-item"><a class="page-link" href="{{ $barangs->previousPageUrl() }}" rel="prev">‹</a></li>
                 @endif
 
-                @foreach(range(1, $barangs->lastPage()) as $page)
-                    @if ($page == $barangs->currentPage())
+                @php
+                    $current = $barangs->currentPage();
+                    $last = $barangs->lastPage();
+                    $start = max(1, $current - 2);
+                    $end = min($last, $current + 2);
+                    if ($start > 1) echo '<li class="page-item"><a class="page-link" href="'.$barangs->url(1).'">1</a></li>';
+                    if ($start > 2) echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                @endphp
+                @for ($page = $start; $page <= $end; $page++)
+                    @if ($page == $current)
                         <li class="page-item active"><span class="page-link">{{ $page }}</span></li>
                     @else
                         <li class="page-item"><a class="page-link" href="{{ $barangs->url($page) }}">{{ $page }}</a></li>
                     @endif
-                @endforeach
+                @endfor
+                @php
+                    if ($end < $last - 1) echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                    if ($end < $last) echo '<li class="page-item"><a class="page-link" href="'.$barangs->url($last).'">'.$last.'</a></li>';
+                @endphp
 
                 @if ($barangs->hasMorePages())
                     <li class="page-item"><a class="page-link" href="{{ $barangs->nextPageUrl() }}" rel="next">›</a></li>
                 @else
                     <li class="page-item disabled"><span class="page-link">›</span></li>
-                @endif
-
-                @if ($barangs->hasMorePages())
-                    <li class="page-item"><a class="page-link" href="{{ $barangs->url($barangs->lastPage()) }}">»</a></li>
-                @else
-                    <li class="page-item disabled"><span class="page-link">»</span></li>
                 @endif
             </ul>
         </div>
@@ -243,19 +284,16 @@
 @section('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
+    // Chart.js code (sama seperti sebelumnya)
     const barangs = @json($barangs->items());
-
     let baik = 0, kurangBaik = 0, rusakBerat = 0;
-
     barangs.forEach(barang => {
         if (barang.kondisi === 'B') baik += parseInt(barang.jumlah);
         else if (barang.kondisi === 'KB') kurangBaik += parseInt(barang.jumlah);
         else if (barang.kondisi === 'RB') rusakBerat += parseInt(barang.jumlah);
     });
-
     const total = baik + kurangBaik + rusakBerat;
     const ctx = document.getElementById('kondisiChart');
-
     if (total > 0) {
         new Chart(ctx, {
             type: 'pie',
@@ -310,5 +348,102 @@
     } else {
         ctx.parentElement.innerHTML = '<p style="text-align: center; color: #999; padding: 40px 0;">Belum ada data barang</p>';
     }
+
+    // ---------- SELECT MODE TOGGLE ----------
+    const tableContainer = document.getElementById('tableContainer');
+    const toggleSelectBtn = document.getElementById('toggleSelectBtn');
+    const cancelSelectBtn = document.getElementById('cancelSelectBtn');
+    const bulkActionsDiv = document.getElementById('bulkActions');
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    const checkboxes = document.querySelectorAll('.barang-checkbox');
+    const selectedCountSpan = document.getElementById('selectedCount');
+    const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+    const selectedIdsInput = document.getElementById('selectedIdsInput');
+    const bulkDeleteForm = document.getElementById('bulkDeleteForm');
+
+    let selectModeActive = false;
+
+    function updateBulkUI() {
+        const checkedBoxes = Array.from(checkboxes).filter(cb => cb.checked);
+        const count = checkedBoxes.length;
+        selectedCountSpan.innerText = count;
+        if (count > 0) {
+            bulkActionsDiv.style.display = 'flex';
+        } else {
+            bulkActionsDiv.style.display = 'none';
+        }
+        // Update hidden input dengan ID yang dipilih
+        const ids = checkedBoxes.map(cb => cb.value).join(',');
+        selectedIdsInput.value = ids;
+    }
+
+    function enableSelectMode() {
+        selectModeActive = true;
+        tableContainer.classList.add('select-mode');
+        toggleSelectBtn.style.display = 'none';
+        cancelSelectBtn.style.display = 'inline-flex';
+        // Reset all checkboxes to unchecked
+        checkboxes.forEach(cb => cb.checked = false);
+        if (selectAllCheckbox) selectAllCheckbox.checked = false;
+        updateBulkUI(); // will hide bulk actions since none selected
+        // Show bulk actions bar only when there is selection, initially hidden
+    }
+
+    function disableSelectMode() {
+        selectModeActive = false;
+        tableContainer.classList.remove('select-mode');
+        toggleSelectBtn.style.display = 'inline-flex';
+        cancelSelectBtn.style.display = 'none';
+        // Hide bulk actions
+        bulkActionsDiv.style.display = 'none';
+        // Uncheck all checkboxes
+        checkboxes.forEach(cb => cb.checked = false);
+        if (selectAllCheckbox) selectAllCheckbox.checked = false;
+        // Clear selected IDs
+        selectedIdsInput.value = '';
+    }
+
+    toggleSelectBtn.addEventListener('click', enableSelectMode);
+    cancelSelectBtn.addEventListener('click', disableSelectMode);
+
+    // Event listeners untuk checkbox (hanya aktif saat mode seleksi)
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', () => {
+            if (!selectModeActive) return;
+            updateBulkUI();
+            if (selectAllCheckbox) {
+                const allChecked = Array.from(checkboxes).every(c => c.checked);
+                selectAllCheckbox.checked = allChecked;
+            }
+        });
+    });
+
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', (e) => {
+            if (!selectModeActive) return;
+            checkboxes.forEach(cb => cb.checked = e.target.checked);
+            updateBulkUI();
+        });
+    }
+
+    // Tombol hapus terpilih
+    if (deleteSelectedBtn) {
+        deleteSelectedBtn.addEventListener('click', () => {
+            const count = Array.from(checkboxes).filter(cb => cb.checked).length;
+            if (count === 0) return;
+            showConfirm({
+                title: 'Hapus Barang Terpilih?',
+                message: `Anda akan menghapus ${count} barang. Data tidak dapat dikembalikan.`,
+                type: 'danger',
+                confirmText: '🗑️ Ya, Hapus',
+                onConfirm: () => {
+                    bulkDeleteForm.submit();
+                }
+            });
+        });
+    }
+
+    // Inisialisasi: pastikan mode tidak aktif saat halaman dimuat
+    disableSelectMode();
 </script>
 @endsection

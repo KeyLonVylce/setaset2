@@ -5,7 +5,7 @@
 @section('styles')
 <style>
     .breadcrumb { margin-bottom: 20px; color: #666; font-size: 14px; }
-    .breadcrumb a { color: #ff7b3d; text-decoration: none; }
+    .breadcrumb a { color: #0066cc; text-decoration: none; }
     .breadcrumb a:hover { text-decoration: underline; }
     .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
     .page-header h2 { font-size: 28px; color: #333; margin: 0; }
@@ -110,8 +110,8 @@
                     <th>Username</th>
                     <th>Nama</th>
                     <th>NIP</th>
+                    <th>Email</th>
                     <th>Role</th>
-                    <th>Akses Edit</th>
                     <th>Dibuat</th>
                     <th>Aksi</th>
                 </tr>
@@ -124,17 +124,11 @@
                     <td>{{ $staff->username }}</td>
                     <td>{{ $staff->nama }}</td>
                     <td>{{ $staff->nip }}</td>
+                    <td>{{ $staff->email }}</td>
                     <td>
                         <span class="badge badge-{{ $staff->role }}">
                             {{ $staff->role_label }}
                         </span>
-                    </td>
-                    <td class="text-center">
-                        @if($staff->can_edit)
-                            <span class="badge badge-active">✓ Ya</span>
-                        @else
-                            <span class="badge badge-inactive">✗ Tidak</span>
-                        @endif
                     </td>
                     <td>{{ $staff->created_at->format('d M Y') }}</td>
                     <td style="white-space: nowrap;">

@@ -6,12 +6,13 @@ use Illuminate\Http\Request;
 use App\Models\StafAset;
 use Illuminate\Support\Facades\Hash;
 use App\Helpers\NotificationHelper;
+use Illuminate\Support\Facades\Auth;
 
 class StafAsetController extends Controller
 {
     public function index()
     {
-        $staffs = StafAset::orderBy('created_at', 'desc')->paginate(10);
+        $staffs = StafAset::where('role', 'staff')->orderBy('created_at', 'desc')->paginate(10);
         return view('staff.index', compact('staffs'));
     }
 
@@ -26,13 +27,12 @@ class StafAsetController extends Controller
             'username' => 'required|string|max:50|unique:stafaset,username',
             'nama' => 'required|string|max:150',
             'nip' => 'required|string|max:30|unique:stafaset,nip',
+            'email' => 'required|string|unique:stafaset,email',
             'password' => 'required|string|min:6',
-            'can_edit' => 'boolean',
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
         $validated['role'] = 'staff';
-        $validated['can_edit'] = $request->has('can_edit') ? true : false;
 
         $staff = StafAset::create($validated);
 
@@ -65,8 +65,8 @@ class StafAsetController extends Controller
             'username' => 'required|string|max:50|unique:stafaset,username,' . $id,
             'nama' => 'required|string|max:150',
             'nip' => 'required|string|max:30|unique:stafaset,nip,' . $id,
+            'email' => 'required|string|unique:stafaset,email,' . $id,
             'password' => 'nullable|string|min:6',
-            'can_edit' => 'boolean',
         ]);
 
         if (!empty($validated['password'])) {
@@ -74,8 +74,6 @@ class StafAsetController extends Controller
         } else {
             unset($validated['password']);
         }
-
-        $validated['can_edit'] = $request->has('can_edit') ? true : false;
 
         $staff->update($validated);
 
@@ -116,5 +114,36 @@ class StafAsetController extends Controller
 
         return redirect()->route('staff.index')
             ->with('success', 'Akun staff berhasil dihapus!');
+    }
+
+    public function editProfile()
+    {
+        $staff = Auth::guard('stafaset')->user();
+        return view('profile.edit', compact('staff'));
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $staff = Auth::guard('stafaset')->user();
+
+        $validated = $request->validate([
+            'username' => 'required|string|max:50|unique:stafaset,username,' . $staff->id,
+            'nama'     => 'required|string|max:150',
+            'nip'      => 'required|string|max:30|unique:stafaset,nip,' . $staff->id,
+            'email'    => 'required|email|unique:stafaset,email,' . $staff->id,
+            'password' => 'nullable|string|min:6',
+        ]);
+
+        // Jika password diisi, hash dan set; jika tidak, hapus dari array
+        if (!empty($validated['password'])) {
+            $validated['password'] = Hash::make($validated['password']);
+        } else {
+            unset($validated['password']);
+        }
+
+        $staff->update($validated);
+
+        return redirect()->route('profile.edit')
+            ->with('success', 'Profil berhasil diperbarui!');
     }
 }

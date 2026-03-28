@@ -5,7 +5,7 @@
 @section('styles')
 <style>
     .breadcrumb { margin-bottom: 20px; color: #666; font-size: 14px; }
-    .breadcrumb a { color: #ff7b3d; text-decoration: none; }
+    .breadcrumb a { color: #0066cc; text-decoration: none; }
     .breadcrumb a:hover { text-decoration: underline; }
     .page-header { margin-bottom: 30px; }
     .page-header h2 { font-size: 28px; color: #333; }
@@ -27,13 +27,21 @@
     .form-group select:focus,
     .form-group textarea:focus {
         outline: none;
-        border-color: #ff7b3d;
-        box-shadow: 0 0 0 3px rgba(255, 123, 61, 0.1);
+        border-color: #0066cc; /* biru */
+        box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
     }
     .form-group.full-width { grid-column: 1 / -1; }
     .form-actions { display: flex; gap: 10px; margin-top: 20px; }
     .required { color: red; }
-    .section-title { font-size: 16px; font-weight: 600; color: #ff7b3d; margin: 20px 0 10px; padding-bottom: 5px; border-bottom: 2px solid #ff7b3d; grid-column: 1 / -1; }
+    .section-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #0066cc; /* biru */
+        margin: 20px 0 10px;
+        padding-bottom: 5px;
+        border-bottom: 2px solid #0066cc; /* biru */
+        grid-column: 1 / -1;
+    }
 
     @media (max-width: 768px) {
         .form-grid { grid-template-columns: 1fr; }
@@ -161,7 +169,7 @@
                 <input type="number" id="total_nilai" name="total_nilai"
                     value="{{ old('total_nilai') }}"
                     min="0" step="1000"
-                    placeholder="0">
+                    placeholder="0" readonly style="background-color: #f9fafb;">
             </div>
 
             <div class="form-group full-width">
@@ -179,4 +187,27 @@
 
     </form>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const jumlahInput = document.getElementById('jumlah');
+        const hargaInput = document.getElementById('harga_perolehan');
+        const totalInput = document.getElementById('total_nilai');
+
+        function updateTotal() {
+            const jumlah = parseInt(jumlahInput.value) || 0;
+            const harga = parseFloat(hargaInput.value) || 0;
+            totalInput.value = jumlah * harga;
+        }
+
+        // Update saat input berubah
+        jumlahInput.addEventListener('input', updateTotal);
+        hargaInput.addEventListener('input', updateTotal);
+
+        // Panggil sekali untuk mengisi nilai awal jika ada old value
+        updateTotal();
+    });
+</script>
 @endsection

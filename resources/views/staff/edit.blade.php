@@ -5,7 +5,7 @@
 @section('styles')
 <style>
     .breadcrumb { margin-bottom: 20px; color: #666; font-size: 14px; }
-    .breadcrumb a { color: #ff7b3d; text-decoration: none; }
+    .breadcrumb a { color: #0066cc; text-decoration: none; }
     .breadcrumb a:hover { text-decoration: underline; }
     .page-header { margin-bottom: 30px; }
     .page-header h2 { font-size: 28px; color: #333; }
@@ -59,10 +59,18 @@
                 @enderror
             </div>
 
-            <div class="form-group form-group-full">
+            <div class="form-group">
                 <label for="nama">Nama Lengkap <span style="color: red;">*</span></label>
                 <input type="text" id="nama" name="nama" value="{{ old('nama', $staff->nama) }}" required>
                 @error('nama')
+                <div class="helper-text" style="color: red;">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email<span style="color: red;">*</span></label>
+                <input type="text" id="email" name="email" value="{{ old('email', $staff->email) }}" placeholder="Contoh: johndoe@gmail.com" required>
+                @error('email')
                 <div class="helper-text" style="color: red;">{{ $message }}</div>
                 @enderror
             </div>
@@ -78,15 +86,6 @@
 
             <div class="form-group">
                 <!-- Kosong untuk keseimbangan grid -->
-            </div>
-
-            <div class="form-group form-group-full">
-                <label>Akses Edit</label>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="can_edit" name="can_edit" value="1" {{ old('can_edit', $staff->can_edit) ? 'checked' : '' }}>
-                    <label for="can_edit">Izinkan staff ini untuk mengedit data</label>
-                </div>
-                <div class="helper-text">Jika dicentang, staff dapat menambah, mengedit, dan menghapus data</div>
             </div>
         </div>
 

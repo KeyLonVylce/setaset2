@@ -4,8 +4,9 @@
 
 @section('styles')
 <style>
+    /* CSS sama seperti sebelumnya, hanya warna diubah ke biru */
     .breadcrumb { margin-bottom: 20px; color: #666; font-size: 14px; }
-    .breadcrumb a { color: #ff7b3d; text-decoration: none; }
+    .breadcrumb a { color: #0066cc; text-decoration: none; }
     .breadcrumb a:hover { text-decoration: underline; }
     .page-header { margin-bottom: 30px; }
     .page-header h2 { font-size: 28px; color: #333; }
@@ -27,13 +28,21 @@
     .form-group select:focus,
     .form-group textarea:focus {
         outline: none;
-        border-color: #ff7b3d;
-        box-shadow: 0 0 0 3px rgba(255, 123, 61, 0.1);
+        border-color: #0066cc;
+        box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
     }
     .form-group.full-width { grid-column: 1 / -1; }
     .form-actions { display: flex; gap: 10px; margin-top: 20px; }
     .required { color: red; }
-    .section-title { font-size: 16px; font-weight: 600; color: #ff7b3d; margin: 20px 0 10px; padding-bottom: 5px; border-bottom: 2px solid #ff7b3d; grid-column: 1 / -1; }
+    .section-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #0066cc;
+        margin: 20px 0 10px;
+        padding-bottom: 5px;
+        border-bottom: 2px solid #0066cc;
+        grid-column: 1 / -1;
+    }
 
     @media (max-width: 768px) {
         .form-grid { grid-template-columns: 1fr; }
@@ -45,7 +54,6 @@
 
 @section('content')
 
-{{-- Breadcrumb --}}
 <div class="breadcrumb">
     <a href="{{ route('home') }}">Home</a> /
     <a href="{{ route('lantai.show', $ruangan->lantai_id) }}">{{ $ruangan->lantai->nama_lantai }}</a> /
@@ -152,7 +160,7 @@
             <div class="form-group">
                 <label for="harga_perolehan">Harga Perolehan (Rp)</label>
                 <input type="number" id="harga_perolehan" name="harga_perolehan"
-                    value="{{ old('harga_perolehan', $barang->harga_perolehan) }}"
+                    value="{{ old('harga_perolehan', (int) $barang->harga_perolehan) }}"
                     min="0" step="1000"
                     placeholder="0">
             </div>
@@ -161,8 +169,9 @@
                 <label for="total_nilai">Total Nilai (Rp)</label>
                 <input type="number" id="total_nilai" name="total_nilai"
                     value="{{ old('total_nilai', $barang->total_nilai) }}"
-                    min="0" step="1000"
-                    placeholder="0">
+                    min="0" step="1"
+                    placeholder="0"
+                    readonly style="background-color: #f9fafb;">
             </div>
 
             <div class="form-group full-width">
@@ -180,4 +189,26 @@
 
     </form>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const jumlahInput = document.getElementById('jumlah');
+        const hargaInput = document.getElementById('harga_perolehan');
+        const totalInput = document.getElementById('total_nilai');
+
+        function updateTotal() {
+            const jumlah = parseInt(jumlahInput.value) || 0;
+            const harga = parseFloat(hargaInput.value) || 0;
+            // Gunakan Math.floor untuk menghilangkan desimal dan memastikan integer
+            const total = Math.floor(jumlah * harga);
+            totalInput.value = total;
+        }
+
+        jumlahInput.addEventListener('input', updateTotal);
+        hargaInput.addEventListener('input', updateTotal);
+        updateTotal(); // inisialisasi
+    });
+</script>
 @endsection

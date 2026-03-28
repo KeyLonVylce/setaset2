@@ -395,8 +395,21 @@
             }
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
+
+    @if(session('error'))
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: '{{ session('error') }}',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#004c99',
+        });
+    </script>
+    @endif
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner"></div>
@@ -478,6 +491,12 @@
                     </div>
                 </div>
 
+                <div style="text-align:right; margin-top:10px;">
+                    <a href="/forgot-password" style="color:#0d6efd; text-decoration:none;">
+                        Lupa Password?
+                    </a>
+                </div>
+                <br>
                 <button type="submit" class="btn-login">Masuk ke Sistem</button>
             </form>
 

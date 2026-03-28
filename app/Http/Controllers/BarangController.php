@@ -252,4 +252,29 @@ class BarangController extends Controller
         // Bisa pakai view history pemindahan
         return view('barang.history');
     }
+
+    public function bulkDestroy(Request $request)
+    {
+        $ids = $request->input('ids');
+
+        // Jika ids adalah string (misal "1,2,3"), ubah menjadi array
+        if (is_string($ids)) {
+            $ids = explode(',', $ids);
+        }
+
+        // Hapus nilai kosong
+        $ids = array_filter($ids);
+
+        if (empty($ids)) {
+            return redirect()->back()->with('error', 'Tidak ada barang yang dipilih.');
+        }
+
+        // Pastikan semua ID adalah integer
+        $ids = array_map('intval', $ids);
+
+        // Hapus barang
+        Barang::whereIn('id', $ids)->delete();
+
+        return redirect()->back()->with('success', count($ids) . ' barang terpilih berhasil dihapus.');
+    }
 }

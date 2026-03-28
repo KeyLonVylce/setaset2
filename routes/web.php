@@ -17,6 +17,12 @@ Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+Route::get('/forgot-password', [AuthController::class, 'showForgotForm']);
+Route::post('/forgot-password', [AuthController::class, 'sendResetLink']);
+
+Route::get('/reset-password/{token}', [AuthController::class, 'showResetForm']);
+Route::post('/reset-password/{token}', [AuthController::class, 'resetPassword']);
+
 // Routes yang bisa diakses semua user yang login (staff & admin)
 Route::middleware('auth:stafaset')->group(function () {
     Route::get('/home', [LantaiController::class, 'index'])->name('home');
@@ -39,6 +45,7 @@ Route::middleware('auth:stafaset')->group(function () {
         Route::get('/pindah', [BarangController::class, 'pindahForm'])->name('barang.pindah.form');
         Route::post('/pindah', [BarangController::class, 'pindahStore'])->name('barang.pindah.store');
         Route::get('/history', [BarangController::class, 'history'])->name('barang.history');
+        Route::delete('/bulk-destroy', [BarangController::class, 'bulkDestroy'])->name('barang.bulk.destroy');
     });
 
     // Notifikasi
@@ -47,6 +54,10 @@ Route::middleware('auth:stafaset')->group(function () {
         Route::post('/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
         Route::get('/realtime', [NotificationController::class, 'realtime'])->name('notifications.realtime');
     });
+
+    //Profile
+    Route::get('/profile/edit', [StafAsetController::class, 'editProfile'])->name('profile.edit');
+    Route::put('/profile/update', [StafAsetController::class, 'updateProfile'])->name('profile.update');
 });
 
 // Routes khusus admin

@@ -16,9 +16,9 @@ class StafAset extends Authenticatable
         'username',
         'nama',
         'nip',
+        'email',
         'password',
         'role',
-        'can_edit',
     ];
 
     protected $hidden = [
@@ -29,7 +29,6 @@ class StafAset extends Authenticatable
     protected function casts(): array
     {
         return [
-            'can_edit' => 'boolean',
             'password' => 'hashed',
         ];
     }

@@ -223,11 +223,36 @@
             opacity: 0.9;
             font-weight: 400;
         }
+
+        .staff-button,
+        .notification-bell,
+        .user-info-link .user-info {
+            height: 55px;
+        }
         
         .user-section {
             display: flex;
             align-items: center;
             gap: 12px;
+        }
+
+        .user-info-link {
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .user-info-link .user-info {
+            background: rgba(255,255,255,0.15);
+            border-radius: 12px;
+            padding: 8px 15px;
+            transition: all 0.3s;
+            cursor: pointer;
+            color: #fff;
+        }
+
+        .user-info-link:hover .user-info {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-2px);
         }
         
         .notification-bell {
@@ -610,6 +635,37 @@
             min-width: 130px;
             justify-content: center;
         }
+
+        /* ============================================
+           STAFF STYLE
+        ============================================ */
+        .staff-button {
+            background: rgba(255, 255, 255, 0.15); 
+            border-radius: 10px;                   
+            padding: 10px 12px;                    
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: white;                          
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .staff-button:hover {
+            background: rgba(255, 255, 255, 0.25); 
+            transform: translateY(-2px);           
+            box-shadow: none;                     
+        }
+
+        .staff-icon {
+            font-size: 16px;
+        }
+
+        .staff-text {
+            white-space: nowrap;
+        }
         
         /* ============================================
            FOOTER STYLES
@@ -783,17 +839,19 @@
             </div>
             
             <div class="user-section">
-                @if(Auth::guard('stafaset')->user()->isAdmin())
-                    <a href="{{ route('staff.index') }}" class="btn btn-warning btn-sm">
-                        👥 Kelola Staff
-                    </a>
-                @endif
+            @if(Auth::guard('stafaset')->user()->isAdmin())
+                <a href="{{ route('staff.index') }}" class="staff-button">
+                    <span class="staff-icon">👥</span>
+                    <span class="staff-text">Kelola Staff</span>
+                </a>
+            @endif
                 
                 <a href="{{ route('notifications.index') }}" class="notification-bell">
                     🔔
                     <span id="notif-count" class="notification-badge d-none"></span>
                 </a>
                 
+                <a href="{{ route('profile.edit') }}" class="user-info-link">
                 <div class="user-info">
                     <div class="user-avatar">
                         {{ strtoupper(substr(Auth::guard('stafaset')->user()->nama, 0, 1)) }}
@@ -805,6 +863,7 @@
                         </span>
                     </div>
                 </div>
+                </a>
                 
                 <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                     @csrf
