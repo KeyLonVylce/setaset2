@@ -23,11 +23,7 @@ return new class extends Migration
             $table->year('tahun_pembuatan')->nullable();
             $table->string('kode_barang', 50)->nullable();
             $table->integer('jumlah')->default(0);
-
-            // ✅ Tetap decimal (ini yang benar untuk uang)
             $table->decimal('harga_perolehan', 15, 2)->nullable();
-
-            // ✅ Langsung pakai kondisi (tidak perlu kolom lama)
             $table->enum('kondisi', ['B', 'KB', 'RB'])->default('B');
 
             $table->text('keterangan')->nullable();

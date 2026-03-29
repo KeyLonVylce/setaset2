@@ -25,10 +25,33 @@ class StafAsetController extends Controller
     {
         $validated = $request->validate([
             'username' => 'required|string|max:50|unique:stafaset,username',
-            'nama' => 'required|string|max:150',
-            'nip' => 'required|string|max:30|unique:stafaset,nip',
-            'email' => 'required|string|unique:stafaset,email',
+            'nama'     => 'required|string|max:150',
+            'nip'      => 'required|string|max:30|unique:stafaset,nip',
+            'email'    => 'required|email|unique:stafaset,email',
             'password' => 'required|string|min:6',
+        ], [
+            // MESSAGE
+            'username.required' => 'Username wajib diisi.',
+            'username.unique'   => 'Username sudah digunakan.',
+        
+            'nama.required'     => 'Nama wajib diisi.',
+        
+            'nip.required'      => 'NIP wajib diisi.',
+            'nip.unique'        => 'NIP sudah digunakan.',
+        
+            'email.required'    => 'Email wajib diisi.',
+            'email.email'       => 'Format email tidak valid.',
+            'email.unique'      => 'Email sudah digunakan.',
+        
+            'password.required' => 'Password wajib diisi.',
+            'password.min'      => 'Password minimal 6 karakter.',
+        ], [
+            // ATTRIBUTE (biar lebih rapi kalau pakai :attribute)
+            'username' => 'Username',
+            'nama'     => 'Nama',
+            'nip'      => 'NIP',
+            'email'    => 'Email',
+            'password' => 'Password',
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
@@ -63,10 +86,30 @@ class StafAsetController extends Controller
 
         $validated = $request->validate([
             'username' => 'required|string|max:50|unique:stafaset,username,' . $id,
-            'nama' => 'required|string|max:150',
-            'nip' => 'required|string|max:30|unique:stafaset,nip,' . $id,
-            'email' => 'required|string|unique:stafaset,email,' . $id,
+            'nama'     => 'required|string|max:150',
+            'nip'      => 'required|string|max:30|unique:stafaset,nip,' . $id,
+            'email'    => 'required|email|unique:stafaset,email,' . $id,
             'password' => 'nullable|string|min:6',
+        ], [
+            'username.required' => 'Username wajib diisi.',
+            'username.unique'   => 'Username sudah digunakan.',
+        
+            'nama.required'     => 'Nama wajib diisi.',
+        
+            'nip.required'      => 'NIP wajib diisi.',
+            'nip.unique'        => 'NIP sudah digunakan.',
+        
+            'email.required'    => 'Email wajib diisi.',
+            'email.email'       => 'Format email tidak valid.',
+            'email.unique'      => 'Email sudah digunakan.',
+        
+            'password.min'      => 'Password minimal 6 karakter.',
+        ], [
+            'username' => 'Username',
+            'nama'     => 'Nama',
+            'nip'      => 'NIP',
+            'email'    => 'Email',
+            'password' => 'Password',
         ]);
 
         if (!empty($validated['password'])) {
@@ -132,6 +175,26 @@ class StafAsetController extends Controller
             'nip'      => 'required|string|max:30|unique:stafaset,nip,' . $staff->id,
             'email'    => 'required|email|unique:stafaset,email,' . $staff->id,
             'password' => 'nullable|string|min:6',
+        ], [
+            'username.required' => 'Username wajib diisi.',
+            'username.unique'   => 'Username sudah digunakan.',
+        
+            'nama.required'     => 'Nama wajib diisi.',
+        
+            'nip.required'      => 'NIP wajib diisi.',
+            'nip.unique'        => 'NIP sudah digunakan.',
+        
+            'email.required'    => 'Email wajib diisi.',
+            'email.email'       => 'Format email tidak valid.',
+            'email.unique'      => 'Email sudah digunakan.',
+        
+            'password.min'      => 'Password minimal 6 karakter.',
+        ], [
+            'username' => 'Username',
+            'nama'     => 'Nama',
+            'nip'      => 'NIP',
+            'email'    => 'Email',
+            'password' => 'Password',
         ]);
 
         // Jika password diisi, hash dan set; jika tidak, hapus dari array

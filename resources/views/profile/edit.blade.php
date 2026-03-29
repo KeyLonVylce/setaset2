@@ -53,10 +53,52 @@
         text-decoration: none;
         color: #374151;
     }
-    .invalid-feedback {
-        color: #dc3545;
+    .helper-text {
         font-size: 12px;
+        color: #666;
         margin-top: 5px;
+    }
+    .helper-text.error {
+        color: #dc3545;
+    }
+    .is-invalid {
+        border-color: #dc3545;
+    }
+    .alert-success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+        color: #155724;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    .alert-error {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        color: #721c24;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+    .form-group input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+    }
+    .form-group input:focus {
+        outline: none;
+        border-color: #0066cc;
     }
 </style>
 @endsection
@@ -73,18 +115,8 @@
     </div>
 
     @if(session('success'))
-        <div class="alert alert-success" style="margin-bottom: 20px;">
+        <div class="alert-success">
             {{ session('success') }}
-        </div>
-    @endif
-
-    @if($errors->any())
-        <div class="alert alert-error" style="margin-bottom: 20px;">
-            <ul style="margin: 0; padding-left: 20px;">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
         </div>
     @endif
 
@@ -92,30 +124,73 @@
         @csrf
         @method('PUT')
 
+        {{-- Username --}}
         <div class="form-group">
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" value="{{ old('username', $staff->username) }}" required>
+            <label for="username">Username <span style="color: red;">*</span></label>
+            <input type="text" id="username" name="username"
+                value="{{ old('username', $staff->username) }}"
+                class="@error('username') is-invalid @enderror"
+                required>
+            <div class="helper-text">Username untuk login</div>
+            @error('username')
+                <div class="helper-text error">{{ $message }}</div>
+            @enderror
         </div>
 
+        {{-- Nama Lengkap --}}
         <div class="form-group">
-            <label for="nama">Nama Lengkap</label>
-            <input type="text" id="nama" name="nama" value="{{ old('nama', $staff->nama) }}" required>
+            <label for="nama">Nama Lengkap <span style="color: red;">*</span></label>
+            <input type="text" id="nama" name="nama"
+                value="{{ old('nama', $staff->nama) }}"
+                class="@error('nama') is-invalid @enderror"
+                required>
+            @error('nama')
+                <div class="helper-text error">{{ $message }}</div>
+            @enderror
         </div>
 
+        {{-- NIP --}}
         <div class="form-group">
-            <label for="nip">NIP</label>
-            <input type="text" id="nip" name="nip" value="{{ old('nip', $staff->nip) }}" required>
+            <label for="nip">NIP <span style="color: red;">*</span></label>
+            <input type="text" id="nip" name="nip"
+                value="{{ old('nip', $staff->nip) }}"
+                class="@error('nip') is-invalid @enderror"
+                required>
+            <div class="helper-text">Nomor Induk Pegawai</div>
+            @error('nip')
+                <div class="helper-text error">{{ $message }}</div>
+            @enderror
         </div>
 
+        {{-- Email --}}
         <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" value="{{ old('email', $staff->email) }}" required>
+            <label for="email">Email <span style="color: red;">*</span></label>
+            <input type="email" id="email" name="email"
+                value="{{ old('email', $staff->email) }}"
+                class="@error('email') is-invalid @enderror"
+                required>
+            @error('email')
+                <div class="helper-text error">{{ $message }}</div>
+            @enderror
         </div>
 
+        {{-- Password --}}
         <div class="form-group">
-            <label for="password">Password Baru <span style="font-weight: normal; color: #6b7280;">(kosongkan jika tidak diubah)</span></label>
-            <input type="password" id="password" name="password" minlength="6">
-            <div class="invalid-feedback" id="passwordError" style="display: none;">Password minimal 6 karakter.</div>
+            <label for="password">Password Baru
+                <span style="font-weight: normal; color: #6b7280;">
+                    (kosongkan jika tidak diubah)
+                </span>
+            </label>
+            <input type="password" id="password" name="password"
+                class="@error('password') is-invalid @enderror"
+                minlength="6">
+            <div class="helper-text">Minimal 6 karakter (kosongkan jika tidak ingin mengubah)</div>
+            @error('password')
+                <div class="helper-text error">{{ $message }}</div>
+            @enderror
+            <div class="helper-text error" id="passwordError" style="display: none;">
+                Password minimal 6 karakter.
+            </div>
         </div>
 
         <div class="form-actions">
