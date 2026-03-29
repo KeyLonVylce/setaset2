@@ -106,15 +106,34 @@
     style="display: inline;">
     @csrf
     @method('DELETE')
+
+    @if($ruangan->barangs_count > 0)
     <button type="button" class="btn-delete" title="Hapus Ruangan"
         onclick="showConfirm({
+            title: 'Tidak Bisa Hapus Ruangan',
+            message: 'Ruangan <strong>{{ addslashes($ruangan->nama_ruangan) }}</strong> masih memiliki <strong>{{ $ruangan->barangs_count }} barang</strong>.<br><br>Harap hapus semua barang terlebih dahulu.',
+            type: 'warning',
+            confirmText: '✓ Mengerti',
+            showConfirmOnly: true,
+            onConfirm: function() {}
+        })">🗑️</button>
+    @else
+    <button type="button" class="btn-delete" title="Hapus Ruangan"
+        onclick="var f=this.closest('form'); showConfirm({
             title: 'Hapus Ruangan?',
-            message: 'Yakin ingin menghapus ruangan <strong>{{ addslashes($ruangan->nama_ruangan) }}</strong>?<br>Semua barang di dalamnya akan ikut terhapus.',
+            message: 'Yakin ingin menghapus ruangan <strong>{{ addslashes($ruangan->nama_ruangan) }}</strong>?',
             type: 'danger',
             confirmText: '🗑️ Ya, Hapus',
-            onConfirm: function() { this.closest('form').submit(); }.bind(this)
+            onConfirm: function() { f.submit(); }
         })">🗑️</button>
+    @endif
+
 </form>
+
+
+
+
+
                 </div>
                 @endif
             </div>

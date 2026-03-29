@@ -921,18 +921,35 @@
     ============================================ */
     let _confirmCallback = null;
 
-    function showConfirm(options) {
-        const { title, message, onConfirm, type = 'danger', confirmText = 'Ya, Lanjutkan' } = options;
-        
-        document.getElementById('confirmTitle').textContent = title || 'Konfirmasi';
-        document.getElementById('confirmMessage').innerHTML = message || 'Apakah Anda yakin?';
-        document.getElementById('confirmIcon').textContent = type === 'danger' ? '🗑️' : '⚠️';
-        document.getElementById('confirmIcon').className = `confirm-icon ${type}`;
-        document.getElementById('confirmYesBtn').textContent = confirmText;
-        
-        _confirmCallback = onConfirm;
-        document.getElementById('confirmOverlay').classList.add('active');
+function showConfirm(options) {
+    const { 
+        title, 
+        message, 
+        onConfirm, 
+        type = 'danger', 
+        confirmText = 'Ya, Lanjutkan', 
+        showConfirmOnly = false 
+    } = options;
+    
+    document.getElementById('confirmTitle').textContent = title || 'Konfirmasi';
+    document.getElementById('confirmMessage').innerHTML = message || 'Apakah Anda yakin?';
+    document.getElementById('confirmIcon').textContent = type === 'danger' ? '🗑️' : '⚠️';
+    document.getElementById('confirmIcon').className = `confirm-icon ${type}`;
+    document.getElementById('confirmYesBtn').textContent = confirmText;
+    
+    const cancelBtn = document.querySelector('.confirm-actions .btn:last-child');
+
+    if (showConfirmOnly) {
+        cancelBtn.style.display = 'none';
+        document.getElementById('confirmYesBtn').className = 'btn btn-warning';
+    } else {
+        cancelBtn.style.display = '';
+        document.getElementById('confirmYesBtn').className = 'btn btn-danger';
     }
+    
+    _confirmCallback = onConfirm;
+    document.getElementById('confirmOverlay').classList.add('active');
+}
 
 function confirmAction() {
     var cb = _confirmCallback;  
