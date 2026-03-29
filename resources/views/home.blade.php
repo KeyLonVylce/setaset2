@@ -370,7 +370,7 @@
     <div class="lantai-header">
         <h3>Daftar Lantai</h3>
         <div class="lantai-header-actions">
-            <a href="{{ route('barang.pindah.form') }}" class="btn btn-primary">📦 Pindahkan Barang</a>
+            <a href="{{ route('barang.pindah.form') }}" class="btn btn-primary">📦 Pindah Barang</a>
             @if(Auth::guard('stafaset')->user()->isAdmin())
                 <button class="btn btn-primary" onclick="openAddLantaiModal()">+ Tambah Lantai</button>
             @endif

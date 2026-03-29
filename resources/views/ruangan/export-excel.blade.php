@@ -59,9 +59,9 @@
         <td style="text-align: center;">{{ $barang->kode_barang ?? '' }}</td>
         <td style="text-align: center;">{{ $barang->jumlah }}</td>
         <td style="text-align: right;">{{ is_numeric($barang->harga_perolehan) ? number_format($barang->harga_perolehan, 0, ',', '.') : '' }}</td>
-        <td style="text-align: center;">{{ $barang->kondisi === 'B' ? $barang->jumlah : '' }}</td>
-        <td style="text-align: center;">{{ $barang->kondisi === 'KB' ? $barang->jumlah : '' }}</td>
-        <td style="text-align: center;">{{ $barang->kondisi === 'RB' ? $barang->jumlah : '' }}</td>
+        <td style="text-align: center;">{{ $barang->kondisi === 'B' ? '(B)' : '' }}</td>
+        <td style="text-align: center;">{{ $barang->kondisi === 'KB' ? '(KB)' : '' }}</td>
+        <td style="text-align: center;">{{ $barang->kondisi === 'RB' ? '(RB)' : '' }}</td>
         <td></td>
     </tr>
     @endforeach

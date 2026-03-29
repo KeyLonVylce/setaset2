@@ -92,7 +92,7 @@
         <h2>{{ $ruangan->nama_ruangan }}</h2>
         <div class="action-flex">
             @if(Auth::guard('stafaset')->user()->isAdmin())
-                <a href="{{ route('ruangan.export', $ruangan->id) }}" class="btn btn-success" target="_blank">📄 Export PDF</a>
+                <a href="{{ route('ruangan.export', $ruangan->id) }}" class="btn btn-success" target="_blank">📄 Export</a>
             @endif
             <a href="{{ route('barang.pindah.form') }}" class="btn btn-success">📦 Pindah Barang</a>
             <a href="{{ route('barang.create', $ruangan->id) }}" class="btn btn-primary">+ Tambah Barang</a>

@@ -74,13 +74,24 @@
         .btn-print:hover { background: #ff6524; }
         .btn-excel { background: #217346; }
         .btn-excel:hover { background: #1a5c37; }
+
+        @page { size: A4 landscape; }
+        table { table-layout: fixed; }
+        td, th { font-size: 9px; padding: 4px; }
     </style>
 </head>
 <body>
-    <div class="button-group no-print">
-        <button onclick="window.print()" class="btn btn-print">🖨️ Print / Save PDF</button>
-        <a href="{{ route('ruangan.export', ['id' => $ruangan->id, 'format' => 'excel']) }}" class="btn btn-excel">📊 Export ke Excel</a>
-    </div>
+        @if(empty($pdf))
+        <div class="button-group no-print">
+            <a href="{{ route('ruangan.pdf', $ruangan->id) }}" class="btn btn-print">
+                🖨️ Download PDF
+            </a>
+
+            <a href="{{ route('ruangan.export', ['id' => $ruangan->id, 'format' => 'excel']) }}" class="btn btn-excel">
+                📊 Export ke Excel
+            </a>
+        </div>
+        @endif
 
     <table>
         <tr>
@@ -164,10 +175,10 @@
                     @endphp
                     {{ $harga > 0 ? number_format($harga, 0, ',', '.') : '' }}
                 </td>
-                <td class="center">{{ $barang->kondisi === 'B' ? $barang->jumlah : '' }}</td>
-                <td class="center">{{ $barang->kondisi === 'KB' ? $barang->jumlah : '' }}</td>
-                <td class="center">{{ $barang->kondisi === 'RB' ? $barang->jumlah : '' }}</td>
-                <td></td>
+                <td class="center">{{ $barang->kondisi === 'B' ? '(B)' : '' }}</td>
+                <td class="center">{{ $barang->kondisi === 'KB' ? '(KB)' : '' }}</td>
+                <td class="center">{{ $barang->kondisi === 'RB' ? '(RB)' : '' }}</td>
+                <td class="center">{{ $barang->keterangan }}</td>
             </tr>
             @endforeach
         @else
@@ -199,7 +210,6 @@
 
     <div class="footer">
         <p>Dokumen ini dicetak dari Sistem SETASET - Dinas Komunikasi dan Informatika Kota Bandung</p>
-        <p>Tanggal Cetak: {{ now('Asia/Jakarta')->format('d F Y H:i:s') }}</p>
         <p>Tanggal Cetak: {{ now()->setTimezone('Asia/Jakarta')->format('d F Y H:i:s') }}</p>
     </div>
 </body>

@@ -298,7 +298,7 @@
         </a>
     </div>
 
-    <div class="filter-section">
+    <div class="filter-section" style="background: linear-gradient(135deg, #0066cc 0%, #004c99 100%); color:#fff;">
         <center><h5>📢 Notifikasi Aktivitas</h5></center>
     </div>
 

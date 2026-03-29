@@ -72,8 +72,9 @@ Route::middleware(['auth:stafaset', 'role:admin'])->prefix('admin')->group(funct
     Route::put('/ruangan/{id}', [RuanganController::class, 'update'])->name('ruangan.update');
     Route::delete('/ruangan/{id}', [RuanganController::class, 'destroy'])->name('ruangan.destroy');
 
-    // Export PDF
+    // Export
     Route::get('/ruangan/{id}/export', [RuanganController::class, 'export'])->name('ruangan.export');
+    Route::get('/ruangan/{id}/pdf', [RuanganController::class, 'exportPdf'])->name('ruangan.pdf');
 
     // Staff Management
     Route::get('/staff', [StafAsetController::class, 'index'])->name('staff.index');

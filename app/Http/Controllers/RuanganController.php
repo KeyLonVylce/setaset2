@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Notification;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\KartuInventarisExport;
 
 class RuanganController extends Controller
 {
@@ -124,15 +126,35 @@ class RuanganController extends Controller
     /**
      * Export PDF kartu inventaris (hanya admin)
      */
-    public function export($id)
+    public function export(Request $request, $id)
     {
-        $ruangan = Ruangan::with(['lantai', 'barangs'])->findOrFail($id);
+        $ruangan = Ruangan::with('barangs')->findOrFail($id);
 
-        $pdf = Pdf::loadView('ruangan.export', compact('ruangan'))
-                  ->setPaper('a4', 'landscape');
+        // Export Excel
+        if ($request->input('format') === 'excel') {
+            $filename = 'Kartu_Inventaris_' 
+                . str_replace(' ', '_', $ruangan->nama_ruangan) 
+                . '_' . date('Y-m-d') . '.xlsx';
 
-        $filename = 'kartu-inventaris-' . str_replace(' ', '-', strtolower($ruangan->nama_ruangan)) . '.pdf';
+            return Excel::download(
+                new KartuInventarisExport($ruangan),
+                $filename
+            );
+        }
 
-        return $pdf->download($filename);
+        // View print / PDF
+        return view('ruangan.export', compact('ruangan'));
+    }
+
+    public function exportPdf($id)
+    {
+        $ruangan = Ruangan::findOrFail($id);
+
+        $pdf = PDF::loadView('ruangan.export', [
+            'ruangan' => $ruangan,
+            'pdf' => true
+        ])->setPaper('a4', 'landscape');
+
+        return $pdf->download('ruangan-'.$ruangan->nama_ruangan.'.pdf');
     }
 }
