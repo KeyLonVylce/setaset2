@@ -240,13 +240,9 @@
                     <i class="fas fa-sync-alt"></i> Reset Password
                 </button>
                 <div class="helper-link">
-                    <a href="/login"><i class="fas fa-sign-in-alt"></i> Login dengan akun baru</a>
+                    <a href="/login"><i class="fas fa-sign-in-alt"></i> Ke Halaman Login</a>
                 </div>
             </form>
-            <hr>
-            <div style="font-size: 0.7rem; text-align: center; color: #6c7a91; margin-top: 0.5rem;">
-                <i class="fas fa-database"></i> Form terintegrasi Laravel | CSRF protection aktif
-            </div>
         </div>
     </div>
 
