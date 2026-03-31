@@ -384,18 +384,38 @@
             @if(Auth::guard('stafaset')->user()->isAdmin())
             <div class="lantai-card-actions">
                 <button onclick="event.preventDefault(); openEditLantaiModal({{ $lantai->id }}, '{{ addslashes($lantai->nama_lantai) }}', '{{ addslashes($lantai->keterangan ?? '') }}')" title="Edit">✏️</button>
+                
+                
                 <form action="{{ route('lantai.destroy', $lantai->id) }}" method="POST" style="display: inline;">
     @csrf
     @method('DELETE')
+
+    @if($lantai->ruangans_count > 0)
+    <button type="button" title="Hapus"
+        onclick="showConfirm({
+            title: 'Tidak Bisa Hapus Lantai',
+            message: 'Lantai <strong>{{ addslashes($lantai->nama_lantai) }}</strong> masih memiliki <strong>{{ $lantai->ruangans_count }} ruangan</strong>.<br><br>Harap hapus semua ruangan terlebih dahulu sebelum menghapus lantai ini.',
+            type: 'warning',
+            confirmText: '✓ Mengerti',
+            showConfirmOnly: true,
+            onConfirm: function() {}
+        })">🗑️</button>
+    @else
     <button type="button" title="Hapus"
         onclick="var f=this.closest('form'); showConfirm({
             title: 'Hapus Lantai?',
-            message: 'Yakin ingin menghapus <strong>{{ addslashes($lantai->nama_lantai) }}</strong>?<br>Semua ruangan dan barang di dalamnya akan ikut terhapus!',
+            message: 'Yakin ingin menghapus <strong>{{ addslashes($lantai->nama_lantai) }}</strong>?',
             type: 'danger',
             confirmText: '🗑️ Ya, Hapus',
             onConfirm: function() { f.submit(); }
         })">🗑️</button>
+    @endif
+
 </form>
+
+
+
+
             </div>
             @endif
             <a href="{{ route('lantai.show', $lantai->id) }}" class="lantai-card">
