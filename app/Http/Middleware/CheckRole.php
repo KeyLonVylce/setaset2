@@ -8,16 +8,21 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CheckRole
 {
-    public function handle(Request $request, Closure $next, string $role): Response
+    public function handle(Request $request, Closure $next, ...$roles)
     {
+        // Cek login
         if (!auth('stafaset')->check()) {
             return redirect()->route('login');
         }
 
         $user = auth('stafaset')->user();
-        
-        if ($user->role !== $role) {
-            return redirect()->route('home')->with('error', 'Anda tidak memiliki akses ke halaman ini. Hanya ' . strtoupper($role) . ' yang diizinkan.');
+
+        // Cek role
+        if (!in_array($user->role, $roles)) {
+            return redirect()->route('home')->with(
+                'error',
+                'Anda tidak memiliki akses ke halaman ini!'
+            );
         }
 
         return $next($request);

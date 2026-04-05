@@ -806,6 +806,12 @@
             .header-text h1 { font-size: 22px; }
             .toast-container { top: 16px; right: 16px; width: calc(100vw - 32px); }
         }
+
+        @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
     </style>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
@@ -924,49 +930,65 @@
        TOAST SYSTEM
     ============================================ */
     function showToast(type, title, message, duration = 4500) {
-        const container = document.getElementById('toastContainer');
-        
-        const icons = {
-            success: '✓',
-            error: '✕',
-            warning: '⚠',
-            info: 'ℹ'
-        };
 
-        const titles = {
-            success: title || 'Berhasil!',
-            error: title || 'Terjadi Kesalahan',
-            warning: title || 'Perhatian',
-            info: title || 'Informasi'
-        };
+// 🔥 Overlay (background gelap)
+let overlay = document.getElementById('customPopupOverlay');
 
-        const toast = document.createElement('div');
-        toast.className = `toast toast-${type}`;
+if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'customPopupOverlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.background = 'rgba(0,0,0,0.5)';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.zIndex = '99999';
+    document.body.appendChild(overlay);
+}
 
-        const id = 'toast-' + Date.now();
-        toast.id = id;
+// 🔥 Box popup
+const popup = document.createElement('div');
+popup.style.background = '#fff';
+popup.style.padding = '20px 25px';
+popup.style.borderRadius = '10px';
+popup.style.textAlign = 'center';
+popup.style.minWidth = '300px';
+popup.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
+popup.style.animation = 'fadeIn 0.3s ease';
 
-        toast.innerHTML = `
-            <div class="toast-icon-wrap">${icons[type]}</div>
-            <div class="toast-body">
-                <div class="toast-title">${titles[type]}</div>
-                <div class="toast-message">${message}</div>
-            </div>
-            <button class="toast-close" onclick="dismissToast(this.parentElement)">✕</button>
-        `;
+// warna icon
+let color = '#d33';
+if (type === 'success') color = '#28a745';
+if (type === 'warning') color = '#f39c12';
 
-        const style = document.createElement('style');
-        style.textContent = `#${id}::after { animation-duration: ${duration}ms; }`;
-        document.head.appendChild(style);
-        toast._style = style;
+popup.innerHTML = `
+    <div style="font-size:40px; margin-bottom:10px; color:${color};">
+        ${type === 'error' ? '❌' : type === 'success' ? '✅' : '⚠️'}
+    </div>
+    <h3 style="margin-bottom:10px;">${title}</h3>
+    <p style="margin-bottom:20px;">${message}</p>
+    <button id="popupOkBtn" style="
+        background:${color};
+        color:#fff;
+        border:none;
+        padding:8px 20px;
+        border-radius:5px;
+        cursor:pointer;
+    ">OK</button>
+`;
 
-        container.appendChild(toast);
+overlay.innerHTML = '';
+overlay.appendChild(popup);
 
-        const timer = setTimeout(() => dismissToast(toast), duration);
-        toast._timer = timer;
-
-        return toast;
-    }
+// tombol OK
+document.getElementById('popupOkBtn').onclick = function () {
+    overlay.remove();
+};
+}
 
     function dismissToast(toast) {
         if (!toast || toast.classList.contains('hiding')) return;
@@ -1022,30 +1044,24 @@ function confirmAction() {
         _confirmCallback = null;
     }
 
-    document.getElementById('confirmOverlay').addEventListener('click', function(e) {
-        if (e.target === this) closeConfirm();
-    });
+    const confirmOverlay = document.getElementById('confirmOverlay');
+
+    if (confirmOverlay) {
+        confirmOverlay.addEventListener('click', function(e) {
+            if (e.target === this) closeConfirm();
+        });
+    }
 
     /* ============================================
        INTERCEPT FORM CONFIRMS — FIXED
     ============================================ */
-   document.addEventListener('DOMContentLoaded', function() {
-
-    // Flash messages sebagai toast
-    @if(session('success'))
-        showToast('success', 'Berhasil!', @json(session('success')));
-    @endif
+    window.onload = function () {
 
     @if(session('error'))
-        showToast('error', 'Gagal!', @json(session('error')));
+        showToast('error', 'Akses Ditolak', @json(session('error')));
     @endif
 
-    @if($errors->any())
-        var errMsgs = @json($errors->all());
-        var errText = errMsgs.join('<br>');
-        showToast('error', 'Validasi Gagal', errText, 6000);
-    @endif
-});
+};
 
     /* ============================================
        NOTIFICATION REALTIME
