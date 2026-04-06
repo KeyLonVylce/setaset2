@@ -180,8 +180,8 @@ class BarangController extends Controller
     public function laporan()
     {
         $data = PindahBarang::with(['barang', 'asal', 'tujuan'])
-            ->latest()
-            ->get();
+            ->latest('created_at')
+            ->paginate(20);
 
         return view('pemindahan.laporanpindahbarang', compact('data'));
     }

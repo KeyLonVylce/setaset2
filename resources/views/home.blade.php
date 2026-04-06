@@ -277,7 +277,7 @@
         height: 36px;
         padding: 0 8px;
         border: 1px solid #e5e7eb; 
-        border-radius: 8px;
+        border-radius: 50%;
         color: #6b7280; 
         text-decoration: none; 
         transition: all 0.2s;
@@ -343,6 +343,7 @@
 </style>
 @endsection
 
+
 @section('content')
 <div class="welcome-card">
     <h2>Selamat Datang di SETASET</h2>
@@ -370,7 +371,7 @@
     <div class="lantai-header">
         <h3>Daftar Lantai</h3>
         <div class="lantai-header-actions">
-            <a href="{{ route('barang.pindah.form') }}" class="btn btn-primary">📦 Pindah Barang</a>
+            <a href="{{ route('pemindahan.laporanpindahbarang') }}" class="btn btn-primary">📦 Pindah Barang</a>
             @if(Auth::guard('stafaset')->user()->isAdmin())
                 <button class="btn btn-primary" onclick="openAddLantaiModal()">+ Tambah Lantai</button>
             @endif

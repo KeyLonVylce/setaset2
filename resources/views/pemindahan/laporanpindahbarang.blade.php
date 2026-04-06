@@ -1,40 +1,503 @@
 @extends('layouts.app')
 
+@section('title', 'Laporan Pemindahan Barang - SETASET')
+
+@section('styles')
+<style>
+    .laporan-container {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    /* ── Header ── */
+    .laporan-header {
+        text-align: center;
+        padding: 30px 20px;
+        background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+        color: white;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+
+    .laporan-header h1 {
+        font-size: 28px;
+        margin: 0 0 8px 0;
+        font-weight: 600;
+    }
+
+    .laporan-header p {
+        margin: 0;
+        opacity: 0.9;
+        font-size: 14px;
+    }
+
+    /* ── Toolbar ── */
+    .laporan-toolbar-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .toolbar-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 11px 26px;
+        border: none;
+        border-radius: 50px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #198754 0%, #157347 100%);
+        color: white;
+        box-shadow: 0 2px 5px rgba(25, 135, 84, 0.3);
+    }
+
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(25, 135, 84, 0.4);
+    }
+
+    .btn-secondary {
+        background: #e9ecef;
+        color: #495057;
+        border: 1px solid #dee2e6;
+    }
+
+    .btn-secondary:hover {
+        background: #ced4da;
+        border-color: #adb5bd;
+        transform: translateX(-3px);
+    }
+
+    .btn-dark {
+        background: #2c3e50;
+        color: white;
+    }
+    .btn-dark:hover {
+        background: #1e2b38;
+        transform: translateY(-2px);
+    }
+
+    .summary-badge {
+        background: #f1f3f5;
+        border: 2px solid #e0e0e0;
+        border-radius: 50px;
+        padding: 8px 18px;
+        font-size: 13px;
+        color: #555;
+        font-weight: 500;
+    }
+
+    .summary-badge strong {
+        color: #0d6efd;
+    }
+
+    /* ── Card wrapper ── */
+    .laporan-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+
+    /* ── Table ── */
+    .laporan-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .laporan-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    .laporan-table thead tr {
+        background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+        color: white;
+    }
+
+    .laporan-table thead th {
+        padding: 14px 16px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 13px;
+        letter-spacing: 0.3px;
+        white-space: nowrap;
+    }
+
+    .laporan-table thead th:first-child {
+        padding-left: 20px;
+        width: 50px;
+        text-align: center;
+    }
+
+    .laporan-table tbody tr {
+        border-bottom: 1px solid #f0f0f0;
+        transition: background 0.15s;
+    }
+
+    .laporan-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .laporan-table tbody tr:hover {
+        background: #f5f9ff;
+    }
+
+    .laporan-table tbody td {
+        padding: 13px 16px;
+        color: #333;
+        vertical-align: middle;
+    }
+
+    .laporan-table tbody td:first-child {
+        padding-left: 20px;
+        text-align: center;
+        color: #999;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    /* ── Nama barang ── */
+    .barang-name {
+        font-weight: 600;
+        color: #212529;
+    }
+
+    /* ── Badge jumlah ── */
+    .badge-jumlah {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #e8f0fe;
+        color: #0d6efd;
+        font-weight: 700;
+        font-size: 13px;
+        padding: 4px 12px;
+        border-radius: 50px;
+        min-width: 48px;
+    }
+
+    /* ── Room chip ── */
+    .room-asal {
+        display: inline-block;
+        background: #f1f3f5;
+        border-radius: 6px;
+        padding: 4px 10px;
+        font-weight: 500;
+        font-size: 13px;
+        color: #444;
+    }
+
+    .room-tujuan {
+        display: inline-block;
+        background: #e8f0fe;
+        border-radius: 6px;
+        padding: 4px 10px;
+        font-weight: 500;
+        font-size: 13px;
+        color: #0b5ed7;
+    }
+
+    /* ── Catatan ── */
+    .notes-text {
+        color: #666;
+        font-style: italic;
+        font-size: 13px;
+    }
+
+    .notes-empty {
+        color: #bbb;
+        font-size: 13px;
+    }
+
+    /* ── Tanggal ── */
+    .date-text {
+        font-size: 13px;
+        color: #555;
+        white-space: nowrap;
+    }
+
+    /* ── PAGINATION STYLE (sama dengan referensi Detail Ruangan) ── */
+    .pagination-wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+        padding: 20px 24px;
+        flex-wrap: wrap;
+        gap: 15px;
+        border-top: 1px solid #f0f0f0;
+    }
+    .pagination-info {
+        color: #666;
+        font-size: 13px;
+        background: #f8f9fa;
+        padding: 5px 12px;
+        border-radius: 20px;
+    }
+    .pagination-nav {
+        display: flex;
+    }
+    .pagination {
+        display: flex;
+        list-style: none;
+        gap: 6px;
+        padding: 0;
+        margin: 0;
+        align-items: center;
+    }
+    .page-item {
+        display: inline-block;
+    }
+    .page-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 8px;
+        border: 1px solid #dee2e6;
+        border-radius: 50%;
+        color: #0d6efd;
+        text-decoration: none;
+        transition: all 0.2s;
+        background: white;
+        font-size: 14px;
+        cursor: pointer;
+    }
+    .page-link:hover {
+        background: #e8f0fe;
+        border-color: #0d6efd;
+        color: #0b5ed7;
+        transform: translateY(-2px);
+    }
+    .page-item.active .page-link {
+        background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+        color: white;
+        border-color: #0d6efd;
+        font-weight: 600;
+        cursor: default;
+        box-shadow: 0 2px 6px rgba(13,110,253,0.3);
+    }
+    .page-item.disabled .page-link {
+        color: #ccc;
+        cursor: not-allowed;
+        background: #fafafa;
+        border-color: #e5e5e5;
+        transform: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .pagination-wrapper {
+            justify-content: center;
+        }
+        .pagination-info {
+            width: 100%;
+            text-align: center;
+        }
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+    .empty-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+        opacity: 0.4;
+    }
+
+    .empty-state h3 {
+        font-size: 18px;
+        color: #555;
+        margin: 0 0 8px 0;
+        font-weight: 600;
+    }
+
+    .empty-state p {
+        color: #999;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    /* ── Alert ── */
+    .alert {
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border: none;
+    }
+
+    .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border-left: 4px solid #28a745;
+    }
+
+    /* ── Responsive umum ── */
+    @media (max-width: 768px) {
+        .laporan-header h1 { font-size: 22px; }
+        .laporan-toolbar-card { flex-direction: column; align-items: flex-start; }
+        .laporan-table thead th,
+        .laporan-table tbody td { padding: 10px 12px; }
+    }
+</style>
+@endsection
+
 @section('content')
-<div class="container">
-    <h2>Laporan Pemindahan Barang</h2>
+<div class="laporan-container">
 
-    {{-- Tombol ke Form Pemindahan --}}
-    <a href="{{ route('pindah.form') }}" 
-       style="display:inline-block; margin-bottom:15px; padding:10px 15px; background:#28a745; color:white; text-decoration:none; border-radius:5px;">
-        + Pindahkan Barang
-    </a>
+    {{-- Toolbar --}}
+    <div class="laporan-toolbar-card">
+        <div class="toolbar-left">
+            <a href="{{ route('home') }}" class="btn btn-dark">
+                ← Kembali
+            </a>
+            <a href="{{ route('pindah.form') }}" class="btn btn-success">
+                ✏️ Pindahkan Barang
+            </a>
+        </div>
+        <span class="summary-badge">
+            Total transaksi: <strong>{{ $data->total() }}</strong>
+        </span>
+    </div>
 
-    <table border="1" cellpadding="10">
-        <thead>
-            <tr>
-                <th>No</th>
-                <th>Barang</th>
-                <th>Jumlah</th>
-                <th>Dari</th>
-                <th>Ke</th>
-                <th>Catatan</th>
-                <th>Tanggal</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($data as $i => $item)
-            <tr>
-                <td>{{ $i+1 }}</td>
-                <td>{{ $item->barang->nama_barang }}</td>
-                <td>{{ $item->jumlah_pindah }}</td>
-                <td>{{ $item->asal->nama_ruangan }}</td>
-                <td>{{ $item->tujuan->nama_ruangan }}</td>
-                <td>{{ $item->notes }}</td>
-                <td>{{ $item->created_at->format('d-m-Y') }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
+    {{-- Header --}}
+    <div class="laporan-header">
+        <h1>📦 Laporan Pemindahan Barang</h1>
+        <p>Riwayat seluruh transaksi pemindahan barang antar ruangan</p>
+    </div>
+
+    {{-- Flash message --}}
+    @if(session('success'))
+        <div class="alert alert-success">
+            ✓ {{ session('success') }}
+        </div>
+    @endif
+
+    {{-- Table card --}}
+    <div class="laporan-card">
+        @if(count($data) > 0)
+            <div class="laporan-table-wrapper">
+                <table class="laporan-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Barang</th>
+                            <th>Jumlah</th>
+                            <th>Ruangan Asal</th>
+                            <th>Ruangan Tujuan</th>
+                            <th>Catatan</th>
+                            <th>Tanggal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($data as $i => $item)
+                        <tr>
+                            <td>{{ $i + 1 }}</td>
+                            <td>
+                                <span class="barang-name">{{ $item->barang->nama_barang }}</span>
+                            </td>
+                            <td>
+                                <span class="badge-jumlah">{{ $item->jumlah_pindah }} unit</span>
+                            </td>
+                            <td>
+                                <span class="room-asal">{{ $item->asal->nama_ruangan }}</span>
+                            </td>
+                            <td>
+                                <span class="room-tujuan">{{ $item->tujuan->nama_ruangan }}</span>
+                            </td>
+                            <td>
+                                @if($item->notes)
+                                    <span class="notes-text">{{ $item->notes }}</span>
+                                @else
+                                    <span class="notes-empty">—</span>
+                                @endif
+                            </td>
+                            <td>
+                                <span class="date-text">{{ $item->created_at->format('d M Y') }}</span>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            {{-- PAGINATION (sama persis dengan referensi) --}}
+            @if($data->hasPages())
+            <div class="pagination-wrapper">
+                <div class="pagination-info">
+                    Menampilkan {{ $data->firstItem() }} sampai {{ $data->lastItem() }} dari {{ $data->total() }} transaksi
+                </div>
+                <div class="pagination-nav">
+                    <ul class="pagination">
+                        {{-- Tombol Previous --}}
+                        @if ($data->onFirstPage())
+                            <li class="page-item disabled"><span class="page-link">‹</span></li>
+                        @else
+                            <li class="page-item"><a class="page-link" href="{{ $data->previousPageUrl() }}" rel="prev">‹</a></li>
+                        @endif
+
+                        {{-- Nomor halaman dengan ellipsis --}}
+                        @php
+                            $current = $data->currentPage();
+                            $last = $data->lastPage();
+                            $start = max(1, $current - 2);
+                            $end = min($last, $current + 2);
+                            if ($start > 1) echo '<li class="page-item"><a class="page-link" href="'.$data->url(1).'">1</a></li>';
+                            if ($start > 2) echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                        @endphp
+                        @for ($page = $start; $page <= $end; $page++)
+                            @if ($page == $current)
+                                <li class="page-item active"><span class="page-link">{{ $page }}</span></li>
+                            @else
+                                <li class="page-item"><a class="page-link" href="{{ $data->url($page) }}">{{ $page }}</a></li>
+                            @endif
+                        @endfor
+                        @php
+                            if ($end < $last - 1) echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                            if ($end < $last) echo '<li class="page-item"><a class="page-link" href="'.$data->url($last).'">'.$last.'</a></li>';
+                        @endphp
+
+                        {{-- Tombol Next --}}
+                        @if ($data->hasMorePages())
+                            <li class="page-item"><a class="page-link" href="{{ $data->nextPageUrl() }}" rel="next">›</a></li>
+                        @else
+                            <li class="page-item disabled"><span class="page-link">›</span></li>
+                        @endif
+                    </ul>
+                </div>
+            </div>
+            @endif
+
+        @else
+            <div class="empty-state">
+                <div class="empty-icon">📭</div>
+                <h3>Belum ada data pemindahan</h3>
+                <p>Data riwayat pemindahan barang akan muncul di sini.</p>
+            </div>
+        @endif
+    </div>
+
 </div>
 @endsection
