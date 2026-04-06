@@ -56,7 +56,9 @@
 {{-- Breadcrumb --}}
 <div class="breadcrumb">
     <a href="{{ route('home') }}">Home</a> /
-    <a href="{{ route('lantai.show', $ruangan->lantai_id) }}">{{ $ruangan->lantai->nama_lantai }}</a> /
+    <a href="{{ route('lantai.show', $ruangan->lantai_id) }}">
+    {{ optional($ruangan->lantai)->nama_lantai ?? '-' }}
+</a> /
     <a href="{{ route('ruangan.show', $ruangan->id) }}">{{ $ruangan->nama_ruangan }}</a> /
     Tambah Barang
 </div>
@@ -64,7 +66,10 @@
 <div class="card">
     <div class="page-header">
         <h2>Tambah Barang Baru</h2>
-        <p style="color: #666; margin-top: 5px;">Ruangan: <strong>{{ $ruangan->nama_ruangan }}</strong> — {{ $ruangan->lantai->nama_lantai }}</p>
+        <p style="color: #666; margin-top: 5px;">
+    Ruangan: <strong>{{ $ruangan->nama_ruangan }}</strong> — 
+    {{ optional($ruangan->lantai)->nama_lantai ?? '-' }}
+</p>
     </div>
 
     @if($errors->any())
