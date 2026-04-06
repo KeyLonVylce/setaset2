@@ -90,4 +90,5 @@ Route::middleware(['auth:stafaset', 'role:admin'])->prefix('admin')->group(funct
     Route::get('/staff/{id}/edit', [StafAsetController::class, 'edit'])->name('staff.edit');
     Route::put('/staff/{id}', [StafAsetController::class, 'update'])->name('staff.update');
     Route::delete('/staff/{id}', [StafAsetController::class, 'destroy'])->name('staff.destroy');
-});
+    });
+//
