@@ -81,8 +81,9 @@
 {{-- Breadcrumb --}}
 <div class="breadcrumb">
     <a href="{{ route('home') }}">Home</a> /
-    <a href="{{ route('lantai.show', $ruangan->lantai_id) }}">{{ $ruangan->lantai->nama_lantai }}</a> /
-    {{ $ruangan->nama_ruangan }}
+    <a href="{{ route('lantai.show', $ruangan->lantai_id) }}">
+    {{ optional($ruangan->lantai)->nama_lantai ?? '-' }}
+</a>
 </div>
 
 <div class="card">
@@ -103,7 +104,7 @@
     {{-- INFO SECTION WITH CHART --}}
     <div class="info-grid">
         <div class="info-section">
-            <p><strong>Lantai:</strong> {{ $ruangan->lantai->nama_lantai }}</p>
+            <p><strong>Lantai:</strong> {{ optional($ruangan->lantai)->nama_lantai ?? '-' }}</p>
             @if($ruangan->penanggungJawab)
                 <p><strong>Penanggung Jawab:</strong> {{ $ruangan->penanggungJawab->nama }}</p>
                 <p><strong>NIP:</strong> {{ $ruangan->penanggungJawab->nip ?? '-' }}</p>

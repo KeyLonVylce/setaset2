@@ -48,6 +48,13 @@ Route::middleware('auth:stafaset')->group(function () {
         Route::delete('/bulk-destroy', [BarangController::class, 'bulkDestroy'])->name('barang.bulk.destroy');
     });
 
+    // Pindah barang
+        Route::get('/laporan-pemindahan', [BarangController::class, 'laporan'])
+        ->name('pemindahan.laporanpindahbarang');
+    //
+    Route::get('/pindah-barang', [BarangController::class, 'pindahForm'])
+    ->name('pindah.form');
+
     // Notifikasi
     Route::prefix('notifications')->group(function () {
         Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');
