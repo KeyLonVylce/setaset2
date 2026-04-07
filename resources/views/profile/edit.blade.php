@@ -155,7 +155,11 @@
             <input type="text" id="nip" name="nip"
                 value="{{ old('nip', $staff->nip) }}"
                 class="@error('nip') is-invalid @enderror"
-                required>
+                required
+                oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+            <div class="helper-text error" id="nipError" style="display: none;">
+                NIP hanya boleh berisi angka.
+            </div>
             <div class="helper-text">Nomor Induk Pegawai</div>
             @error('nip')
                 <div class="helper-text error">{{ $message }}</div>

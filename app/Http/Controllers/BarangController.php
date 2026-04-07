@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\BarangImport;
+use App\Models\Pindahbarang;
 
 class BarangController extends Controller
 {
@@ -176,10 +177,19 @@ class BarangController extends Controller
         return view('pemindahan.pindah', compact('lantais', 'barangs', 'ruangans'));
     }
 
+    public function laporan()
+    {
+        $data = PindahBarang::with(['barang', 'asal', 'tujuan'])
+            ->latest('created_at')
+            ->paginate(20);
+
+        return view('pemindahan.laporanpindahbarang', compact('data'));
+    }
+
     /**
      * Proses pemindahan barang
      */
-    public function pindahStore(Request $request)
+        public function pindahStore(Request $request)
     {
         $request->validate([
             'barang_id'       => 'required|exists:barangs,id',
@@ -189,6 +199,9 @@ class BarangController extends Controller
         ]);
 
         $barang = Barang::with('ruangan')->findOrFail($request->barang_id);
+
+        $ruanganAsalId = $barang->ruangan_id;
+
         $jumlahPindah = (int)$request->jumlah_pindah;
 
         if ($jumlahPindah > $barang->jumlah) {
@@ -205,7 +218,6 @@ class BarangController extends Controller
         if ($jumlahPindah == $barang->jumlah) {
             $barang->ruangan_id = $request->ruangan_tujuan;
             $barang->save();
-            $message = "Barang <b>{$barang->nama_barang}</b> ({$jumlahPindah} unit) dipindahkan dari <b>{$ruanganAsal}</b> ke <b>{$ruanganTujuan->nama_ruangan}</b>";
         } else {
             $barang->jumlah -= $jumlahPindah;
             $barang->save();
@@ -225,9 +237,18 @@ class BarangController extends Controller
                 $barangBaru->jumlah     = $jumlahPindah;
                 $barangBaru->save();
             }
-
-            $message = "Barang <b>{$barang->nama_barang}</b> sebanyak <b>{$jumlahPindah} unit</b> dipindahkan dari <b>{$ruanganAsal}</b> (sisa: {$barang->jumlah}) ke <b>{$ruanganTujuan->nama_ruangan}</b>";
         }
+
+        Pindahbarang::create([
+            'barang_id'      => $barang->id,
+            'ruangan_asal'   => $ruanganAsalId,
+            'ruangan_tujuan' => $request->ruangan_tujuan,
+            'jumlah_pindah'  => $jumlahPindah,
+            'notes'          => $request->notes,
+        ]);
+
+        // NOTIF
+        $message = "Barang <b>{$barang->nama_barang}</b> dipindahkan dari <b>{$ruanganAsal}</b> ke <b>{$ruanganTujuan->nama_ruangan}</b>";
 
         if ($request->notes) {
             $message .= " | Catatan: {$request->notes}";
@@ -241,7 +262,7 @@ class BarangController extends Controller
             'user_id'     => Auth::guard('stafaset')->id(),
         ]);
 
-        return redirect()->route('home')->with('success', 'Barang berhasil dipindahkan!');
+        return redirect()->route('pemindahan.laporanpindahbarang')->with('success', 'Barang berhasil dipindahkan!');
     }
 
     /**

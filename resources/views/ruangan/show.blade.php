@@ -81,8 +81,9 @@
 {{-- Breadcrumb --}}
 <div class="breadcrumb">
     <a href="{{ route('home') }}">Home</a> /
-    <a href="{{ route('lantai.show', $ruangan->lantai_id) }}">{{ $ruangan->lantai->nama_lantai }}</a> /
-    {{ $ruangan->nama_ruangan }}
+    <a href="{{ route('lantai.show', $ruangan->lantai_id) }}">
+    {{ optional($ruangan->lantai)->nama_lantai ?? '-' }}
+</a>
 </div>
 
 <div class="card">
@@ -94,7 +95,7 @@
             @if(Auth::guard('stafaset')->user()->isAdmin())
                 <a href="{{ route('ruangan.export', $ruangan->id) }}" class="btn btn-success" target="_blank">📄 Export</a>
             @endif
-            <a href="{{ route('barang.pindah.form') }}" class="btn btn-success">📦 Pindah Barang</a>
+            <a href="{{ route('pemindahan.laporanpindahbarang') }}" class="btn btn-success">📦 Pindah Barang</a>
             <a href="{{ route('barang.create', $ruangan->id) }}" class="btn btn-primary">+ Tambah Barang</a>
             <a href="{{ route('barang.import.form', $ruangan->id) }}" class="btn btn-primary">⬆️ Import Excel</a>
         </div>
@@ -103,7 +104,7 @@
     {{-- INFO SECTION WITH CHART --}}
     <div class="info-grid">
         <div class="info-section">
-            <p><strong>Lantai:</strong> {{ $ruangan->lantai->nama_lantai }}</p>
+            <p><strong>Lantai:</strong> {{ optional($ruangan->lantai)->nama_lantai ?? '-' }}</p>
             @if($ruangan->penanggungJawab)
                 <p><strong>Penanggung Jawab:</strong> {{ $ruangan->penanggungJawab->nama }}</p>
                 <p><strong>NIP:</strong> {{ $ruangan->penanggungJawab->nip ?? '-' }}</p>
