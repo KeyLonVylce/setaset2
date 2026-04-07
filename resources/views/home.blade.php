@@ -116,8 +116,10 @@
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
+        justify-content: flex-end;  
+        margin-left: auto;
     }
-    
+        
     .lantai-grid { 
         display: grid; 
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
@@ -368,15 +370,27 @@
 </div>
 
 <div class="card">
-    <div class="lantai-header">
-        <h3>Daftar Lantai</h3>
-        <div class="lantai-header-actions">
-            <a href="{{ route('pemindahan.laporanpindahbarang') }}" class="btn btn-primary">📦 Laporan Pemindahan Barang</a>
-            @if(Auth::guard('stafaset')->user()->isAdmin())
-                <button class="btn btn-primary" onclick="openAddLantaiModal()">+ Tambah Lantai</button>
-            @endif
-        </div>
-    </div>
+    <div class="lantai-header-actions">
+
+    <a href="{{ route('laporan.barang') }}" class="btn btn-primary">
+        📦 Laporan Bulanan Barang
+    </a>
+
+    <a href="{{ route('laporan.periodik') }}" class="btn btn-success">
+        📊 Tabel Periodik
+    </a>
+
+    <a href="{{ route('pemindahan.laporanpindahbarang') }}" class="btn btn-primary">
+        🔄 Laporan Pemindahan Barang
+    </a>
+
+    @if(Auth::guard('stafaset')->user()->isAdmin())
+        <button class="btn btn-primary" onclick="openAddLantaiModal()">
+            + Tambah Lantai
+        </button>
+    @endif
+
+</div>
 
     @if($lantais->count() > 0)
     <div class="lantai-grid">

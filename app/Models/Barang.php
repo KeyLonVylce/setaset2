@@ -67,4 +67,9 @@ class Barang extends Model
         ];
         return $labels[$this->kondisi] ?? '-';
     }
+
+        public function histories()
+    {
+        return $this->hasMany(PindahBarang::class, 'barang_id');
+    }
 }

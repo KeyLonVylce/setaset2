@@ -183,7 +183,7 @@ class BarangController extends Controller
             ->latest('created_at')
             ->paginate(20);
 
-        return view('pemindahan.laporanpindahbarang', compact('data'));
+        return view('pemindahan.historypindahbarang', compact('data'));
     }
 
     /**
