@@ -129,12 +129,76 @@
         transition: 0.2s;
         text-decoration: none;
         display: inline-block;
+        margin-left: auto;
     }
     .btn-excel:hover {
         background: #218838;
         transform: translateY(-1px);
         color: white;
     }
+
+    /* Pagination */
+    .pagination-wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 30px;
+        padding: 20px 0;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    .pagination-info {
+        color: #666;
+        font-size: 14px;
+    }
+    .pagination-nav {
+        display: flex;
+    }
+    .pagination {
+        display: flex;
+        list-style: none;
+        gap: 5px;
+        padding: 0;
+        margin: 0;
+        align-items: center;
+    }
+    .page-item {
+        display: inline-block;
+    }
+    .page-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 8px;
+        border: 1px solid #ddd;
+        border-radius: 50%;
+        color: #666;
+        text-decoration: none;
+        transition: all 0.2s;
+        background: white;
+        font-size: 14px;
+        cursor: pointer;
+    }
+    .page-link:hover {
+        background: #f5f5f5;
+        border-color: #bbb;
+    }
+    .page-item.active .page-link {
+        background: #0066cc;
+        color: white;
+        border-color: #0066cc;
+        font-weight: 600;
+        cursor: default;
+    }
+    .page-item.disabled .page-link {
+        color: #ccc;
+        cursor: not-allowed;
+        background: #fafafa;
+        border-color: #e5e5e5;
+    }
+
     @media (max-width: 768px) {
         .filter-box form {
             flex-direction: column;
@@ -143,6 +207,8 @@
             width: 100%;
         }
     }
+
+    
 </style>
 @endsection
 
@@ -197,9 +263,9 @@
             <input type="date" name="start_date" value="{{ request('start_date') }}" placeholder="Dari tanggal" style="width:150px;">
             <input type="date" name="end_date" value="{{ request('end_date') }}" placeholder="Sampai tanggal" style="width:150px;">
 
-            <a href="{{ route('laporan.periodik.export', request()->all()) }}" class="btn-excel" style="margin-left:auto;">
-                📎 Export Excel
-            </a>
+            <div style="margin-left:auto;">
+                <a href="{{ route('laporan.periodik.export', request()->query()) }}" class="btn btn-success marg">Export Excel</a>
+            </div>
         </form>
     </div>
 
@@ -224,7 +290,7 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($logs as $log)
+                @forelse($paginator as $log)
                 <tr>
                     <td>{{ $log['kode_barang'] ?? '-' }}</td>
                     <td class="barang-nama-cell">{{ $log['barang_nama'] }}</td>
@@ -251,6 +317,54 @@
             </tbody>
         </table>
     </div>
+        {{-- Pagination --}}
+        @if($paginator->hasPages())
+        <div class="pagination-wrapper">
+            <div class="pagination-info">
+                Menampilkan {{ $paginator->firstItem() }} sampai {{ $paginator->lastItem() }} dari {{ $paginator->total() }} entri
+            </div>
+            <div class="pagination-nav">
+                <ul class="pagination">
+                    {{-- Tombol Previous --}}
+                    @if ($paginator->onFirstPage())
+                        <li class="page-item disabled"><span class="page-link">‹</span></li>
+                    @else
+                        <li class="page-item"><a class="page-link" href="{{ $paginator->previousPageUrl() }}" rel="prev">‹</a></li>
+                    @endif
+
+                    {{-- Nomor halaman dengan ellipsis --}}
+                    @php
+                        $current = $paginator->currentPage();
+                        $last = $paginator->lastPage();
+                        $start = max(1, $current - 2);
+                        $end = min($last, $current + 2);
+                        if ($start > 1) echo '<li class="page-item"><a class="page-link" href="'.$paginator->url(1).'">1</a></li>';
+                        if ($start > 2) echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                    @endphp
+
+                    @for ($page = $start; $page <= $end; $page++)
+                        @if ($page == $current)
+                            <li class="page-item active"><span class="page-link">{{ $page }}</span></li>
+                        @else
+                            <li class="page-item"><a class="page-link" href="{{ $paginator->url($page) }}">{{ $page }}</a></li>
+                        @endif
+                    @endfor
+
+                    @php
+                        if ($end < $last - 1) echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                        if ($end < $last) echo '<li class="page-item"><a class="page-link" href="'.$paginator->url($last).'">'.$last.'</a></li>';
+                    @endphp
+
+                    {{-- Tombol Next --}}
+                    @if ($paginator->hasMorePages())
+                        <li class="page-item"><a class="page-link" href="{{ $paginator->nextPageUrl() }}" rel="next">›</a></li>
+                    @else
+                        <li class="page-item disabled"><span class="page-link">›</span></li>
+                    @endif
+                </ul>
+            </div>
+        </div>
+        @endif
 </div>
 @endsection
 

@@ -20,9 +20,16 @@ class RuanganController extends Controller
     public function show(Request $request, $id)
     {
         $ruangan = Ruangan::with(['lantai'])->findOrFail($id);
-
+    
         $query = Barang::where('ruangan_id', $id);
-
+    
+        // Sorting nama_barang
+        $sortBy = 'nama_barang'; 
+        $direction = $request->get('direction', 'asc'); // asc atau desc
+        if (!in_array($direction, ['asc', 'desc'])) {
+            $direction = 'asc';
+        }
+    
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -33,10 +40,11 @@ class RuanganController extends Controller
                   ->orWhere('keterangan', 'like', "%{$search}%");
             });
         }
-
-        $barangs = $query->paginate(20)->withQueryString();
-
-        return view('ruangan.show', compact('ruangan', 'barangs'));
+    
+        $barangs = $query->orderBy($sortBy, $direction)->paginate(20)->withQueryString();
+        
+        // ✅ PERBAIKAN: kirim variabel direction ke view
+        return view('ruangan.show', compact('ruangan', 'barangs', 'direction'));
     }
 
     /**

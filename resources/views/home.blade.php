@@ -377,7 +377,7 @@
     </a>
 
     <a href="{{ route('pemindahan.laporanpindahbarang') }}" class="btn btn-primary">
-        🔄 Laporan Pemindahan Barang
+        🔄 Laporan Pindah Barang
     </a>
 
     @if(Auth::guard('stafaset')->user()->isAdmin())

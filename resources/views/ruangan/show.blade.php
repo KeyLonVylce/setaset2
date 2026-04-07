@@ -73,6 +73,18 @@
         .info-grid { grid-template-columns: 1fr; }
         .bulk-actions { flex-wrap: wrap; }
     }
+
+    .sort-link {
+        text-decoration: none;
+        color: black;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .sort-link:hover {
+        text-decoration: underline;
+        opacity: 0.9;
+    }
 </style>
 @endsection
 
@@ -95,7 +107,7 @@
             @if(Auth::guard('stafaset')->user()->isAdmin())
                 <a href="{{ route('ruangan.export', $ruangan->id) }}" class="btn btn-success" target="_blank">📄 Export</a>
             @endif
-            <a href="{{ route('pemindahan.laporanpindahbarang') }}" class="btn btn-success">📦 Pindah Barang</a>
+            <a href="{{ route('pemindahan.laporanpindahbarang') }}" class="btn btn-primary">🔄 Laporan Pindah Barang</a>
             <a href="{{ route('barang.create', $ruangan->id) }}" class="btn btn-primary">+ Tambah Barang</a>
             <a href="{{ route('barang.import.form', $ruangan->id) }}" class="btn btn-primary">⬆️ Import Excel</a>
         </div>
@@ -161,7 +173,18 @@
                     </th>
                     <th>No</th>
                     <th>Kode</th>
-                    <th>Nama Barang</th>
+                    <th>
+                        {{-- Sorting hanya untuk Nama Barang --}}
+                        <a href="{{ request()->fullUrlWithQuery(['direction' => ($direction == 'asc' ? 'desc' : 'asc')]) }}" 
+                        class="sort-link">
+                            Nama Barang
+                            @if($direction == 'asc')
+                                &#9650; {{-- panah ke atas (A-Z) --}}
+                            @else
+                                &#9660; {{-- panah ke bawah (Z-A) --}}
+                            @endif
+                        </a>
+                    </th>
                     <th>Merk/Model</th>
                     <th>No. Seri</th>
                     <th>Ukuran</th>

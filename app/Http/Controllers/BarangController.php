@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\BarangImport;
 use App\Exports\PeriodikExport;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class BarangController extends Controller
 {
@@ -305,13 +306,24 @@ class BarangController extends Controller
         return view('laporan_bulanan.barang', compact('barangs', 'lantais', 'ruangans'));
     }
 
+    public function laporan()
+    {
+        $data = PindahBarang::with(['barang', 'asal', 'tujuan'])
+            ->latest('created_at')
+            ->paginate(20);
+
+        return view('pemindahan.historypindahbarang', compact('data'));
+    }
+
     // ==================== LAPORAN PERIODIK ====================
 
+
+    
     public function periodik(Request $request)
     {
         // 1. Query PindahBarang
         $pindahQuery = PindahBarang::with(['barang', 'asal', 'tujuan']);
-    
+        
         if ($request->lantai) {
             $pindahQuery->whereHas('tujuan.lantai', fn($q) => $q->where('id', $request->lantai));
         }
@@ -345,7 +357,7 @@ class BarangController extends Controller
         // 2. Query Notification
         $notifQuery = Notification::where('type', 'barang')
             ->whereIn('aksi', ['tambah', 'hapus', 'edit']);
-    
+        
         if ($request->bulan) {
             $notifQuery->whereMonth('created_at', (int) $request->bulan);
         }
@@ -362,7 +374,6 @@ class BarangController extends Controller
             $notifQuery->where('pesan', 'like', $request->huruf . '%');
         }
     
-        // Filter ruangan untuk notifikasi (berdasarkan nama ruangan di pesan)
         if ($request->ruangan) {
             $ruanganNama = Ruangan::find($request->ruangan)->nama_ruangan ?? null;
             if ($ruanganNama) {
@@ -370,11 +381,12 @@ class BarangController extends Controller
             }
         }
     
-        $notifLogs = $notifQuery->get()->map(function($n) use ($request) {
-            // Bersihkan HTML dari pesan
+        $notifLogs = $notifQuery->get()->map(function($n) {
             $cleanPesan = strip_tags($n->pesan);
-    
-            // Ekstrak nama barang
+            $kodeBarang = '-';
+            if (preg_match('/\b(KB-\d+)\b/', $cleanPesan, $match)) {
+                $kodeBarang = $match[1];
+            }
             $namaBarang = '-';
             if (preg_match('/Barang\s+(.+?)\s+(di|ke|dari)/i', $cleanPesan, $matches)) {
                 $namaBarang = trim($matches[1]);
@@ -383,21 +395,15 @@ class BarangController extends Controller
                     $namaBarang = trim($matches[1]);
                 }
             }
-    
-            // Ekstrak ruangan bersih (tanpa keterangan lantai/basement)
             $ruangan = '-';
             if (preg_match('/(ke|dari|di)\s+ruangan\s+(.+?)(\.|$)/i', $cleanPesan, $matches)) {
                 $ruangan = trim($matches[2]);
-                // Hapus keterangan dalam kurung seperti (Basement), (Lantai 1)
                 $ruangan = preg_replace('/\s*\([^)]+\)/', '', $ruangan);
                 $ruangan = trim($ruangan);
             }
-    
-            // Format ruangan_display
             $ruanganDisplay = $ruangan !== '-' ? $ruangan : '-';
-    
             return [
-                'kode_barang'     => '-', 
+                'kode_barang'     => $kodeBarang,
                 'barang_nama'     => $namaBarang,
                 'aktivitas'       => $n->aksi,
                 'ruangan_display' => $ruanganDisplay,
@@ -405,18 +411,41 @@ class BarangController extends Controller
             ];
         });
     
+        // Gabung dan urutkan
         $logs = $pindahLogs->concat($notifLogs)->sortByDesc('created_at')->values();
+    
+        // Pagination manual (20 per halaman)
+        $perPage = 20;
+        $currentPage = request()->get('page', 1);
+        $currentItems = $logs->forPage($currentPage, $perPage);
+        $paginator = new LengthAwarePaginator(
+            $currentItems,
+            $logs->count(),
+            $perPage,
+            $currentPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
     
         $lantais  = Lantai::all();
         $ruangans = Ruangan::all();
     
-        return view('barang.tabel_periodik', compact('logs', 'lantais', 'ruangans'));
+        return view('barang.tabel_periodik', compact('paginator', 'lantais', 'ruangans'));
     }
 
     // ==================== EXPORT PERIODIK ====================
 
-    public function exportPeriodik()
+    public function exportPeriodik(Request $request)
     {
-        return Excel::download(new PeriodikExport, 'tabel_periodik.xlsx');
+        $filters = [
+            'lantai'     => $request->lantai,
+            'ruangan'    => $request->ruangan,
+            'bulan'      => $request->bulan,
+            'tahun'      => $request->tahun,
+            'start_date' => $request->start_date,
+            'end_date'   => $request->end_date,
+            'huruf'      => $request->huruf,
+        ];
+    
+        return Excel::download(new PeriodikExport($filters), 'tabel_periodik_' . now()->format('Ymd_His') . '.xlsx');
     }
 }
