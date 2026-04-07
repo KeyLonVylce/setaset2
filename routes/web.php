@@ -56,14 +56,9 @@ Route::middleware('auth:stafaset')->group(function () {
     Route::get('/pindah-barang', [BarangController::class, 'pindahForm'])
     ->name('pindah.form');
 
-    //laporan
-    Route::get('/laporan', [LaporanController::class, 'barang'])->name('laporan.barang');
-    Route::get('/laporan/export', [LaporanController::class, 'exportBarang'])
-    ->name('laporan.barang.export');
-
     // Laporan periodik
-    Route::get('/laporan/periodik', [LaporanController::class, 'periodik'])->name('laporan.periodik');
-    Route::get('/laporan/periodik/export', [LaporanController::class, 'exportPeriodik'])
+    Route::get('/laporan/periodik', [BarangController::class, 'periodik'])->name('laporan.periodik');
+    Route::get('/laporan/periodik/export', [BarangController::class, 'exportPeriodik'])
     ->name('laporan.periodik.export');
 
     // Notifikasi

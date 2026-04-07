@@ -26,46 +26,43 @@ class StafAsetController extends Controller
         $validated = $request->validate([
             'username' => 'required|string|max:50|unique:stafaset,username',
             'nama'     => 'required|string|max:150',
-            'nip'      => 'required|string|max:30|unique:stafaset,nip',
+            'nip'      => 'required|integer|digits_between:1,20|unique:stafaset,nip',  // ← integer & unique
             'email'    => 'required|email|unique:stafaset,email',
             'password' => 'required|string|min:6',
         ], [
-            // MESSAGE
+            // Custom messages
             'username.required' => 'Username wajib diisi.',
             'username.unique'   => 'Username sudah digunakan.',
-        
             'nama.required'     => 'Nama wajib diisi.',
-        
             'nip.required'      => 'NIP wajib diisi.',
+            'nip.integer'       => 'NIP harus berupa angka.',
+            'nip.digits_between'=> 'NIP harus antara 1 hingga 20 digit.',
             'nip.unique'        => 'NIP sudah digunakan.',
-        
             'email.required'    => 'Email wajib diisi.',
             'email.email'       => 'Format email tidak valid.',
             'email.unique'      => 'Email sudah digunakan.',
-        
             'password.required' => 'Password wajib diisi.',
             'password.min'      => 'Password minimal 6 karakter.',
         ], [
-            // ATTRIBUTE (biar lebih rapi kalau pakai :attribute)
             'username' => 'Username',
             'nama'     => 'Nama',
             'nip'      => 'NIP',
             'email'    => 'Email',
             'password' => 'Password',
         ]);
-
+    
         $validated['password'] = Hash::make($validated['password']);
         $validated['role'] = 'staff';
-
+    
         $staff = StafAset::create($validated);
-
+    
         NotificationHelper::create(
             'staff',
             'tambah',
             "Akun staff <b>{$staff->nama}</b> ({$staff->username}) berhasil dibuat",
             'admin'
         );
-
+    
         return redirect()->route('staff.index')
             ->with('success', 'Akun staff berhasil dibuat!');
     }

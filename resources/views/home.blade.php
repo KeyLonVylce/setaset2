@@ -372,10 +372,6 @@
 <div class="card">
     <div class="lantai-header-actions">
 
-    <a href="{{ route('laporan.barang') }}" class="btn btn-primary">
-        📦 Laporan Bulanan Barang
-    </a>
-
     <a href="{{ route('laporan.periodik') }}" class="btn btn-success">
         📊 Tabel Periodik
     </a>

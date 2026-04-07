@@ -27,11 +27,7 @@ class KartuInventarisExport implements WithEvents
                 $sheet = $spreadsheet->getActiveSheet();
 
                 // 2. Isi data header
-                $sheet->setCellValue('C2', 'BANDUNG'); // Kabupaten/Kota
-                $sheet->setCellValue('C3', 'JAWA BARAT'); // Provinsi
-                $sheet->setCellValue('C4', 'DINAS KOMUNIKASI DAN INFORMATIKA'); // OPD
-                $sheet->setCellValue('C5', 'DINAS KOMUNIKASI DAN INFORMATIKA DAERAH PROVINSI JAWA BARAT'); // Unit
-                $sheet->setCellValue('C6', $this->ruangan->nama_ruangan); // Nama Ruangan
+                $sheet->setCellValue('D6', $this->ruangan->nama_ruangan); // Nama Ruangan
                 // Kode Lokasi (asumsikan merge cell S6:U6)
                 $sheet->setCellValue('S6', 'NO. KODE LOKASI : ' . ($this->ruangan->kode_lokasi ?? '11.10.00.21.01.25'));
 

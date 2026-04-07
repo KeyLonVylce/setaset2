@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('username', 50)->unique();
             $table->string('nama', 150);
-            $table->string('nip', 30)->unique();
+            $table->unsignedBigInteger('nip', 30)->unique();
             $table->string('email')->unique();
             $table->string('password');
             $table->enum('role', ['staff', 'admin'])->default('staff');

@@ -6,18 +6,20 @@ use App\Models\Barang;
 use App\Models\Ruangan;
 use App\Models\Lantai;
 use App\Models\Notification;
+use App\Models\PindahBarang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\BarangImport;
-use App\Models\Pindahbarang;
+use App\Exports\PeriodikExport;
 
 class BarangController extends Controller
 {
+    // ==================== CRUD BARANG ====================
+
     public function create($ruangan_id)
     {
         $ruangan = Ruangan::with(['lantai'])->findOrFail($ruangan_id);
-
         return view('barang.create', compact('ruangan'));
     }
 
@@ -41,12 +43,10 @@ class BarangController extends Controller
         ]);
 
         $validated['ruangan_id'] = $ruangan_id;
-
         Barang::create($validated);
 
         $lantaiNama = $ruangan->lantai->nama_lantai ?? 'Lantai tidak diketahui';
-
-        \App\Models\Notification::create([
+        Notification::create([
             'type'        => 'barang',
             'aksi'        => 'tambah',
             'pesan'       => 'Barang <b>' . $validated['nama_barang'] . '</b> ditambahkan ke ruangan <b>' . $ruangan->nama_ruangan . '</b> (' . $lantaiNama . ')',
@@ -54,8 +54,7 @@ class BarangController extends Controller
             'user_id'     => Auth::guard('stafaset')->id(),
         ]);
 
-        return redirect()
-            ->route('ruangan.show', $ruangan_id)
+        return redirect()->route('ruangan.show', $ruangan_id)
             ->with('success', 'Barang berhasil ditambahkan.');
     }
 
@@ -63,7 +62,6 @@ class BarangController extends Controller
     {
         $barang  = Barang::findOrFail($id);
         $ruangan = Ruangan::with(['lantai'])->findOrFail($barang->ruangan_id);
-
         return view('barang.edit', compact('barang', 'ruangan'));
     }
 
@@ -90,8 +88,7 @@ class BarangController extends Controller
         $barang->update($validated);
 
         $lantaiNama = $ruangan->lantai->nama_lantai ?? 'Lantai tidak diketahui';
-
-        \App\Models\Notification::create([
+        Notification::create([
             'type'        => 'barang',
             'aksi'        => 'edit',
             'pesan'       => 'Barang <b>' . $barang->nama_barang . '</b> diperbarui di ruangan <b>' . $ruangan->nama_ruangan . '</b> (' . $lantaiNama . ')',
@@ -99,8 +96,7 @@ class BarangController extends Controller
             'user_id'     => Auth::guard('stafaset')->id(),
         ]);
 
-        return redirect()
-            ->route('ruangan.show', $barang->ruangan_id)
+        return redirect()->route('ruangan.show', $barang->ruangan_id)
             ->with('success', 'Barang berhasil diperbarui.');
     }
 
@@ -108,14 +104,13 @@ class BarangController extends Controller
     {
         $barang  = Barang::findOrFail($id);
         $ruangan = Ruangan::with('lantai')->findOrFail($barang->ruangan_id);
-
-        $namaBarang  = $barang->nama_barang;
-        $ruanganId   = $barang->ruangan_id;
-        $lantaiNama  = $ruangan->lantai->nama_lantai ?? 'Lantai tidak diketahui';
+        $namaBarang = $barang->nama_barang;
+        $ruanganId  = $barang->ruangan_id;
+        $lantaiNama = $ruangan->lantai->nama_lantai ?? 'Lantai tidak diketahui';
 
         $barang->delete();
 
-        \App\Models\Notification::create([
+        Notification::create([
             'type'        => 'barang',
             'aksi'        => 'hapus',
             'pesan'       => 'Barang <b>' . $namaBarang . '</b> dihapus dari ruangan <b>' . $ruangan->nama_ruangan . '</b> (' . $lantaiNama . ')',
@@ -123,15 +118,31 @@ class BarangController extends Controller
             'user_id'     => Auth::guard('stafaset')->id(),
         ]);
 
-        return redirect()
-            ->route('ruangan.show', $ruanganId)
+        return redirect()->route('ruangan.show', $ruanganId)
             ->with('success', 'Barang berhasil dihapus.');
     }
+
+    public function bulkDestroy(Request $request)
+    {
+        $ids = $request->input('ids');
+        if (is_string($ids)) {
+            $ids = explode(',', $ids);
+        }
+        $ids = array_filter(array_map('intval', $ids));
+
+        if (empty($ids)) {
+            return redirect()->back()->with('error', 'Tidak ada barang yang dipilih.');
+        }
+
+        Barang::whereIn('id', $ids)->delete();
+        return redirect()->back()->with('success', count($ids) . ' barang terpilih berhasil dihapus.');
+    }
+
+    // ==================== IMPORT BARANG ====================
 
     public function importForm($ruangan_id)
     {
         $ruangan = Ruangan::with(['lantai'])->findOrFail($ruangan_id);
-
         return view('barang.import', compact('ruangan'));
     }
 
@@ -142,12 +153,10 @@ class BarangController extends Controller
         ]);
 
         $ruangan = Ruangan::with('lantai')->findOrFail($ruangan_id);
-
         Excel::import(new BarangImport($ruangan_id), $request->file('file'));
 
         $lantaiNama = $ruangan->lantai->nama_lantai ?? 'Lantai tidak diketahui';
-
-        \App\Models\Notification::create([
+        Notification::create([
             'type'        => 'barang',
             'aksi'        => 'import',
             'pesan'       => 'Import barang ke ruangan <b>' . $ruangan->nama_ruangan . '</b> (' . $lantaiNama . ') berhasil dilakukan.',
@@ -155,14 +164,12 @@ class BarangController extends Controller
             'user_id'     => Auth::guard('stafaset')->id(),
         ]);
 
-        return redirect()
-            ->route('ruangan.show', $ruangan_id)
+        return redirect()->route('ruangan.show', $ruangan_id)
             ->with('success', 'Import barang berhasil.');
     }
 
-    /**
-     * Form pemindahan barang
-     */
+    // ==================== PEMINDAHAN BARANG ====================
+
     public function pindahForm()
     {
         $lantais = Lantai::orderBy('urutan')->get();
@@ -177,19 +184,7 @@ class BarangController extends Controller
         return view('pemindahan.pindah', compact('lantais', 'barangs', 'ruangans'));
     }
 
-    public function laporan()
-    {
-        $data = PindahBarang::with(['barang', 'asal', 'tujuan'])
-            ->latest('created_at')
-            ->paginate(20);
-
-        return view('pemindahan.historypindahbarang', compact('data'));
-    }
-
-    /**
-     * Proses pemindahan barang
-     */
-        public function pindahStore(Request $request)
+    public function pindahStore(Request $request)
     {
         $request->validate([
             'barang_id'       => 'required|exists:barangs,id',
@@ -199,9 +194,7 @@ class BarangController extends Controller
         ]);
 
         $barang = Barang::with('ruangan')->findOrFail($request->barang_id);
-
         $ruanganAsalId = $barang->ruangan_id;
-
         $jumlahPindah = (int)$request->jumlah_pindah;
 
         if ($jumlahPindah > $barang->jumlah) {
@@ -232,14 +225,14 @@ class BarangController extends Controller
                 $barangTujuan->jumlah += $jumlahPindah;
                 $barangTujuan->save();
             } else {
-                $barangBaru             = $barang->replicate();
+                $barangBaru = $barang->replicate();
                 $barangBaru->ruangan_id = $request->ruangan_tujuan;
-                $barangBaru->jumlah     = $jumlahPindah;
+                $barangBaru->jumlah = $jumlahPindah;
                 $barangBaru->save();
             }
         }
 
-        Pindahbarang::create([
+        PindahBarang::create([
             'barang_id'      => $barang->id,
             'ruangan_asal'   => $ruanganAsalId,
             'ruangan_tujuan' => $request->ruangan_tujuan,
@@ -247,9 +240,7 @@ class BarangController extends Controller
             'notes'          => $request->notes,
         ]);
 
-        // NOTIF
         $message = "Barang <b>{$barang->nama_barang}</b> dipindahkan dari <b>{$ruanganAsal}</b> ke <b>{$ruanganTujuan->nama_ruangan}</b>";
-
         if ($request->notes) {
             $message .= " | Catatan: {$request->notes}";
         }
@@ -262,40 +253,170 @@ class BarangController extends Controller
             'user_id'     => Auth::guard('stafaset')->id(),
         ]);
 
-        return redirect()->route('pemindahan.laporanpindahbarang')->with('success', 'Barang berhasil dipindahkan!');
+        return redirect()->route('pemindahan.laporanpindahbarang')
+            ->with('success', 'Barang berhasil dipindahkan!');
     }
 
-    /**
-     * History pemindahan (bisa diimplementasikan nanti)
-     */
-    public function history()
+    public function laporanPindah()
     {
-        // Bisa pakai view history pemindahan
-        return view('barang.history');
+        $data = PindahBarang::with(['barang', 'asal', 'tujuan'])
+            ->latest('created_at')
+            ->paginate(20);
+
+        return view('pemindahan.historypindahbarang', compact('data'));
     }
 
-    public function bulkDestroy(Request $request)
+    // ==================== LAPORAN BARANG (Filter) ====================
+
+    public function laporanBarang(Request $request)
     {
-        $ids = $request->input('ids');
+        $query = Barang::with([
+            'ruangan.lantai',
+            'histories.asal',
+            'histories.tujuan'
+        ]);
 
-        // Jika ids adalah string (misal "1,2,3"), ubah menjadi array
-        if (is_string($ids)) {
-            $ids = explode(',', $ids);
+        if ($request->lantai) {
+            $query->whereHas('ruangan.lantai', function ($q) use ($request) {
+                $q->where('id', $request->lantai);
+            });
         }
 
-        // Hapus nilai kosong
-        $ids = array_filter($ids);
-
-        if (empty($ids)) {
-            return redirect()->back()->with('error', 'Tidak ada barang yang dipilih.');
+        if ($request->ruangan) {
+            $query->where('ruangan_id', $request->ruangan);
         }
 
-        // Pastikan semua ID adalah integer
-        $ids = array_map('intval', $ids);
+        if ($request->huruf) {
+            $query->where('nama_barang', 'like', $request->huruf . '%');
+        }
 
-        // Hapus barang
-        Barang::whereIn('id', $ids)->delete();
+        if ($request->bulan) {
+            $query->whereMonth('created_at', $request->bulan);
+        }
 
-        return redirect()->back()->with('success', count($ids) . ' barang terpilih berhasil dihapus.');
+        if ($request->tahun) {
+            $query->whereYear('created_at', $request->tahun);
+        }
+
+        $barangs = $query->get();
+        $lantais = Lantai::all();
+        $ruangans = Ruangan::all();
+
+        return view('laporan_bulanan.barang', compact('barangs', 'lantais', 'ruangans'));
+    }
+
+    // ==================== LAPORAN PERIODIK ====================
+
+    public function periodik(Request $request)
+    {
+        // 1. Query PindahBarang
+        $pindahQuery = PindahBarang::with(['barang', 'asal', 'tujuan']);
+    
+        if ($request->lantai) {
+            $pindahQuery->whereHas('tujuan.lantai', fn($q) => $q->where('id', $request->lantai));
+        }
+        if ($request->ruangan) {
+            $pindahQuery->where('ruangan_tujuan', $request->ruangan);
+        }
+        if ($request->bulan) {
+            $pindahQuery->whereMonth('created_at', (int) $request->bulan);
+        }
+        if ($request->tahun) {
+            $pindahQuery->whereYear('created_at', $request->tahun);
+        }
+        if ($request->start_date) {
+            $pindahQuery->whereDate('created_at', '>=', $request->start_date);
+        }
+        if ($request->end_date) {
+            $pindahQuery->whereDate('created_at', '<=', $request->end_date);
+        }
+        if ($request->huruf) {
+            $pindahQuery->whereHas('barang', fn($q) => $q->where('nama_barang', 'like', $request->huruf . '%'));
+        }
+    
+        $pindahLogs = $pindahQuery->get()->map(fn($p) => [
+            'kode_barang'     => $p->barang->kode_barang ?? '-',
+            'barang_nama'     => $p->barang->nama_barang ?? '-',
+            'aktivitas'       => 'pindah',
+            'ruangan_display' => ($p->asal->nama_ruangan ?? '-') . ' → ' . ($p->tujuan->nama_ruangan ?? '-'),
+            'created_at'      => $p->created_at,
+        ]);
+    
+        // 2. Query Notification
+        $notifQuery = Notification::where('type', 'barang')
+            ->whereIn('aksi', ['tambah', 'hapus', 'edit']);
+    
+        if ($request->bulan) {
+            $notifQuery->whereMonth('created_at', (int) $request->bulan);
+        }
+        if ($request->tahun) {
+            $notifQuery->whereYear('created_at', $request->tahun);
+        }
+        if ($request->start_date) {
+            $notifQuery->whereDate('created_at', '>=', $request->start_date);
+        }
+        if ($request->end_date) {
+            $notifQuery->whereDate('created_at', '<=', $request->end_date);
+        }
+        if ($request->huruf) {
+            $notifQuery->where('pesan', 'like', $request->huruf . '%');
+        }
+    
+        // Filter ruangan untuk notifikasi (berdasarkan nama ruangan di pesan)
+        if ($request->ruangan) {
+            $ruanganNama = Ruangan::find($request->ruangan)->nama_ruangan ?? null;
+            if ($ruanganNama) {
+                $notifQuery->where('pesan', 'like', '%' . $ruanganNama . '%');
+            }
+        }
+    
+        $notifLogs = $notifQuery->get()->map(function($n) use ($request) {
+            // Bersihkan HTML dari pesan
+            $cleanPesan = strip_tags($n->pesan);
+    
+            // Ekstrak nama barang
+            $namaBarang = '-';
+            if (preg_match('/Barang\s+(.+?)\s+(di|ke|dari)/i', $cleanPesan, $matches)) {
+                $namaBarang = trim($matches[1]);
+            } else {
+                if (preg_match('/Barang\s+(.+?)(\.|$)/i', $cleanPesan, $matches)) {
+                    $namaBarang = trim($matches[1]);
+                }
+            }
+    
+            // Ekstrak ruangan bersih (tanpa keterangan lantai/basement)
+            $ruangan = '-';
+            if (preg_match('/(ke|dari|di)\s+ruangan\s+(.+?)(\.|$)/i', $cleanPesan, $matches)) {
+                $ruangan = trim($matches[2]);
+                // Hapus keterangan dalam kurung seperti (Basement), (Lantai 1)
+                $ruangan = preg_replace('/\s*\([^)]+\)/', '', $ruangan);
+                $ruangan = trim($ruangan);
+            }
+    
+            // Format ruangan_display
+            $ruanganDisplay = $ruangan !== '-' ? $ruangan : '-';
+    
+            return [
+                'kode_barang'     => '-', 
+                'barang_nama'     => $namaBarang,
+                'aktivitas'       => $n->aksi,
+                'ruangan_display' => $ruanganDisplay,
+                'created_at'      => $n->created_at,
+            ];
+        });
+    
+        $logs = $pindahLogs->concat($notifLogs)->sortByDesc('created_at')->values();
+    
+        $lantais  = Lantai::all();
+        $ruangans = Ruangan::all();
+    
+        return view('barang.tabel_periodik', compact('logs', 'lantais', 'ruangans'));
+    }
+
+    // ==================== EXPORT PERIODIK ====================
+
+    public function exportPeriodik()
+    {
+        return Excel::download(new PeriodikExport, 'tabel_periodik.xlsx');
     }
 }
