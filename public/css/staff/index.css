@@ -1,0 +1,83 @@
+.breadcrumb { margin-bottom: 20px; color: #666; font-size: 14px; }
+.breadcrumb a { color: #0066cc; text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
+.page-header h2 { font-size: 28px; color: #333; margin: 0; }
+.table-responsive { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+table th { position: sticky; top: 0; background: #ff9a56; z-index: 10; padding: 12px 8px; color: white; text-align: left; }
+table td { padding: 10px 8px; border-bottom: 1px solid #e0e0e0; }
+table tbody tr:hover { background: #f9f9f9; }
+.text-center { text-align: center; }
+.badge { display: inline-block; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: 600; }
+.badge-admin { background: #28a745; color: white; }
+.badge-staff { background: #6c757d; color: white; }
+.badge-active { background: #d4edda; color: #155724; }
+.badge-inactive { background: #f8d7da; color: #721c24; }
+.empty-state { text-align: center; padding: 60px 20px; color: #999; }
+
+/* Pagination Styles */
+.pagination-wrapper { 
+    display: flex; 
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 30px; 
+    padding: 20px 0;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+.pagination-info {
+    color: #666;
+    font-size: 14px;
+}
+.pagination-nav {
+    display: flex;
+}
+.pagination { 
+    display: flex; 
+    list-style: none; 
+    gap: 5px; 
+    padding: 0; 
+    margin: 0; 
+    align-items: center;
+}
+.page-item { 
+    display: inline-block; 
+}
+.page-link { 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 8px;
+    border: 1px solid #ddd; 
+    border-radius: 50%;
+    color: #666; 
+    text-decoration: none; 
+    transition: all 0.2s;
+    background: white;
+    font-size: 14px;
+    cursor: pointer;
+}
+.page-link:hover { 
+    background: #f5f5f5; 
+    border-color: #bbb; 
+}
+.page-item.active .page-link { 
+    background: #00a8ff; 
+    color: white; 
+    border-color: #00a8ff; 
+    font-weight: 600;
+    cursor: default;
+}
+.page-item.disabled .page-link { 
+    color: #ccc; 
+    cursor: not-allowed; 
+    background: #fafafa;
+    border-color: #e5e5e5;
+}
+.page-item.disabled .page-link:hover { 
+    background: #fafafa; 
+    border-color: #e5e5e5; 
+}

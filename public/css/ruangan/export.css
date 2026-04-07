@@ -1,0 +1,73 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: Arial, sans-serif; font-size: 11px; color: #000; }
+
+table { 
+    width: 100%; 
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+table td, table th { 
+    border: 1px solid #000; 
+    padding: 8px;
+    vertical-align: middle;
+}
+
+.title-row {
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.info-label {
+    font-weight: bold;
+    width: 150px;
+}
+
+.table-header {
+    background-color: #f0f0f0;
+    font-weight: bold;
+    text-align: center;
+    font-size: 10px;
+}
+
+.center { text-align: center; }
+.right { text-align: right; }
+.left { text-align: left; }
+
+.signature-row {
+    text-align: center;
+    padding: 10px;
+}
+
+@media print {
+    .no-print { display: none; }
+    @page { margin: 20mm; }
+}
+
+.button-group {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 10px 20px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.btn-print { background: #ff7b3d; }
+.btn-print:hover { background: #ff6524; }
+.btn-excel { background: #217346; }
+.btn-excel:hover { background: #1a5c37; }
+
+@page { size: A4 landscape; }
+table { table-layout: fixed; }
+td, th { font-size: 9px; padding: 4px; }
