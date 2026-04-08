@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\PindahBarang;
+use App\Models\Pindahbarang;
 use App\Models\Notification;
 use App\Models\Ruangan;
 use Illuminate\Http\Request;
@@ -25,7 +25,7 @@ class PeriodikExport implements FromCollection, WithHeadings, WithMapping, Shoul
     public function collection()
     {
         // 1. Query PindahBarang dengan filter
-        $pindahQuery = PindahBarang::with(['barang', 'asal', 'tujuan']);
+        $pindahQuery = Pindahbarang::with(['barang', 'asal', 'tujuan']);
 
         if (!empty($this->filters['lantai'])) {
             $pindahQuery->whereHas('tujuan.lantai', fn($q) => $q->where('id', $this->filters['lantai']));
