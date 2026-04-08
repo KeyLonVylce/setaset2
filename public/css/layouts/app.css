@@ -327,19 +327,28 @@ body {
 /* ============================================
    BUTTON STYLES
 ============================================ */
-.btn { 
-    padding: 10px 20px; 
-    border: none; 
-    border-radius: 8px; 
-    cursor: pointer; 
+.btn {
+    padding: 11px 26px;
+    border: none;
+    border-radius: 50px;
     font-size: 14px;
-    font-weight: 500;
-    text-decoration: none; 
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    transition: all 0.3s;
-    font-family: 'Inter', sans-serif;
+}
+
+.btn-logout {
+    padding: 10px 24px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .btn-primary { 
