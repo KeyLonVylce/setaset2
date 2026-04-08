@@ -37,7 +37,7 @@
         📊 Tabel Periodik
     </a>
 
-    <a href="{{ route('pemindahan.laporanpindahbarang') }}" class="btn btn-primary">
+    <a href="{{ route('pemindahan.laporanpindahbarang') }}" class="btn btn-success">
         🔄 Laporan Pindah Barang
     </a>
 

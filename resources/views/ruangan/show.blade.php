@@ -25,7 +25,7 @@
             @if(Auth::guard('stafaset')->user()->isAdmin())
                 <a href="{{ route('ruangan.export', $ruangan->id) }}" class="btn btn-success" target="_blank">📄 Export</a>
             @endif
-            <a href="{{ route('pemindahan.laporanpindahbarang') }}" class="btn btn-primary">🔄 Laporan Pindah Barang</a>
+            <a href="{{ route('pemindahan.laporanpindahbarang') }}" class="btn btn-success">🔄 Laporan Pindah Barang</a>
             <a href="{{ route('barang.create', $ruangan->id) }}" class="btn btn-primary">+ Tambah Barang</a>
             <a href="{{ route('barang.import.form', $ruangan->id) }}" class="btn btn-primary">⬆️ Import Excel</a>
         </div>
@@ -57,7 +57,7 @@
             <input type="text" name="search" placeholder="Cari barang..." value="{{ request('search') }}">
         </form>
         {{-- Tombol Pilih / Batal --}}
-            <button type="button" id="toggleSelectBtn" class="btn btn-success">✓ Pilih</button>
+            <button type="button" id="toggleSelectBtn" class="btn btn-primary">✓ Pilih</button>
             <button type="button" id="cancelSelectBtn" class="btn btn-secondary" style="display: none;">✕ Batal</button>
     </div>
     
