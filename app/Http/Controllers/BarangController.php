@@ -6,7 +6,7 @@ use App\Models\Barang;
 use App\Models\Ruangan;
 use App\Models\Lantai;
 use App\Models\Notification;
-use App\Models\PindahBarang;
+use App\Models\Pindahbarang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
