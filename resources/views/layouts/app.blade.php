@@ -40,12 +40,12 @@
             </div>
             
             <div class="user-section">
-            @if(Auth::guard('stafaset')->user()->isAdmin())
-                <a href="{{ route('staff.index') }}" class="staff-button">
-                    <span class="staff-icon">👥</span>
-                    <span class="staff-text">Kelola Staff</span>
-                </a>
-            @endif
+                @if(Auth::guard('stafaset')->user()->isAdmin())
+                    <a href="{{ route('staff.index') }}" class="staff-button">
+                        <span class="staff-icon">👥</span>
+                        <span class="staff-text d-none d-md-inline">Kelola Staff</span>
+                    </a>
+                @endif
                 
                 <a href="{{ route('notifications.index') }}" class="notification-bell">
                     🔔
@@ -53,22 +53,25 @@
                 </a>
                 
                 <a href="{{ route('profile.edit') }}" class="user-info-link">
-                <div class="user-info">
-                    <div class="user-avatar">
-                        {{ strtoupper(substr(Auth::guard('stafaset')->user()->nama, 0, 1)) }}
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            {{ strtoupper(substr(Auth::guard('stafaset')->user()->nama, 0, 1)) }}
+                        </div>
+                        <div class="user-details d-none d-sm-flex">
+                            <span class="user-name">{{ Auth::guard('stafaset')->user()->nama }}</span>
+                            <span class="role-badge role-{{ Auth::guard('stafaset')->user()->role }}">
+                                {{ Auth::guard('stafaset')->user()->role_label }}
+                            </span>
+                        </div>
                     </div>
-                    <div class="user-details">
-                        <span class="user-name">{{ Auth::guard('stafaset')->user()->nama }}</span>
-                        <span class="role-badge role-{{ Auth::guard('stafaset')->user()->role }}">
-                            {{ Auth::guard('stafaset')->user()->role_label }}
-                        </span>
-                    </div>
-                </div>
                 </a>
                 
                 <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                     @csrf
-                    <button type="submit" class="btn btn-danger btn-logout">Logout</button>
+                    <button type="submit" class="btn btn-danger btn-logout">
+                        <span class="d-none d-sm-inline">Logout</span>
+                        <span class="d-inline d-sm-none">&#x2192;</span>
+                    </button>
                 </form>
             </div>
         </div>
@@ -125,64 +128,61 @@
     ============================================ */
     function showToast(type, title, message, duration = 4500) {
 
-// 🔥 Overlay (background gelap)
-let overlay = document.getElementById('customPopupOverlay');
+        let overlay = document.getElementById('customPopupOverlay');
 
-if (!overlay) {
-    overlay = document.createElement('div');
-    overlay.id = 'customPopupOverlay';
-    overlay.style.position = 'fixed';
-    overlay.style.top = '0';
-    overlay.style.left = '0';
-    overlay.style.width = '100%';
-    overlay.style.height = '100%';
-    overlay.style.background = 'rgba(0,0,0,0.5)';
-    overlay.style.display = 'flex';
-    overlay.style.alignItems = 'center';
-    overlay.style.justifyContent = 'center';
-    overlay.style.zIndex = '99999';
-    document.body.appendChild(overlay);
-}
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'customPopupOverlay';
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.background = 'rgba(0,0,0,0.5)';
+            overlay.style.display = 'flex';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.zIndex = '99999';
+            document.body.appendChild(overlay);
+        }
 
-// 🔥 Box popup
-const popup = document.createElement('div');
-popup.style.background = '#fff';
-popup.style.padding = '20px 25px';
-popup.style.borderRadius = '10px';
-popup.style.textAlign = 'center';
-popup.style.minWidth = '300px';
-popup.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
-popup.style.animation = 'fadeIn 0.3s ease';
+        const popup = document.createElement('div');
+        popup.style.background = '#fff';
+        popup.style.padding = '20px 25px';
+        popup.style.borderRadius = '10px';
+        popup.style.textAlign = 'center';
+        popup.style.minWidth = '280px';
+        popup.style.maxWidth = 'calc(100vw - 40px)';
+        popup.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
+        popup.style.animation = 'fadeIn 0.3s ease';
 
-// warna icon
-let color = '#d33';
-if (type === 'success') color = '#28a745';
-if (type === 'warning') color = '#f39c12';
+        let color = '#d33';
+        if (type === 'success') color = '#28a745';
+        if (type === 'warning') color = '#f39c12';
 
-popup.innerHTML = `
-    <div style="font-size:40px; margin-bottom:10px; color:${color};">
-        ${type === 'error' ? '❌' : type === 'success' ? '✅' : '⚠️'}
-    </div>
-    <h3 style="margin-bottom:10px;">${title}</h3>
-    <p style="margin-bottom:20px;">${message}</p>
-    <button id="popupOkBtn" style="
-        background:${color};
-        color:#fff;
-        border:none;
-        padding:8px 20px;
-        border-radius:5px;
-        cursor:pointer;
-    ">OK</button>
-`;
+        popup.innerHTML = `
+            <div style="font-size:40px; margin-bottom:10px; color:${color};">
+                ${type === 'error' ? '❌' : type === 'success' ? '✅' : '⚠️'}
+            </div>
+            <h3 style="margin-bottom:10px;">${title}</h3>
+            <p style="margin-bottom:20px;">${message}</p>
+            <button id="popupOkBtn" style="
+                background:${color};
+                color:#fff;
+                border:none;
+                padding:8px 20px;
+                border-radius:5px;
+                cursor:pointer;
+            ">OK</button>
+        `;
 
-overlay.innerHTML = '';
-overlay.appendChild(popup);
+        overlay.innerHTML = '';
+        overlay.appendChild(popup);
 
-// tombol OK
-document.getElementById('popupOkBtn').onclick = function () {
-    overlay.remove();
-};
-}
+        document.getElementById('popupOkBtn').onclick = function () {
+            overlay.remove();
+        };
+    }
 
     function dismissToast(toast) {
         if (!toast || toast.classList.contains('hiding')) return;
@@ -197,41 +197,41 @@ document.getElementById('popupOkBtn').onclick = function () {
     ============================================ */
     let _confirmCallback = null;
 
-function showConfirm(options) {
-    const { 
-        title, 
-        message, 
-        onConfirm, 
-        type = 'danger', 
-        confirmText = 'Ya, Lanjutkan', 
-        showConfirmOnly = false 
-    } = options;
-    
-    document.getElementById('confirmTitle').textContent = title || 'Konfirmasi';
-    document.getElementById('confirmMessage').innerHTML = message || 'Apakah Anda yakin?';
-    document.getElementById('confirmIcon').textContent = type === 'danger' ? '🗑️' : '⚠️';
-    document.getElementById('confirmIcon').className = `confirm-icon ${type}`;
-    document.getElementById('confirmYesBtn').textContent = confirmText;
-    
-    const cancelBtn = document.querySelector('.confirm-actions .btn:last-child');
+    function showConfirm(options) {
+        const { 
+            title, 
+            message, 
+            onConfirm, 
+            type = 'danger', 
+            confirmText = 'Ya, Lanjutkan', 
+            showConfirmOnly = false 
+        } = options;
+        
+        document.getElementById('confirmTitle').textContent = title || 'Konfirmasi';
+        document.getElementById('confirmMessage').innerHTML = message || 'Apakah Anda yakin?';
+        document.getElementById('confirmIcon').textContent = type === 'danger' ? '🗑️' : '⚠️';
+        document.getElementById('confirmIcon').className = `confirm-icon ${type}`;
+        document.getElementById('confirmYesBtn').textContent = confirmText;
+        
+        const cancelBtn = document.querySelector('.confirm-actions .btn:last-child');
 
-    if (showConfirmOnly) {
-        cancelBtn.style.display = 'none';
-        document.getElementById('confirmYesBtn').className = 'btn btn-warning';
-    } else {
-        cancelBtn.style.display = '';
-        document.getElementById('confirmYesBtn').className = 'btn btn-danger';
+        if (showConfirmOnly) {
+            cancelBtn.style.display = 'none';
+            document.getElementById('confirmYesBtn').className = 'btn btn-warning';
+        } else {
+            cancelBtn.style.display = '';
+            document.getElementById('confirmYesBtn').className = 'btn btn-danger';
+        }
+        
+        _confirmCallback = onConfirm;
+        document.getElementById('confirmOverlay').classList.add('active');
     }
-    
-    _confirmCallback = onConfirm;
-    document.getElementById('confirmOverlay').classList.add('active');
-}
 
-function confirmAction() {
-    var cb = _confirmCallback;  
-    closeConfirm();
-    if (cb) cb();
-}
+    function confirmAction() {
+        var cb = _confirmCallback;  
+        closeConfirm();
+        if (cb) cb();
+    }
 
     function closeConfirm() {
         document.getElementById('confirmOverlay').classList.remove('active');
@@ -247,15 +247,15 @@ function confirmAction() {
     }
 
     /* ============================================
-       INTERCEPT FORM CONFIRMS — FIXED
+       SESSION FLASH
     ============================================ */
     window.onload = function () {
 
-    @if(session('error'))
-        showToast('error', 'Akses Ditolak', @json(session('error')));
-    @endif
+        @if(session('error'))
+            showToast('error', 'Akses Ditolak', @json(session('error')));
+        @endif
 
-};
+    };
 
     /* ============================================
        NOTIFICATION REALTIME
