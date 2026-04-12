@@ -414,6 +414,25 @@ class BarangController extends Controller
             $notifQuery->where('pesan', 'like', '%>' . $request->huruf . '%');
         }
 
+        // Filter notif berdasarkan nama ruangan yang ada di lantai/ruangan yang dipilih
+        if ($request->lantai || $request->ruangan) {
+            $ruanganQuery = Ruangan::query();
+            if ($request->lantai) {
+                $ruanganQuery->where('lantai_id', $request->lantai);
+            }
+            if ($request->ruangan) {
+                $ruanganQuery->where('id', $request->ruangan);
+            }
+            $namaRuangans = $ruanganQuery->pluck('nama_ruangan')->toArray();
+
+            // Filter notif yang pesannya mengandung nama ruangan tersebut
+            $notifQuery->where(function ($q) use ($namaRuangans) {
+                foreach ($namaRuangans as $nama) {
+                    $q->orWhere('pesan', 'like', '%<b>' . $nama . '</b>%');
+                }
+            });
+        }
+
         $notifLogs = $notifQuery->get()->map(function ($n) {
             preg_match_all('/<b>(.*?)<\/b>/', $n->pesan, $m);
             $namaBarang  = $m[1][0] ?? '-';
@@ -453,6 +472,26 @@ class BarangController extends Controller
                 'created_at'  => (string) $n->created_at,
             ];
         });
+        if ($request->lantai) {
+        // Ambil nama lantai yang dipilih
+        $namaLantaiDipilih = Lantai::find($request->lantai)?->nama_lantai;
+
+        $notifLogs = $notifLogs->filter(function ($log) use ($namaLantaiDipilih) {
+            return $log['lantai_dari'] === $namaLantaiDipilih
+                || $log['lantai_ke']   === $namaLantaiDipilih;
+        })->values();
+    }
+
+    if ($request->ruangan) {
+        // Ambil nama ruangan yang dipilih
+        $namaRuanganDipilih = Ruangan::find($request->ruangan)?->nama_ruangan;
+
+        $notifLogs = $notifLogs->filter(function ($log) use ($namaRuanganDipilih) {
+            return $log['dari'] === $namaRuanganDipilih
+                || $log['ke']   === $namaRuanganDipilih;
+        })->values();
+    }
+        
 
         // =============================================
         // 3. GABUNG & SORT
@@ -460,7 +499,6 @@ class BarangController extends Controller
         $logs = $pindahLogs->concat($notifLogs)
             ->sortByDesc('created_at')
             ->values();
-
         // =============================================
         // 4. PAGINATION MANUAL
         // =============================================
