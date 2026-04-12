@@ -7,6 +7,17 @@
 @endsection
 
 @section('content')
+
+{{-- Breadcrumb --}}
+<div class="breadcrumb">
+    <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp;
+    <a href="{{ route('lantai.show', $ruangan->lantai_id) }}">
+    {{ optional($ruangan->lantai)->nama_lantai ?? '-' }}
+</a> &nbsp;/ &nbsp;
+    <a href="{{ route('ruangan.show', $ruangan->id) }}">{{ $ruangan->nama_ruangan }}</a> &nbsp;/&nbsp;
+    Import Barang
+</div>
+
 <div class="import-container">
     <a href="{{ route('ruangan.show', $ruangan->id) }}" class="btn-back">
         ← Kembali ke Ruangan

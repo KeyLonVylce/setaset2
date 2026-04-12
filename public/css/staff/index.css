@@ -5,7 +5,7 @@
 .page-header h2 { font-size: 28px; color: #333; margin: 0; }
 .table-responsive { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
-table th { position: sticky; top: 0; background: #ff9a56; z-index: 10; padding: 12px 8px; color: white; text-align: left; }
+table th { position: sticky; top: 0; background: linear-gradient(135deg, #0066cc 0%, #004c99 100%);; z-index: 10; padding: 12px 8px; color: white !important; text-align: left; }
 table td { padding: 10px 8px; border-bottom: 1px solid #e0e0e0; }
 table tbody tr:hover { background: #f9f9f9; }
 .text-center { text-align: center; }

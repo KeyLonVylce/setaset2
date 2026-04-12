@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Notification;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
@@ -16,18 +17,17 @@ class NotificationController extends Controller
         });
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
     
         $query = \App\Models\Notification::query();
     
         // FILTER STATUS
-        if (request('status') == 'read') {
+        $status = $request->input('status');
+        if ($status === 'read') {
             $query->whereJsonContains('read_by', $user->id);
-        }
-    
-        if (request('status') == 'unread') {
+        } elseif ($status === 'unread') {
             $query->where(function ($q) use ($user) {
                 $q->whereNull('read_by')
                   ->orWhereJsonDoesntContain('read_by', $user->id);
@@ -35,18 +35,23 @@ class NotificationController extends Controller
         }
     
         // FILTER TYPE
-        if (request('type') && request('type') != 'all') {
-            $query->where('type', request('type'));
+        $type = $request->input('type');
+        if ($type && $type !== 'all') {
+            $query->where('type', $type);
         }
     
-        // FILTER ROLE (punya kamu sebelumnya)
+        // FILTER TARGET ROLE
         $query->where(function ($q) use ($user) {
             $q->whereNull('target_role')
               ->orWhere('target_role', 'all')
               ->orWhere('target_role', $user->role);
         });
     
-        $notifications = $query->latest()->paginate(10)->withQueryString();
+        // Ambil SEMUA notifikasi
+        $notifications = $query->latest()->get()->map(function($notif) {
+            $notif->created_at_human = $notif->created_at->diffForHumans();
+            return $notif;
+        });
     
         return view('notifications.index', compact('notifications', 'user'));
     }

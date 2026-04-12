@@ -8,7 +8,7 @@
 
 @section('content')
 <div class="breadcrumb">
-    <a href="{{ route('home') }}">Home</a> / {{ $lantai->nama_lantai }}
+    <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp;{{ $lantai->nama_lantai }}
 </div>
 
 <div class="card">

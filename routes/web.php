@@ -58,13 +58,13 @@ Route::middleware('auth:stafaset')->group(function () {
 
     // Laporan periodik
     Route::get('/laporan/periodik', [LaporanController::class, 'periodik'])->name('laporan.periodik');
-    Route::get('/laporan/periodik/export', [LaporanController::class, 'exportPeriodik'])
+    Route::get('/laporan/periodik/export', [BarangController::class, 'exportPeriodik'])
     ->name('laporan.periodik.export');
 
     // Notifikasi
     Route::prefix('notifications')->group(function () {
         Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');
-        Route::post('/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+        Route::post('/read/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.read');
         Route::get('/realtime', [NotificationController::class, 'realtime'])->name('notifications.realtime');
     });
 

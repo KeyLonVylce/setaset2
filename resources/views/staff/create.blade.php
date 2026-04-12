@@ -8,8 +8,8 @@
 
 @section('content')
 <div class="breadcrumb">
-    <a href="{{ route('home') }}">Home</a> / 
-    <a href="{{ route('staff.index') }}">Kelola Staff</a> / 
+    <a href="{{ route('home') }}">Home</a> &nbsp;/ &nbsp;
+    <a href="{{ route('staff.index') }}">Kelola Staff</a> &nbsp;&nbsp;/&nbsp;
     Tambah Staff
 </div>
 

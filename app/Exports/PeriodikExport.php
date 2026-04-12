@@ -123,7 +123,7 @@ class PeriodikExport implements FromCollection, WithHeadings, WithMapping, Shoul
             'Nama Barang',
             'Aktivitas',
             'Ruangan (Asal → Tujuan / Lokasi)',
-            'Tanggal & Waktu'
+            'Tanggal'
         ];
     }
 
@@ -134,7 +134,7 @@ class PeriodikExport implements FromCollection, WithHeadings, WithMapping, Shoul
             $log['barang_nama'],
             ucfirst($log['aktivitas']),
             $log['ruangan_display'],
-            $log['created_at']->format('d-m-Y H:i:s')
+            $log['created_at']->format('d-m-Y')
         ];
     }
 

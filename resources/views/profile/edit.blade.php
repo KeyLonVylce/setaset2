@@ -8,9 +8,8 @@
 
 @section('content')
 <div class="breadcrumb">
-    <a href="{{ route('home') }}">Home</a> / Edit Profil
+    <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp;Edit Profil
 </div>
-
 <div class="card">
     <div class="profile-header">
         <h2>Edit Profil</h2>

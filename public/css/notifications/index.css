@@ -81,7 +81,7 @@
     box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
 }
 
-/* WRAPPER KHUSUS LIST NOTIFIKASI */
+/* WRAPPER LIST NOTIFIKASI */
 .notif-list-wrapper {
     background: white;
     border-radius: 16px;
@@ -108,7 +108,6 @@
     justify-content: space-between;
     padding: 18px 24px;
     border-bottom: 1px solid #f3f4f6;
-    border-left: none;
     transition: background 0.2s ease;
     background: white;
     position: relative;
@@ -183,18 +182,28 @@
     color: #374151;
 }
 
+/* PESAN NOTIFIKASI DENGAN EMOJI */
 .notif-message {
     font-size: 14px;
     color: #1f2937;
     line-height: 1.5;
     margin: 8px 0 0 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.notif-message .action-emoji {
+    font-size: 1.2em;
+    display: inline-block;
 }
 
 .notif-message strong {
     color: #0066cc;
 }
 
-/* TOMBOL CENTANG (TENGAH VERTIKAL) */
+/* TOMBOL CENTANG (TANDAI DIBACA) */
 .btn-mark-read {
     background: #f3f4f6;
     border: none;
@@ -240,91 +249,52 @@
     font-size: 14px;
 }
 
-/* PAGINATION */
-.pagination-wrapper {
-    padding: 15px 24px;
-    display: absolute;
-    justify-content: left;
+/* TOMBOL LOAD MORE, SHOW ALL, SHOW LESS */
+.load-more-actions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    padding: 20px 24px;
     border-top: 1px solid #f3f4f6;
+    background: white;
 }
-
-.pagination {
-    display: flex;
-    list-style: none;
-    gap: 4px;
-    padding: 0;
-    margin: 0;
+.btn-load-more, .btn-show-all, .btn-show-less {
+    display: inline-flex;
     align-items: center;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.page-item {
-    display: inline-block;
-}
-
-.page-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 38px;
-    height: 38px;
-    padding: 0 10px;
-    border: none;
-    border-radius: 10px;
-    color: #6b7280;
-    text-decoration: none;
-    transition: all 0.15s ease;
-    background: transparent;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 40px;
     font-size: 14px;
-    font-weight: 500;
-}
-
-.page-link:hover {
-    background: #f0f7ff;
-    color: #0066cc;
-    text-decoration: none;
-}
-
-.page-item.active .page-link {
-    background: #0066cc;
-    color: white;
-    border-radius: 10px;
     font-weight: 600;
-    box-shadow: 0 2px 8px rgba(0, 102, 204, 0.3);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
 }
-
-.page-item.active .page-link:hover {
-    background: #0057b3;
-    color: white;
-}
-
-.page-item.disabled .page-link {
-    color: #d1d5db;
-    cursor: not-allowed;
-    background: transparent;
-    opacity: 0.5;
-}
-
-.page-item.disabled .page-link:hover {
-    background: transparent;
-    color: #d1d5db;
-}
-
-/* Tombol prev/next lebih lebar */
-.page-item:first-child .page-link,
-.page-item:last-child .page-link {
-    padding: 0 14px;
-    font-size: 13px;
-    color: #374151;
-    background: #f3f4f6;
-    border-radius: 10px;
-}
-
-.page-item:first-child .page-link:hover,
-.page-item:last-child .page-link:hover {
+.btn-load-more {
     background: #0066cc;
     color: white;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+.btn-load-more:hover {
+    background: #0052a3;
+    transform: translateY(-1px);
+}
+.btn-show-all {
+    background: #f3f4f6;
+    color: #374151;
+}
+.btn-show-all:hover {
+    background: #e5e7eb;
+    transform: translateY(-1px);
+}
+.btn-show-less {
+    background: #0066cc;
+    color: white;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+.btn-show-less:hover {
+    background: #0052a3;
+    transform: translateY(-1px);
 }
 
 /* RESPONSIVE */
@@ -344,13 +314,17 @@
     .notif-meta {
         gap: 8px;
     }
-    .page-link {
-        min-width: 32px;
-        height: 32px;
-        font-size: 13px;
-    }
 }
 
-.breadcrumb { margin-bottom: 20px; color: #666; font-size: 14px; }
-.breadcrumb a { color: #0066cc; text-decoration: none; }
-.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb {
+    margin-bottom: 20px;
+    color: #666;
+    font-size: 14px;
+}
+.breadcrumb a {
+    color: #0066cc;
+    text-decoration: none;
+}
+.breadcrumb a:hover {
+    text-decoration: underline;
+}

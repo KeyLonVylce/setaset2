@@ -315,120 +315,176 @@ class BarangController extends Controller
         return view('pemindahan.historypindahbarang', compact('data'));
     }
 
-    // ==================== LAPORAN PERIODIK ====================
-
-
-    
     public function periodik(Request $request)
     {
-        // 1. Query PindahBarang
-        $pindahQuery = Pindahbarang::with(['barang', 'asal', 'tujuan']);
-        
-        if ($request->lantai) {
-            $pindahQuery->whereHas('tujuan.lantai', fn($q) => $q->where('id', $request->lantai));
-        }
-        if ($request->ruangan) {
-            $pindahQuery->where('ruangan_tujuan', $request->ruangan);
-        }
+        // =============================================
+        // 1. PINDAH BARANG
+        // =============================================
+        $pindahQuery = Pindahbarang::with([
+            'barang',
+            'asal',
+            'asal.lantai',
+            'tujuan',
+            'tujuan.lantai',
+        ]);
+
         if ($request->bulan) {
             $pindahQuery->whereMonth('created_at', (int) $request->bulan);
         }
         if ($request->tahun) {
             $pindahQuery->whereYear('created_at', $request->tahun);
         }
-        if ($request->start_date) {
-            $pindahQuery->whereDate('created_at', '>=', $request->start_date);
-        }
-        if ($request->end_date) {
-            $pindahQuery->whereDate('created_at', '<=', $request->end_date);
-        }
         if ($request->huruf) {
-            $pindahQuery->whereHas('barang', fn($q) => $q->where('nama_barang', 'like', $request->huruf . '%'));
+            $pindahQuery->whereHas('barang', fn($q) =>
+                $q->where('nama_barang', 'like', $request->huruf . '%')
+            );
         }
-    
-        $pindahLogs = $pindahQuery->get()->map(fn($p) => [
-            'kode_barang'     => $p->barang->kode_barang ?? '-',
-            'barang_nama'     => $p->barang->nama_barang ?? '-',
-            'aktivitas'       => 'pindah',
-            'ruangan_display' => ($p->asal->nama_ruangan ?? '-') . ' → ' . ($p->tujuan->nama_ruangan ?? '-'),
-            'created_at'      => $p->created_at,
-        ]);
-    
-        // 2. Query Notification
+        if ($request->lantai) {
+            $pindahQuery->where(function ($q) use ($request) {
+                $q->whereHas('asal.lantai',     fn($sq) => $sq->where('id', $request->lantai))
+                  ->orWhereHas('tujuan.lantai', fn($sq) => $sq->where('id', $request->lantai));
+            });
+        }
+        if ($request->ruangan) {
+            $pindahQuery->where(function ($q) use ($request) {
+                $q->where('ruangan_asal',    $request->ruangan)
+                  ->orWhere('ruangan_tujuan', $request->ruangan);
+            });
+        }
+
+        $pindahLogs = $pindahQuery->get()->map(function ($p) {
+
+            // Ambil data ruangan asal langsung dari relasi
+            $asalRuangan  = $p->asal;
+            $tujuRuangan  = $p->tujuan;
+
+            $namaBarang  = $p->barang->nama_barang ?? '-';
+            $kodeBarang  = $p->barang->kode_barang ?? null;
+
+            // Jika relasi null, fallback ke query langsung pakai foreign key
+            if (!$asalRuangan && $p->ruangan_asal) {
+                $asalRuangan = Ruangan::with('lantai')->find($p->ruangan_asal);
+            }
+            if (!$tujuRuangan && $p->ruangan_tujuan) {
+                $tujuRuangan = Ruangan::with('lantai')->find($p->ruangan_tujuan);
+            }
+
+            $ruanganAsal = $asalRuangan->nama_ruangan          ?? '-';
+            $lantaiAsal  = $asalRuangan->lantai->nama_lantai   ?? '';
+            $ruanganTuju = $tujuRuangan->nama_ruangan          ?? '-';
+            $lantaiTuju  = $tujuRuangan->lantai->nama_lantai   ?? '';
+            $jumlah      = $p->jumlah_pindah ?? 1;
+            $notes       = $p->notes ?? null;
+
+            $keterangan  = "Barang <b>{$namaBarang}</b> dipindahkan sebanyak <b>{$jumlah} unit</b> ";
+            $keterangan .= "dari ruangan <b>{$ruanganAsal}</b>";
+            if ($lantaiAsal) $keterangan .= " ({$lantaiAsal})";
+            $keterangan .= " ke ruangan <b>{$ruanganTuju}</b>";
+            if ($lantaiTuju) $keterangan .= " ({$lantaiTuju})";
+            $keterangan .= ".";
+            if ($notes) $keterangan .= " Catatan: <i>{$notes}</i>.";
+
+            return [
+                'aktivitas'   => 'pindah',
+                'barang_nama' => $namaBarang,
+                'kode_barang' => $kodeBarang,
+                'dari'        => $ruanganAsal,
+                'lantai_dari' => $lantaiAsal,
+                'ke'          => $ruanganTuju,
+                'lantai_ke'   => $lantaiTuju,
+                'keterangan'  => $keterangan,
+                // Cast ke string supaya sort dan paginator tidak error
+                'created_at'  => (string) $p->created_at,
+            ];
+        });
+
+        // =============================================
+        // 2. NOTIFIKASI (tambah, hapus, edit)
+        // =============================================
         $notifQuery = Notification::where('type', 'barang')
             ->whereIn('aksi', ['tambah', 'hapus', 'edit']);
-        
+
         if ($request->bulan) {
             $notifQuery->whereMonth('created_at', (int) $request->bulan);
         }
         if ($request->tahun) {
             $notifQuery->whereYear('created_at', $request->tahun);
         }
-        if ($request->start_date) {
-            $notifQuery->whereDate('created_at', '>=', $request->start_date);
-        }
-        if ($request->end_date) {
-            $notifQuery->whereDate('created_at', '<=', $request->end_date);
-        }
         if ($request->huruf) {
-            $notifQuery->where('pesan', 'like', $request->huruf . '%');
+            $notifQuery->where('pesan', 'like', '%>' . $request->huruf . '%');
         }
-    
-        if ($request->ruangan) {
-            $ruanganNama = Ruangan::find($request->ruangan)->nama_ruangan ?? null;
-            if ($ruanganNama) {
-                $notifQuery->where('pesan', 'like', '%' . $ruanganNama . '%');
-            }
-        }
-    
-        $notifLogs = $notifQuery->get()->map(function($n) {
-            $cleanPesan = strip_tags($n->pesan);
-            $kodeBarang = '-';
-            if (preg_match('/\b(KB-\d+)\b/', $cleanPesan, $match)) {
-                $kodeBarang = $match[1];
-            }
-            $namaBarang = '-';
-            if (preg_match('/Barang\s+(.+?)\s+(di|ke|dari)/i', $cleanPesan, $matches)) {
-                $namaBarang = trim($matches[1]);
+
+        $notifLogs = $notifQuery->get()->map(function ($n) {
+            preg_match_all('/<b>(.*?)<\/b>/', $n->pesan, $m);
+            $namaBarang  = $m[1][0] ?? '-';
+            $namaRuangan = $m[1][1] ?? '-';
+
+            $ruanganObj = Ruangan::with('lantai')
+                ->where('nama_ruangan', $namaRuangan)
+                ->first();
+            $namaLantai = $ruanganObj?->lantai?->nama_lantai ?? '';
+
+            if ($n->aksi === 'tambah') {
+                $keterangan = "Barang <b>{$namaBarang}</b> ditambahkan ke ruangan <b>{$namaRuangan}</b>" . ($namaLantai ? " ({$namaLantai})" : '') . ".";
+                $dari = '-'; $lantaiDari = '';
+                $ke   = $namaRuangan; $lantaiKe = $namaLantai;
+
+            } elseif ($n->aksi === 'hapus') {
+                $keterangan = "Barang <b>{$namaBarang}</b> dihapus dari ruangan <b>{$namaRuangan}</b>" . ($namaLantai ? " ({$namaLantai})" : '') . ".";
+                $dari = $namaRuangan; $lantaiDari = $namaLantai;
+                $ke   = '-'; $lantaiKe = '';
+
             } else {
-                if (preg_match('/Barang\s+(.+?)(\.|$)/i', $cleanPesan, $matches)) {
-                    $namaBarang = trim($matches[1]);
-                }
+                $keterangan = "Data barang <b>{$namaBarang}</b> diperbarui di ruangan <b>{$namaRuangan}</b>" . ($namaLantai ? " ({$namaLantai})" : '') . ".";
+                $dari = '-'; $lantaiDari = '';
+                $ke   = $namaRuangan; $lantaiKe = $namaLantai;
             }
-            $ruangan = '-';
-            if (preg_match('/(ke|dari|di)\s+ruangan\s+(.+?)(\.|$)/i', $cleanPesan, $matches)) {
-                $ruangan = trim($matches[2]);
-                $ruangan = preg_replace('/\s*\([^)]+\)/', '', $ruangan);
-                $ruangan = trim($ruangan);
-            }
-            $ruanganDisplay = $ruangan !== '-' ? $ruangan : '-';
+
             return [
-                'kode_barang'     => $kodeBarang,
-                'barang_nama'     => $namaBarang,
-                'aktivitas'       => $n->aksi,
-                'ruangan_display' => $ruanganDisplay,
-                'created_at'      => $n->created_at,
+                'aktivitas'   => $n->aksi,
+                'barang_nama' => $namaBarang,
+                'kode_barang' => null,
+                'dari'        => $dari,
+                'lantai_dari' => $lantaiDari,
+                'ke'          => $ke,
+                'lantai_ke'   => $lantaiKe,
+                'keterangan'  => $keterangan,
+                // Cast ke string supaya konsisten
+                'created_at'  => (string) $n->created_at,
             ];
         });
-    
-        // Gabung dan urutkan
-        $logs = $pindahLogs->concat($notifLogs)->sortByDesc('created_at')->values();
-    
-        // Pagination manual (20 per halaman)
-        $perPage = 20;
-        $currentPage = request()->get('page', 1);
-        $currentItems = $logs->forPage($currentPage, $perPage);
+
+        // =============================================
+        // 3. GABUNG & SORT
+        // =============================================
+        $logs = $pindahLogs->concat($notifLogs)
+            ->sortByDesc('created_at')
+            ->values();
+
+        // =============================================
+        // 4. PAGINATION MANUAL
+        // =============================================
+        $perPage     = 20;
+        $currentPage = (int) $request->input('page', 1);
+        $offset      = ($currentPage - 1) * $perPage;
+        $items       = $logs->slice($offset, $perPage)->values();
+
         $paginator = new LengthAwarePaginator(
-            $currentItems,
+            $items,
             $logs->count(),
             $perPage,
             $currentPage,
-            ['path' => request()->url(), 'query' => request()->query()]
+            ['path' => $request->url(), 'query' => $request->query()]
         );
-    
-        $lantais  = Lantai::all();
-        $ruangans = Ruangan::all();
-    
+
+        $lantais  = Lantai::orderBy('urutan')->get();
+        $ruangans = Ruangan::with('lantai')->get()->map(fn($r) => [
+            'id'           => $r->id,
+            'nama_ruangan' => $r->nama_ruangan,
+            'lantai_id'    => $r->lantai_id,
+            'lantai_nama'  => $r->lantai->nama_lantai ?? '-',
+        ]);
+
         return view('barang.tabel_periodik', compact('paginator', 'lantais', 'ruangans'));
     }
 

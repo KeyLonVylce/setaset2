@@ -16,7 +16,7 @@
 /* Table */
 .table-responsive { overflow-x: auto; border-radius: 8px; }
 table { width: 100%; border-collapse: collapse; background: white; }
-table th { background: #0066cc; color: white; padding: 12px 10px; text-align: left; font-size: 13px; font-weight: 600; }
+table th { background: linear-gradient(135deg, #0066cc 0%, #004c99 100%); color: #ffffff !important; padding: 12px 10px; text-align: left; font-size: 13px; font-weight: 600; }
 table td { padding: 12px 10px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
 table tbody tr:hover { background: #f9fafb; }
 
@@ -70,7 +70,7 @@ table tbody tr:hover { background: #f9fafb; }
 
 .sort-link {
     text-decoration: none;
-    color: black;
+    color: rgb(255, 255, 255);
     display: inline-flex;
     align-items: center;
     gap: 4px;

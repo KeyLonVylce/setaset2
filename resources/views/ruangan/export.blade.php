@@ -112,26 +112,7 @@
                 <td colspan="14" class="center" style="padding: 30px;">Tidak ada data barang</td>
             </tr>
         @endif
-        
-        <tr><td colspan="14" style="border: none; height: 10px;"></td></tr>
-        <tr>
-            <td colspan="7" class="signature-row">
-                MENGETAHUI :<br>
-                KEPALA BAGIAN TATA USAHA
-                <div style="margin-top: 60px; font-weight: bold;">
-                    Hj. ASTRIA PRIANTIE, ST.MM<br>
-                    NIP. 197111272007012005
-                </div>
-            </td>
-            <td colspan="7" class="signature-row">
-                Bandung, {{ date('d F Y') }}<br>
-                PENGELOLA BARANG MILIK NEGARA
-                <div style="margin-top: 60px; font-weight: bold;">
-                    NANDANG SUHERMAN, A.Md<br>
-                    NIP. 197411302007011006
-                </div>
-            </td>
-        </tr>
+            
     </table>
 
     <div class="footer">

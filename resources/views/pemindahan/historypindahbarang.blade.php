@@ -9,6 +9,12 @@
 @section('content')
 <div class="laporan-container">
 
+{{-- Breadcrumb --}}
+<div class="breadcrumb">
+    <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp;Laporan Pemindahan Barang
+</a> 
+</div>
+
     {{-- Toolbar --}}
     <div class="laporan-toolbar-card">
         <div class="toolbar-left">

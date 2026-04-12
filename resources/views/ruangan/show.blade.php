@@ -10,10 +10,10 @@
 
 {{-- Breadcrumb --}}
 <div class="breadcrumb">
-    <a href="{{ route('home') }}">Home</a> / 
+    <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp; 
     <a href="{{ route('lantai.show', $ruangan->lantai_id) }}">
     {{ optional($ruangan->lantai)->nama_lantai ?? '-' }} 
-</a> / 
+</a> &nbsp;/ &nbsp;
 <span>{{ $ruangan->nama_ruangan ?? '-' }}</span>
 </div>
 
@@ -93,10 +93,10 @@
                     <th>No</th>
                     <th>Kode</th>
                     <th>
-                        {{-- Sorting hanya untuk Nama Barang --}}
+                        {{-- Sorting untuk Nama Barang --}}
+                        Nama Barang
                         <a href="{{ request()->fullUrlWithQuery(['direction' => ($direction == 'asc' ? 'desc' : 'asc')]) }}" 
                         class="sort-link">
-                            Nama Barang
                             @if($direction == 'asc')
                                 &#9650; {{-- panah ke atas (A-Z) --}}
                             @else

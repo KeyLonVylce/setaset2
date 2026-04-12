@@ -10,11 +10,11 @@
 
 {{-- Breadcrumb --}}
 <div class="breadcrumb">
-    <a href="{{ route('home') }}">Home</a> /
+    <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp;
     <a href="{{ route('lantai.show', $ruangan->lantai_id) }}">
     {{ optional($ruangan->lantai)->nama_lantai ?? '-' }}
-</a> /
-    <a href="{{ route('ruangan.show', $ruangan->id) }}">{{ $ruangan->nama_ruangan }}</a> /
+</a> &nbsp;/ &nbsp;
+    <a href="{{ route('ruangan.show', $ruangan->id) }}">{{ $ruangan->nama_ruangan }}</a> &nbsp;/&nbsp;
     Tambah Barang
 </div>
 
