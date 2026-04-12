@@ -4,8 +4,8 @@
 
 @section('styles')
 <link rel="stylesheet" href="{{ asset('css/home.css') }}">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 @endsection
-
 
 @section('content')
 <div class="welcome-card">
@@ -32,22 +32,20 @@
 
 <div class="card">
     <div class="lantai-header-actions">
+        <a href="{{ route('laporan.periodik') }}" class="btn btn-success">
+            📊 Tabel Periodik
+        </a>
 
-    <a href="{{ route('laporan.periodik') }}" class="btn btn-success">
-        📊 Tabel Periodik
-    </a>
+        <a href="{{ route('pemindahan.laporanpindahbarang') }}" class="btn btn-success">
+            🔄 Laporan Pindah Barang
+        </a>
 
-    <a href="{{ route('pemindahan.laporanpindahbarang') }}" class="btn btn-success">
-        🔄 Laporan Pindah Barang
-    </a>
-
-    @if(Auth::guard('stafaset')->user()->isAdmin())
-        <button class="btn btn-primary" onclick="openAddLantaiModal()">
-            + Tambah Lantai
-        </button>
-    @endif
-
-</div>
+        @if(Auth::guard('stafaset')->user()->isAdmin())
+            <button class="btn btn-primary" onclick="openAddLantaiModal()">
+                + Tambah Lantai
+            </button>
+        @endif
+    </div>
 
     @if($lantais->count() > 0)
     <div class="lantai-grid">
@@ -57,37 +55,31 @@
             <div class="lantai-card-actions">
                 <button onclick="event.preventDefault(); openEditLantaiModal({{ $lantai->id }}, '{{ addslashes($lantai->nama_lantai) }}', '{{ addslashes($lantai->keterangan ?? '') }}')" title="Edit">✏️</button>
                 
-                
                 <form action="{{ route('lantai.destroy', $lantai->id) }}" method="POST" style="display: inline;">
-    @csrf
-    @method('DELETE')
-
-    @if($lantai->ruangans_count > 0)
-    <button type="button" title="Hapus"
-        onclick="showConfirm({
-            title: 'Tidak Bisa Hapus Lantai',
-            message: 'Lantai <strong>{{ addslashes($lantai->nama_lantai) }}</strong> masih memiliki <strong>{{ $lantai->ruangans_count }} ruangan</strong>.<br><br>Harap hapus semua ruangan terlebih dahulu sebelum menghapus lantai ini.',
-            type: 'warning',
-            confirmText: '✓ Mengerti',
-            showConfirmOnly: true,
-            onConfirm: function() {}
-        })">🗑️</button>
-    @else
-    <button type="button" title="Hapus"
-        onclick="var f=this.closest('form'); showConfirm({
-            title: 'Hapus Lantai?',
-            message: 'Yakin ingin menghapus <strong>{{ addslashes($lantai->nama_lantai) }}</strong>?',
-            type: 'danger',
-            confirmText: '🗑️ Ya, Hapus',
-            onConfirm: function() { f.submit(); }
-        })">🗑️</button>
-    @endif
-
-</form>
-
-
-
-
+                    @csrf
+                    @method('DELETE')
+                    
+                    @if($lantai->ruangans_count > 0)
+                    <button type="button" title="Hapus"
+                        onclick="showConfirm({
+                            title: 'Tidak Bisa Hapus Lantai',
+                            message: 'Lantai <strong>{{ addslashes($lantai->nama_lantai) }}</strong> masih memiliki <strong>{{ $lantai->ruangans_count }} ruangan</strong>.<br><br>Harap hapus semua ruangan terlebih dahulu sebelum menghapus lantai ini.',
+                            type: 'warning',
+                            confirmText: '✓ Mengerti',
+                            showConfirmOnly: true,
+                            onConfirm: function() {}
+                        })">🗑️</button>
+                    @else
+                    <button type="button" title="Hapus"
+                        onclick="var f=this.closest('form'); showConfirm({
+                            title: 'Hapus Lantai?',
+                            message: 'Yakin ingin menghapus <strong>{{ addslashes($lantai->nama_lantai) }}</strong>?',
+                            type: 'danger',
+                            confirmText: '🗑️ Ya, Hapus',
+                            onConfirm: function() { f.submit(); }
+                        })">🗑️</button>
+                    @endif
+                </form>
             </div>
             @endif
             <a href="{{ route('lantai.show', $lantai->id) }}" class="lantai-card">
@@ -212,172 +204,188 @@
 @section('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
-    // Data kondisi barang global
-    const kondisiBaik = {{ $kondisiBaik }};
-    const kondisiKurangBaik = {{ $kondisiKurangBaik }};
-    const kondisiRusakBerat = {{ $kondisiRusakBerat }};
-    const totalBarang = {{ $totalBarang }};
+    // Resize handler untuk chart
+    let globalChart, topChart;
     
-    // Create global pie chart dengan warna biru
-    const ctx = document.getElementById('globalKondisiChart');
-    
-    if (totalBarang > 0) {
-        new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: ['Baik', 'Kurang Baik', 'Rusak Berat'],
-                datasets: [{
-                    data: [kondisiBaik, kondisiKurangBaik, kondisiRusakBerat],
-                    backgroundColor: [
-                        '#10b981',
-                        '#f59e0b',
-                        '#ef4444'
-                    ],
-                    borderWidth: 2,
-                    borderColor: '#fff'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 12,
-                            font: {
-                                size: 11,
-                                family: 'Inter'
-                            },
-                            generateLabels: function(chart) {
-                                const data = chart.data;
-                                if (data.labels.length && data.datasets.length) {
-                                    return data.labels.map((label, i) => {
-                                        const value = data.datasets[0].data[i];
-                                        const percentage = ((value / totalBarang) * 100).toFixed(1);
-                                        return {
-                                            text: `${label}: ${value.toLocaleString()} (${percentage}%)`,
-                                            fillStyle: data.datasets[0].backgroundColor[i],
-                                            hidden: false,
-                                            index: i
-                                        };
-                                    });
-                                }
-                                return [];
-                            }
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const label = context.label || '';
-                                const value = context.parsed || 0;
-                                const percentage = ((value / totalBarang) * 100).toFixed(1);
-                                return label + ': ' + value.toLocaleString() + ' item (' + percentage + '%)';
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    } else {
-        ctx.parentElement.innerHTML = '<p style="text-align: center; color: #9ca3af; padding: 40px 0;">Belum ada data barang</p>';
-    }
-
-    // Create top 5 barangs horizontal bar chart
-    const topCtx = document.getElementById('topBarangsChart');
-    const topBarangsData = @json($topBarangs);
-    
-    if (topBarangsData.length > 0) {
-        const labels = topBarangsData.map(item => item.nama_barang);
-        const values = topBarangsData.map(item => item.total);
+    function initCharts() {
+        // Data kondisi barang global
+        const kondisiBaik = {{ $kondisiBaik ?? 0 }};
+        const kondisiKurangBaik = {{ $kondisiKurangBaik ?? 0 }};
+        const kondisiRusakBerat = {{ $kondisiRusakBerat ?? 0 }};
+        const totalBarang = {{ $totalBarang ?? 0 }};
         
-        new Chart(topCtx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Jumlah',
-                    data: values,
-                    backgroundColor: [
-                        '#0066cc',
-                        '#1a75d9',
-                        '#3384e0',
-                        '#4d93e6',
-                        '#66a2ed'
-                    ],
-                    borderWidth: 0,
-                    borderRadius: 6
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return 'Total: ' + context.parsed.x.toLocaleString() + ' unit';
+        // Create global pie chart
+        const ctx = document.getElementById('globalKondisiChart');
+        
+        if (totalBarang > 0 && ctx) {
+            if (globalChart) globalChart.destroy();
+            
+            globalChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Baik', 'Kurang Baik', 'Rusak Berat'],
+                    datasets: [{
+                        data: [kondisiBaik, kondisiKurangBaik, kondisiRusakBerat],
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 12,
+                                font: { size: 11, family: 'Inter' },
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    if (data.labels.length && data.datasets.length) {
+                                        return data.labels.map((label, i) => {
+                                            const value = data.datasets[0].data[i];
+                                            const percentage = ((value / totalBarang) * 100).toFixed(1);
+                                            return {
+                                                text: `${label}: ${value.toLocaleString()} (${percentage}%)`,
+                                                fillStyle: data.datasets[0].backgroundColor[i],
+                                                hidden: false,
+                                                index: i
+                                            };
+                                        });
+                                    }
+                                    return [];
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const percentage = ((value / totalBarang) * 100).toFixed(1);
+                                    return label + ': ' + value.toLocaleString() + ' item (' + percentage + '%)';
+                                }
                             }
                         }
                     }
+                }
+            });
+        } else if (ctx) {
+            ctx.parentElement.innerHTML = '<p style="text-align: center; color: #9ca3af; padding: 40px 0;">Belum ada data barang</p>';
+        }
+
+        // Create top 5 barangs chart
+        const topCtx = document.getElementById('topBarangsChart');
+        const topBarangsData = @json($topBarangs ?? []);
+        
+        if (topBarangsData.length > 0 && topCtx) {
+            if (topChart) topChart.destroy();
+            
+            const labels = topBarangsData.map(item => item.nama_barang);
+            const values = topBarangsData.map(item => item.total);
+            
+            topChart = new Chart(topCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Jumlah',
+                        data: values,
+                        backgroundColor: ['#0066cc', '#1a75d9', '#3384e0', '#4d93e6', '#66a2ed'],
+                        borderWidth: 0,
+                        borderRadius: 6
+                    }]
                 },
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        ticks: {
-                            font: { size: 11, family: 'Inter' }
-                        },
-                        grid: { color: '#f3f4f6' }
-                    },
-                    y: {
-                        ticks: {
-                            font: { size: 11, family: 'Inter' },
-                            callback: function(value, index) {
-                                const label = this.getLabelForValue(value);
-                                return label.length > 20 ? label.substring(0, 20) + '...' : label;
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Total: ' + context.parsed.x.toLocaleString() + ' unit';
+                                }
                             }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: { font: { size: 11, family: 'Inter' } },
+                            grid: { color: '#f3f4f6' }
                         },
-                        grid: { display: false }
+                        y: {
+                            ticks: {
+                                font: { size: 11, family: 'Inter' },
+                                callback: function(value, index) {
+                                    const label = this.getLabelForValue(value);
+                                    return label.length > 20 ? label.substring(0, 20) + '...' : label;
+                                }
+                            },
+                            grid: { display: false }
+                        }
                     }
                 }
-            }
-        });
-    } else {
-        topCtx.parentElement.innerHTML = '<p style="text-align: center; color: #9ca3af; padding: 60px 0;">Belum ada data barang</p>';
+            });
+        } else if (topCtx) {
+            topCtx.parentElement.innerHTML = '<p style="text-align: center; color: #9ca3af; padding: 60px 0;">Belum ada data barang</p>';
+        }
     }
+    
+    // Inisialisasi chart saat halaman dimuat
+    document.addEventListener('DOMContentLoaded', function() {
+        initCharts();
+        
+        // Resize observer untuk chart responsiveness
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                initCharts();
+            }, 250);
+        });
+    });
 
     // Modal functions
     function openAddLantaiModal() { 
-        document.getElementById('addLantaiModal').style.display = 'block'; 
+        const modal = document.getElementById('addLantaiModal');
+        if (modal) modal.style.display = 'block'; 
     }
     
     function closeAddLantaiModal() { 
-        document.getElementById('addLantaiModal').style.display = 'none'; 
+        const modal = document.getElementById('addLantaiModal');
+        if (modal) modal.style.display = 'none'; 
     }
     
     function openEditLantaiModal(id, nama, keterangan) {
-        document.getElementById('editLantaiForm').action = '/admin/lantai/' + id; // tambah prefix admin
-        document.getElementById('edit_nama_lantai').value = nama;
-        document.getElementById('edit_keterangan').value = keterangan || '';
-        document.getElementById('editLantaiModal').style.display = 'block';
+        const form = document.getElementById('editLantaiForm');
+        const namaInput = document.getElementById('edit_nama_lantai');
+        const keteranganInput = document.getElementById('edit_keterangan');
+        const modal = document.getElementById('editLantaiModal');
+        
+        if (form && namaInput && keteranganInput && modal) {
+            form.action = '/admin/lantai/' + id;
+            namaInput.value = nama;
+            keteranganInput.value = keterangan || '';
+            modal.style.display = 'block';
+        }
     }
     
     function closeEditLantaiModal() {
-        document.getElementById('editLantaiModal').style.display = 'none';
+        const modal = document.getElementById('editLantaiModal');
+        if (modal) modal.style.display = 'none';
     }
     
     window.onclick = function(event) { 
         const addModal = document.getElementById('addLantaiModal'); 
         const editModal = document.getElementById('editLantaiModal');
-        if (event.target == addModal) { 
+        if (event.target == addModal && addModal) { 
             addModal.style.display = 'none'; 
         }
-        if (event.target == editModal) {
+        if (event.target == editModal && editModal) {
             editModal.style.display = 'none';
         }
     }

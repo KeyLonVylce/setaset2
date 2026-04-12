@@ -171,13 +171,7 @@ body {
 .header::before {
     content: '';
     position: absolute;
-    top: -50%;
-    right: -10%;
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-    border-radius: 50%;
-    pointer-events: none;
+        pointer-events: none;
 }
 
 .header-container {
@@ -999,6 +993,56 @@ table tbody tr:hover { background: #f9fafb; }
    ANIMATION
 ============================================ */
 @keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ============================================
+   RESPONSIVE
+============================================ */
+@media (max-width: 968px) {
+    .footer-content {
+        flex-direction: column;
+        gap: 25px;
+    }
+    .footer-logo-section {
+        width: 100%;
+        justify-content: center;
+    }
+    .footer-info {
+        padding-left: 0;
+    }
+    .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .header-container {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px 20px;
+    }
+    .container {
+        padding: 0 15px;
+    }
+    .user-section {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .header-text h1 {
+        font-size: 22px;
+    }
+    .toast-container {
+        top: 16px;
+        right: 16px;
+        width: calc(100vw - 32px);
+    }
 }

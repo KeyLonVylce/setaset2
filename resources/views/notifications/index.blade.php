@@ -9,12 +9,11 @@
 @section('content')
 <div class="notif-container">
 
-    {{-- HEADER --}}
-    <div class="notif-header">
-        <a href="{{ route('home') }}" class="btn-back">
-            ← Kembali
-        </a>
-    </div>
+{{-- Breadcrumb --}}
+<div class="breadcrumb">
+    <a href="{{ route('home') }}">Home</a> / 
+    <span>&nbsp;Notifikasi</span>
+</div>
 
     <div class="filter-section" style="background: linear-gradient(135deg, #0066cc 0%, #004c99 100%); color:#fff;">
         <center><h5>📢 Notifikasi Aktivitas</h5></center>
@@ -22,12 +21,12 @@
 
     {{-- FILTER (SERVER SIDE) --}}
     <div class="filter-section">
+        <h5>Filter</h5>
         <form method="GET">
             <div class="filter-row">
                 <div class="filter-group">
-                    <label>STATUS</label>
                     <select name="status" class="filter-select" onchange="this.form.submit()">
-                        <option value="all">Semua</option>
+                        <option value="all">Status</option>
                         <option value="unread" {{ request('status')=='unread'?'selected':'' }}>Belum Dibaca</option>
                         <option value="read" {{ request('status')=='read'?'selected':'' }}>Sudah Dibaca</option>
                     </select>
@@ -35,9 +34,8 @@
 
                 @if($user && $user->role === 'admin')
                 <div class="filter-group">
-                    <label>KATEGORI</label>
                     <select name="type" class="filter-select" onchange="this.form.submit()">
-                        <option value="all">Semua</option>
+                        <option value="all">Kategori</option>
                         <option value="barang" {{ request('type')=='barang'?'selected':'' }}>Barang</option>
                         <option value="lantai" {{ request('type')=='lantai'?'selected':'' }}>Lantai</option>
                         <option value="ruangan" {{ request('type')=='ruangan'?'selected':'' }}>Ruangan</option>
@@ -48,6 +46,8 @@
         </form>
     </div>
 
+    <div class="notif-list-wrapper">
+    <h5 class="notif-list-title">Notifikasi</h5>
     {{-- LIST NOTIFIKASI --}}
     @forelse($notifications as $notif)
         @php
@@ -93,6 +93,7 @@
         {{ $notifications->onEachSide(1)->links('pagination::bootstrap-5') }}
     </div>
     @endif
+</div>
 
 </div>
 @endsection

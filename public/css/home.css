@@ -1,3 +1,8 @@
+/* Reset dan Base */
+* {
+    box-sizing: border-box;
+}
+
 /* Welcome Card */
 .welcome-card { 
     text-align: center; 
@@ -23,7 +28,7 @@
 }
 
 .welcome-card h2 { 
-    font-size: 32px; 
+    font-size: clamp(24px, 5vw, 32px);
     margin-bottom: 10px;
     font-weight: 700;
     position: relative;
@@ -31,7 +36,7 @@
 }
 
 .welcome-card p {
-    font-size: 16px;
+    font-size: clamp(14px, 4vw, 16px);
     opacity: 0.95;
     position: relative;
     z-index: 1;
@@ -45,20 +50,25 @@
     margin-bottom: 30px; 
 }
 
-.chart-container {
+.chart-container,
+.top-items-container {
     background: white;
     padding: 25px;
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     border: 1px solid rgba(0, 102, 204, 0.1);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    transition: transform 0.3s, box-shadow 0.3s;
 }
 
-.chart-container h3 {
-    font-size: 15px;
+.chart-container:hover,
+.top-items-container:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(0, 102, 204, 0.15);
+}
+
+.chart-container h3,
+.top-items-container h3 {
+    font-size: clamp(14px, 4vw, 15px);
     color: #1f2937;
     margin-bottom: 20px;
     font-weight: 600;
@@ -66,54 +76,81 @@
 }
 
 .chart-wrapper {
-    width: 200px;
-    height: 200px;
+    width: 100%;
+    max-width: 250px;
+    height: auto;
+    margin: 0 auto;
+    position: relative;
 }
 
-.top-items-container {
-    background: white;
-    padding: 25px;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    border: 1px solid rgba(0, 102, 204, 0.1);
-}
-
-.top-items-container h3 {
-    font-size: 15px;
-    color: #1f2937;
-    margin-bottom: 20px;
-    font-weight: 600;
+.chart-wrapper canvas {
+    width: 100% !important;
+    height: auto !important;
 }
 
 .bar-chart-wrapper {
     width: 100%;
-    height: 250px;
+    min-height: 250px;
+    position: relative;
 }
 
-/* Lantai Section */
-.lantai-header { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    margin-bottom: 25px;
-    flex-wrap: wrap;
-    gap: 15px;
+.bar-chart-wrapper canvas {
+    width: 100% !important;
+    height: 100% !important;
 }
 
-.lantai-header h3 { 
-    font-size: 24px; 
-    color: #1f2937;
-    font-weight: 700;
+/* Card Container */
+.card {
+    background: transparent;
+    margin-top: 20px;
 }
 
+/* Lantai Header Actions */
 .lantai-header-actions {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     flex-wrap: wrap;
-    justify-content: flex-end;  
-    margin-left: auto;
+    justify-content: flex-end;
+    margin-bottom: 25px;
 }
-    
+
+.btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-success {
+    background: #10b981;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-primary {
+    background: #0066cc;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #0052a3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+}
+
+/* Lantai Grid */
 .lantai-grid { 
     display: grid; 
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
@@ -164,7 +201,7 @@
 }
 
 .lantai-card h4 { 
-    font-size: 22px; 
+    font-size: clamp(18px, 5vw, 22px); 
     margin-bottom: 15px; 
     color: #0066cc;
     font-weight: 700;
@@ -198,12 +235,12 @@
 }
 
 .lantai-card-actions button { 
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     cursor: pointer; 
     font-size: 16px; 
-    padding: 8px; 
+    padding: 0;
     color: #6b7280;
     transition: all 0.3s;
     width: 32px;
@@ -228,7 +265,7 @@
 
 .empty-state h3 {
     color: #6b7280;
-    font-size: 20px;
+    font-size: clamp(18px, 5vw, 20px);
     margin-bottom: 10px;
 }
 
@@ -259,6 +296,7 @@
     padding: 0; 
     margin: 0; 
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .page-item { 
@@ -304,35 +342,256 @@
     border-color: #e5e7eb;
 }
 
-.page-item.disabled .page-link:hover { 
-    background: #f9fafb; 
-    border-color: #e5e7eb;
-    color: #d1d5db;
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background-color: white;
+    margin: 50px auto;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    animation: slideIn 0.3s;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #1f2937;
+    font-size: clamp(18px, 5vw, 20px);
+}
+
+.modal-header .close {
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #9ca3af;
+    transition: color 0.3s;
+}
+
+.modal-header .close:hover {
+    color: #ef4444;
+}
+
+.modal-body {
+    padding: 25px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #0066cc;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+.form-group textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1200px) {
+    .dashboard-grid {
+        gap: 15px;
+    }
+    
+    .chart-container,
+    .top-items-container {
+        padding: 20px;
+    }
 }
 
 @media (max-width: 992px) {
     .dashboard-grid {
         grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .chart-wrapper {
+        max-width: 200px;
+    }
+    
+    .bar-chart-wrapper {
+        min-height: 300px;
     }
 }
 
 @media (max-width: 768px) {
+    .welcome-card {
+        padding: 30px 20px;
+    }
+    
+    .dashboard-grid {
+        gap: 15px;
+    }
+    
+    .chart-container,
+    .top-items-container {
+        padding: 15px;
+    }
+    
+    .chart-wrapper {
+        max-width: 180px;
+    }
+    
+    .bar-chart-wrapper {
+        min-height: 350px;
+    }
+    
     .pagination-wrapper {
         justify-content: center;
+        flex-direction: column;
     }
+    
     .pagination-info {
         width: 100%;
         text-align: center;
     }
+    
+    .pagination-nav {
+        justify-content: center;
+    }
+    
+    .pagination {
+        justify-content: center;
+    }
+    
+    .lantai-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .lantai-header-actions {
+        justify-content: center;
+    }
+    
+    .btn {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+    
+    .modal-content {
+        margin: 20px auto;
+        width: 95%;
+    }
+    
+    .modal-header,
+    .modal-body {
+        padding: 15px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .welcome-card h2 {
+        font-size: 20px;
+    }
+    
+    .welcome-card p {
+        font-size: 12px;
+    }
+    
     .chart-wrapper {
-        width: 150px;
-        height: 150px;
+        max-width: 150px;
     }
+    
     .bar-chart-wrapper {
-        height: 300px;
+        min-height: 280px;
     }
-    .lantai-header {
-        flex-direction: column;
-        align-items: flex-start;
+    
+    .lantai-card {
+        padding: 20px;
+    }
+    
+    .lantai-card h4 {
+        font-size: 18px;
+    }
+    
+    .page-link {
+        min-width: 32px;
+        height: 32px;
+        font-size: 12px;
+    }
+    
+    .btn {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+    
+    .lantai-card-actions button {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+    }
+}
+
+/* Touch Device Optimization */
+@media (hover: none) and (pointer: coarse) {
+    .btn,
+    .lantai-card,
+    .page-link,
+    .lantai-card-actions button {
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    .btn:active,
+    .lantai-card:active,
+    .page-link:active {
+        transform: scale(0.98);
     }
 }

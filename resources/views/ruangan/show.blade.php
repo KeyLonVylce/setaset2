@@ -10,10 +10,11 @@
 
 {{-- Breadcrumb --}}
 <div class="breadcrumb">
-    <a href="{{ route('home') }}">Home</a> /
+    <a href="{{ route('home') }}">Home</a> / 
     <a href="{{ route('lantai.show', $ruangan->lantai_id) }}">
-    {{ optional($ruangan->lantai)->nama_lantai ?? '-' }}
-</a>
+    {{ optional($ruangan->lantai)->nama_lantai ?? '-' }} 
+</a> / 
+<span>{{ $ruangan->nama_ruangan ?? '-' }}</span>
 </div>
 
 <div class="card">
