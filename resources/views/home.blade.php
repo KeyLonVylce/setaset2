@@ -22,7 +22,7 @@
         </div>
     </div>
     
-    <div class="top-items-container">
+    <div class="chart-container">
         <h3>📈 Top 5 Barang Terbanyak</h3>
         <div class="bar-chart-wrapper">
             <canvas id="topBarangsChart"></canvas>
@@ -30,8 +30,9 @@
     </div>
 </div>
 
-<div class="card">
-    <div class="lantai-header-actions">
+<div class="laporan-container">
+    <h3>Laporan</h3>
+    <div style="display:flex; gap:10px; margin-bottom:20px;">
         <a href="{{ route('laporan.periodik') }}" class="btn btn-success">
             📊 Tabel Periodik
         </a>
@@ -39,13 +40,20 @@
         <a href="{{ route('pemindahan.laporanpindahbarang') }}" class="btn btn-success">
             🔄 Laporan Pindah Barang
         </a>
-
-        @if(Auth::guard('stafaset')->user()->isAdmin())
-            <button class="btn btn-primary" onclick="openAddLantaiModal()">
-                + Tambah Lantai
-            </button>
-        @endif
     </div>
+</div>
+
+<div class="card">
+    <div class="lantai-header">
+        <h3>Daftar Lantai</h3>
+    <div class="lantai-header-actions">
+    @if(Auth::guard('stafaset')->user()->isAdmin())
+        <button class="btn btn-primary" onclick="openAddLantaiModal()">
+            + Tambah Lantai
+        </button>
+    @endif
+    </div>
+</div>
 
     @if($lantais->count() > 0)
     <div class="lantai-grid">
@@ -56,30 +64,31 @@
                 <button onclick="event.preventDefault(); openEditLantaiModal({{ $lantai->id }}, '{{ addslashes($lantai->nama_lantai) }}', '{{ addslashes($lantai->keterangan ?? '') }}')" title="Edit">✏️</button>
                 
                 <form action="{{ route('lantai.destroy', $lantai->id) }}" method="POST" style="display: inline;">
-                    @csrf
-                    @method('DELETE')
-                    
-                    @if($lantai->ruangans_count > 0)
-                    <button type="button" title="Hapus"
-                        onclick="showConfirm({
-                            title: 'Tidak Bisa Hapus Lantai',
-                            message: 'Lantai <strong>{{ addslashes($lantai->nama_lantai) }}</strong> masih memiliki <strong>{{ $lantai->ruangans_count }} ruangan</strong>.<br><br>Harap hapus semua ruangan terlebih dahulu sebelum menghapus lantai ini.',
-                            type: 'warning',
-                            confirmText: '✓ Mengerti',
-                            showConfirmOnly: true,
-                            onConfirm: function() {}
-                        })">🗑️</button>
-                    @else
-                    <button type="button" title="Hapus"
-                        onclick="var f=this.closest('form'); showConfirm({
-                            title: 'Hapus Lantai?',
-                            message: 'Yakin ingin menghapus <strong>{{ addslashes($lantai->nama_lantai) }}</strong>?',
-                            type: 'danger',
-                            confirmText: '🗑️ Ya, Hapus',
-                            onConfirm: function() { f.submit(); }
-                        })">🗑️</button>
-                    @endif
-                </form>
+    @csrf
+    @method('DELETE')
+
+    @if($lantai->ruangans_count > 0)
+    <button type="button" title="Hapus"
+        onclick="showConfirm({
+            title: 'Tidak Bisa Hapus Lantai',
+            message: 'Lantai <strong>{{ addslashes($lantai->nama_lantai) }}</strong> masih memiliki <strong>{{ $lantai->ruangans_count }} ruangan</strong>.<br><br>Harap hapus semua ruangan terlebih dahulu sebelum menghapus lantai ini.',
+            type: 'warning',
+            confirmText: '✓ Mengerti',
+            showConfirmOnly: true,
+            onConfirm: function() {}
+        })">🗑️</button>
+    @else
+    <button type="button" title="Hapus"
+        onclick="var f=this.closest('form'); showConfirm({
+            title: 'Hapus Lantai?',
+            message: 'Yakin ingin menghapus <strong>{{ addslashes($lantai->nama_lantai) }}</strong>?',
+            type: 'danger',
+            confirmText: '🗑️ Ya, Hapus',
+            onConfirm: function() { f.submit(); }
+        })">🗑️</button>
+    @endif
+
+</form>
             </div>
             @endif
             <a href="{{ route('lantai.show', $lantai->id) }}" class="lantai-card">

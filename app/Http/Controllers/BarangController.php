@@ -322,7 +322,7 @@ class BarangController extends Controller
     public function periodik(Request $request)
     {
         // 1. Query PindahBarang
-        $pindahQuery = PindahBarang::with(['barang', 'asal', 'tujuan']);
+        $pindahQuery = Pindahbarang::with(['barang', 'asal', 'tujuan']);
         
         if ($request->lantai) {
             $pindahQuery->whereHas('tujuan.lantai', fn($q) => $q->where('id', $request->lantai));

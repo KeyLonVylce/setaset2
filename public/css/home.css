@@ -50,8 +50,19 @@
     margin-bottom: 30px; 
 }
 
-.chart-container,
-.top-items-container {
+.lantai-header {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center; 
+    gap: 10px;
+    flex-wrap: wrap; 
+}
+
+.lantai-header h3 {
+    margin: 0;
+}
+
+.chart-container {
     background: white;
     padding: 25px;
     border-radius: 16px;
@@ -90,19 +101,33 @@
 
 .bar-chart-wrapper {
     width: 100%;
-    min-height: 250px;
-    position: relative;
+    height: 250px;
 }
 
-.bar-chart-wrapper canvas {
-    width: 100% !important;
-    height: 100% !important;
+.laporan-container {
+    background: white;
+    padding: 25px;
+    border-radius: 16px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: 1px solid rgba(0, 102, 204, 0.1);
 }
 
-/* Card Container */
-.card {
-    background: transparent;
-    margin-top: 20px;
+.laporan-container h3 {
+    font-size: 24px; 
+    color: #1f2937;
+    font-weight: 700;
+    margin-bottom: 30px;
+}
+
+/* Lantai Section */
+.lantai-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 /* Lantai Header Actions */
