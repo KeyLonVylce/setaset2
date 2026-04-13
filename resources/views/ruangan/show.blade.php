@@ -1,275 +1,393 @@
-@extends('layouts.app') 
-<!-- Menggunakan template utama (layout) -->
+@extends('layouts.app')
 
-@section('title', $ruangan->nama_ruangan . ' - SETASET') 
-<!-- Set title halaman -->
+@section('title', $ruangan->nama_ruangan . ' - SETASET')
 
 @section('styles')
 <link rel="stylesheet" href="{{ asset('css/ruangan/show.css') }}">
-<!-- Load CSS dari folder public -->
 @endsection
 
 @section('content')
 
-{{-- Breadcrumb (navigasi lokasi halaman) --}}
+{{-- Breadcrumb --}}
 <div class="breadcrumb">
-    <a href="{{ route('home') }}">Home</a> / 
-    
+    <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp; 
     <a href="{{ route('lantai.show', $ruangan->lantai_id) }}">
-        {{ optional($ruangan->lantai)->nama_lantai ?? '-' }}
-        <!-- optional() supaya tidak error kalau null -->
-    </a> /
-    
-    <span>{{ $ruangan->nama_ruangan ?? '-' }}</span>
+    {{ optional($ruangan->lantai)->nama_lantai ?? '-' }} 
+</a> &nbsp;/ &nbsp;
+<span>{{ $ruangan->nama_ruangan ?? '-' }}</span>
 </div>
 
 <div class="card">
 
-    {{-- HEADER HALAMAN --}}
+    {{-- PAGE HEADER --}}
     <div class="page-header">
         <h2>{{ $ruangan->nama_ruangan }}</h2>
-
         <div class="action-flex">
-
-            {{-- Cek apakah user admin --}}
             @if(Auth::guard('stafaset')->user()->isAdmin())
-                <a href="{{ route('ruangan.export', $ruangan->id) }}" 
-                   class="btn btn-success" target="_blank">
-                   📄 Export
-                </a>
+                <a href="{{ route('ruangan.export', $ruangan->id) }}" class="btn btn-success" target="_blank">📄 Export</a>
             @endif
-
-            <a href="{{ route('pindah.form') }}" class="btn btn-success">
-                ✏️ Pindahkan Barang
-            </a>
-
-            <a href="{{ route('barang.create', $ruangan->id) }}" class="btn btn-primary">
-                + Tambah Barang
-            </a>
-
-            <a href="{{ route('barang.import.form', $ruangan->id) }}" class="btn btn-primary">
-                ⬆️ Import Excel
-            </a>
+            <a href="{{ route('pindah.form') }}" class="btn btn-success"> ✏️ Pindahkan Barang</a>
+            <a href="{{ route('barang.create', $ruangan->id) }}" class="btn btn-primary">+ Tambah Barang</a>
+            <a href="{{ route('barang.import.form', $ruangan->id) }}" class="btn btn-primary">⬆️ Import Excel</a>
         </div>
     </div>
 
-    {{-- SECTION INFO --}}
+    {{-- INFO SECTION WITH CHART --}}
     <div class="info-grid">
-
-        <!-- Info kiri -->
         <div class="info-section">
-            <p><strong>Lantai:</strong> 
-                {{ optional($ruangan->lantai)->nama_lantai ?? '-' }}
-            </p>
-
-            {{-- Kalau ada penanggung jawab --}}
+            <p><strong>Lantai:</strong> {{ optional($ruangan->lantai)->nama_lantai ?? '-' }}</p>
             @if($ruangan->penanggungJawab)
                 <p><strong>Penanggung Jawab:</strong> {{ $ruangan->penanggungJawab->nama }}</p>
                 <p><strong>NIP:</strong> {{ $ruangan->penanggungJawab->nip ?? '-' }}</p>
                 <p><strong>Jabatan:</strong> {{ $ruangan->penanggungJawab->jabatan ?? '-' }}</p>
             @endif
-
-            {{-- Kalau ada keterangan --}}
             @if($ruangan->keterangan)
                 <p><strong>Keterangan:</strong> {{ $ruangan->keterangan }}</p>
             @endif
-
             <p><strong>Total Barang:</strong> {{ $barangs->total() }} item</p>
-            <!-- total() = jumlah data pagination -->
         </div>
-
-        <!-- Chart kanan -->
         <div class="chart-section">
             <h3>📊 Kondisi Barang</h3>
-            <canvas id="kondisiChart"></canvas>
-            <!-- Chart.js akan render di sini -->
+            <canvas id="kondisiChart" style="max-width: 280px; max-height: 280px;"></canvas>
         </div>
     </div>
 
-    {{-- SEARCH --}}
+    {{-- SEARCH BOX --}}
     <div class="search-box">
-        <form method="GET">
-            <!-- GET supaya query masuk ke URL -->
-            <input type="text" name="search" 
-                   placeholder="Cari barang..." 
-                   value="{{ request('search') }}">
+        <form method="GET" action="">
+            <input type="text" name="search" placeholder="Cari barang..." value="{{ request('search') }}">
         </form>
-
-        <!-- Tombol mode select -->
-        <button type="button" id="toggleSelectBtn" class="btn btn-primary">✓ Pilih</button>
-        <button type="button" id="cancelSelectBtn" class="btn btn-secondary" style="display:none;">
-            ✕ Batal
-        </button>
+        {{-- Tombol Pilih / Batal --}}
+            <button type="button" id="toggleSelectBtn" class="btn btn-primary">✓ Pilih</button>
+            <button type="button" id="cancelSelectBtn" class="btn btn-secondary" style="display: none;">✕ Batal</button>
     </div>
+    
 
-    {{-- Kalau ada data --}}
     @if($barangs->count() > 0)
 
-    {{-- FORM DELETE MASSAL --}}
+    {{-- FORM UNTUK HAPUS BULK --}}
     <form id="bulkDeleteForm" action="{{ route('barang.bulk.destroy') }}" method="POST">
-        @csrf <!-- keamanan -->
-        @method('DELETE') <!-- spoof method -->
-        <input type="hidden" name="ids" id="selectedIdsInput">
+        @csrf
+        @method('DELETE')
+        <input type="hidden" name="ids" id="selectedIdsInput" value="">
     </form>
 
-    {{-- AKSI BULK --}}
+    {{-- BARIS AKSI BULK (muncul saat mode seleksi aktif) --}}
     <div id="bulkActions" class="bulk-actions">
-        <span id="selectedCount">0</span> barang dipilih
+        <div class="selected-info">
+            <span>✓</span>
+            <span id="selectedCount">0</span> barang dipilih
+        </div>
         <button type="button" class="btn btn-danger" id="deleteSelectedBtn">
             🗑️ Hapus Terpilih
         </button>
     </div>
 
-    {{-- TABEL --}}
-    <table class="table">
-        <thead>
-            <tr>
-                <!-- Checkbox pilih semua -->
-                <th><input type="checkbox" id="selectAllCheckbox"></th>
+    <div class="table-responsive" id="tableContainer">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="checkbox-col">
+                        <input type="checkbox" id="selectAllCheckbox" class="select-all-checkbox">
+                    </th>
+                    <th>No</th>
+                    <th>Kode</th>
+                    <th>
+                        {{-- Sorting untuk Nama Barang --}}
+                        Nama Barang
+                        <a href="{{ request()->fullUrlWithQuery(['direction' => ($direction == 'asc' ? 'desc' : 'asc')]) }}" 
+                        class="sort-link">
+                            @if($direction == 'asc')
+                                &#9650; {{-- panah ke atas (A-Z) --}}
+                            @else
+                                &#9660; {{-- panah ke bawah (Z-A) --}}
+                            @endif
+                        </a>
+                    </th>
+                    <th>Merk/Model</th>
+                    <th>No. Seri</th>
+                    <th>Ukuran</th>
+                    <th>Bahan</th>
+                    <th>Tahun</th>
+                    <th>Jumlah</th>
+                    <th>Kondisi</th>
+                    <th>Harga</th>
+                    <th>Total Nilai</th>
+                    <th>Keterangan</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($barangs as $i => $b)
+                <tr>
+                    <td class="checkbox-col text-center">
+                        <input type="checkbox" name="barang_ids[]" value="{{ $b->id }}" class="barang-checkbox">
+                    </td>
+                    <td>{{ $barangs->firstItem() + $i }}</td>
+                    <td>{{ $b->kode_barang ?? '-' }}</td>
+                    <td>{{ $b->nama_barang }}</td>
+                    <td>{{ $b->merk_model ?? '-' }}</td>
+                    <td>{{ $b->no_seri_pabrik ?? '-' }}</td>
+                    <td>{{ $b->ukuran ?? '-' }}</td>
+                    <td>{{ $b->bahan ?? '-' }}</td>
+                    <td>{{ $b->tahun_pembuatan ?? '-' }}</td>
+                    <td class="text-center">{{ $b->jumlah }}</td>
+                    <td>
+                        @if($b->kondisi === 'B')
+                            <span class="badge-kondisi badge-baik">Baik</span>
+                        @elseif($b->kondisi === 'KB')
+                            <span class="badge-kondisi badge-kurang">Kurang Baik</span>
+                        @elseif($b->kondisi === 'RB')
+                            <span class="badge-kondisi badge-rusak">Rusak Berat</span>
+                        @else - @endif
+                    </td>
+                    <td class="text-end">
+                        @if($b->harga_perolehan && is_numeric($b->harga_perolehan))
+                            Rp {{ number_format((float)$b->harga_perolehan, 0, ',', '.') }}
+                        @else - @endif
+                    </td>
+                    <td class="text-end">
+                        @if($b->total_nilai && is_numeric($b->total_nilai))
+                            Rp {{ number_format((float)$b->total_nilai, 0, ',', '.') }}
+                        @else - @endif
+                    </td>
+                    <td>{{ $b->keterangan ?? '-' }}</td>
+                    <td style="white-space: nowrap;">
+                        <a href="{{ route('barang.edit', $b->id) }}" class="btn btn-sm btn-primary">Edit</a>
+                        <form action="{{ route('barang.destroy', $b->id) }}" method="POST" style="display: inline;">
+                            @csrf @method('DELETE')
+                            <button type="button" class="btn btn-sm btn-danger"
+                                onclick="var f=this.closest('form'); showConfirm({
+                                    title: 'Hapus Barang?',
+                                    message: 'Yakin ingin menghapus barang ini? Data tidak dapat dikembalikan.',
+                                    type: 'danger',
+                                    confirmText: '🗑️ Ya, Hapus',
+                                    onConfirm: function() { f.submit(); }
+                                })">Hapus</button>
+                        </form>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
 
-                <th>No</th>
-                <th>Kode</th>
+    {{-- Pagination --}}
+    @if($barangs->hasPages())
+    <div class="pagination-wrapper">
+        <div class="pagination-info">
+            Menampilkan {{ $barangs->firstItem() }} sampai {{ $barangs->lastItem() }} dari {{ $barangs->total() }} entri
+        </div>
+        <div class="pagination-nav">
+            <ul class="pagination">
+                @if ($barangs->onFirstPage())
+                    <li class="page-item disabled"><span class="page-link">‹</span></li>
+                @else
+                    <li class="page-item"><a class="page-link" href="{{ $barangs->previousPageUrl() }}" rel="prev">‹</a></li>
+                @endif
 
-                <th>
-                    Nama Barang
-                    <!-- Sorting -->
-                    <a href="{{ request()->fullUrlWithQuery([
-                        'direction' => ($direction == 'asc' ? 'desc' : 'asc')
-                    ]) }}">
-                        @if($direction == 'asc') ▲ @else ▼ @endif
-                    </a>
-                </th>
-
-                <th>Merk</th>
-                <th>No Seri</th>
-                <th>Ukuran</th>
-                <th>Bahan</th>
-                <th>Tahun</th>
-                <th>Jumlah</th>
-                <th>Kondisi</th>
-                <th>Harga</th>
-                <th>Total</th>
-                <th>Keterangan</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            @foreach($barangs as $i => $b)
-            <tr>
-                <!-- Checkbox per item -->
-                <td>
-                    <input type="checkbox" value="{{ $b->id }}" class="barang-checkbox">
-                </td>
-
-                <!-- Nomor pagination -->
-                <td>{{ $barangs->firstItem() + $i }}</td>
-
-                <td>{{ $b->kode_barang ?? '-' }}</td>
-                <td>{{ $b->nama_barang }}</td>
-
-                <td>{{ $b->merk_model ?? '-' }}</td>
-                <td>{{ $b->no_seri_pabrik ?? '-' }}</td>
-                <td>{{ $b->ukuran ?? '-' }}</td>
-                <td>{{ $b->bahan ?? '-' }}</td>
-                <td>{{ $b->tahun_pembuatan ?? '-' }}</td>
-
-                <td>{{ $b->jumlah }}</td>
-
-                <!-- Kondisi -->
-                <td>
-                    @if($b->kondisi === 'B')
-                        Baik
-                    @elseif($b->kondisi === 'KB')
-                        Kurang Baik
-                    @elseif($b->kondisi === 'RB')
-                        Rusak Berat
+                @php
+                    $current = $barangs->currentPage();
+                    $last = $barangs->lastPage();
+                    $start = max(1, $current - 2);
+                    $end = min($last, $current + 2);
+                    if ($start > 1) echo '<li class="page-item"><a class="page-link" href="'.$barangs->url(1).'">1</a></li>';
+                    if ($start > 2) echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                @endphp
+                @for ($page = $start; $page <= $end; $page++)
+                    @if ($page == $current)
+                        <li class="page-item active"><span class="page-link">{{ $page }}</span></li>
+                    @else
+                        <li class="page-item"><a class="page-link" href="{{ $barangs->url($page) }}">{{ $page }}</a></li>
                     @endif
-                </td>
+                @endfor
+                @php
+                    if ($end < $last - 1) echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                    if ($end < $last) echo '<li class="page-item"><a class="page-link" href="'.$barangs->url($last).'">'.$last.'</a></li>';
+                @endphp
 
-                <!-- Format harga -->
-                <td>
-                    @if($b->harga_perolehan)
-                        Rp {{ number_format((float)$b->harga_perolehan, 0, ',', '.') }}
-                    @endif
-                </td>
-
-                <!-- Total nilai -->
-                <td>
-                    @if($b->total_nilai)
-                        Rp {{ number_format((float)$b->total_nilai, 0, ',', '.') }}
-                    @endif
-                </td>
-
-                <td>{{ $b->keterangan ?? '-' }}</td>
-
-                <!-- Aksi -->
-                <td>
-                    <a href="{{ route('barang.edit', $b->id) }}">Edit</a>
-
-                    <form action="{{ route('barang.destroy', $b->id) }}" method="POST">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit">Hapus</button>
-                    </form>
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-
-    {{-- PAGINATION --}}
-    {{ $barangs->links() }}
-    <!-- Laravel pagination -->
-
-    @else
-        <p>Tidak ada barang</p>
+                @if ($barangs->hasMorePages())
+                    <li class="page-item"><a class="page-link" href="{{ $barangs->nextPageUrl() }}" rel="next">›</a></li>
+                @else
+                    <li class="page-item disabled"><span class="page-link">›</span></li>
+                @endif
+            </ul>
+        </div>
+    </div>
     @endif
 
+    @else
+    <div class="empty-state">
+        <h3>Tidak Ada Barang</h3>
+        <p>{{ request('search') ? 'Hasil pencarian tidak ditemukan.' : 'Klik tombol "Tambah Barang" untuk memulai.' }}</p>
+    </div>
+    @endif
 </div>
 @endsection
 
 @section('scripts')
-
-<!-- Load Chart.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-
 <script>
-    // Ambil data dari Laravel ke JS
+    // Chart.js code (sama seperti sebelumnya)
     const barangs = @json($barangs->items());
-
-    let baik = 0, kb = 0, rb = 0;
-
-    // Loop data barang
-    barangs.forEach(b => {
-        if (b.kondisi === 'B') baik += parseInt(b.jumlah);
-        else if (b.kondisi === 'KB') kb += parseInt(b.jumlah);
-        else if (b.kondisi === 'RB') rb += parseInt(b.jumlah);
+    let baik = 0, kurangBaik = 0, rusakBerat = 0;
+    barangs.forEach(barang => {
+        if (barang.kondisi === 'B') baik += parseInt(barang.jumlah);
+        else if (barang.kondisi === 'KB') kurangBaik += parseInt(barang.jumlah);
+        else if (barang.kondisi === 'RB') rusakBerat += parseInt(barang.jumlah);
     });
-
-    const total = baik + kb + rb;
-
+    const total = baik + kurangBaik + rusakBerat;
     const ctx = document.getElementById('kondisiChart');
-
     if (total > 0) {
         new Chart(ctx, {
             type: 'pie',
             data: {
-                labels: ['Baik','Kurang Baik','Rusak Berat'],
+                labels: ['Baik', 'Kurang Baik', 'Rusak Berat'],
                 datasets: [{
-                    data: [baik, kb, rb]
+                    data: [baik, kurangBaik, rusakBerat],
+                    backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+                    borderWidth: 2,
+                    borderColor: '#fff'
                 }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: { size: 12 },
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                if (data.labels.length && data.datasets.length) {
+                                    return data.labels.map((label, i) => {
+                                        const value = data.datasets[0].data[i];
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return {
+                                            text: `${label}: ${value} (${percentage}%)`,
+                                            fillStyle: data.datasets[0].backgroundColor[i],
+                                            hidden: false,
+                                            index: i
+                                        };
+                                    });
+                                }
+                                return [];
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.parsed || 0;
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return context.label + ': ' + value + ' item (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
             }
+        });
+    } else {
+        ctx.parentElement.innerHTML = '<p style="text-align: center; color: #999; padding: 40px 0;">Belum ada data barang</p>';
+    }
+
+    // ---------- SELECT MODE TOGGLE ----------
+    const tableContainer = document.getElementById('tableContainer');
+    const toggleSelectBtn = document.getElementById('toggleSelectBtn');
+    const cancelSelectBtn = document.getElementById('cancelSelectBtn');
+    const bulkActionsDiv = document.getElementById('bulkActions');
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    const checkboxes = document.querySelectorAll('.barang-checkbox');
+    const selectedCountSpan = document.getElementById('selectedCount');
+    const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+    const selectedIdsInput = document.getElementById('selectedIdsInput');
+    const bulkDeleteForm = document.getElementById('bulkDeleteForm');
+
+    let selectModeActive = false;
+
+    function updateBulkUI() {
+        const checkedBoxes = Array.from(checkboxes).filter(cb => cb.checked);
+        const count = checkedBoxes.length;
+        selectedCountSpan.innerText = count;
+        if (count > 0) {
+            bulkActionsDiv.style.display = 'flex';
+        } else {
+            bulkActionsDiv.style.display = 'none';
+        }
+        // Update hidden input dengan ID yang dipilih
+        const ids = checkedBoxes.map(cb => cb.value).join(',');
+        selectedIdsInput.value = ids;
+    }
+
+    function enableSelectMode() {
+        selectModeActive = true;
+        tableContainer.classList.add('select-mode');
+        toggleSelectBtn.style.display = 'none';
+        cancelSelectBtn.style.display = 'inline-flex';
+        // Reset all checkboxes to unchecked
+        checkboxes.forEach(cb => cb.checked = false);
+        if (selectAllCheckbox) selectAllCheckbox.checked = false;
+        updateBulkUI(); // will hide bulk actions since none selected
+        // Show bulk actions bar only when there is selection, initially hidden
+    }
+
+    function disableSelectMode() {
+        selectModeActive = false;
+        tableContainer.classList.remove('select-mode');
+        toggleSelectBtn.style.display = 'inline-flex';
+        cancelSelectBtn.style.display = 'none';
+        // Hide bulk actions
+        bulkActionsDiv.style.display = 'none';
+        // Uncheck all checkboxes
+        checkboxes.forEach(cb => cb.checked = false);
+        if (selectAllCheckbox) selectAllCheckbox.checked = false;
+        // Clear selected IDs
+        selectedIdsInput.value = '';
+    }
+
+    toggleSelectBtn.addEventListener('click', enableSelectMode);
+    cancelSelectBtn.addEventListener('click', disableSelectMode);
+
+    // Event listeners untuk checkbox (hanya aktif saat mode seleksi)
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', () => {
+            if (!selectModeActive) return;
+            updateBulkUI();
+            if (selectAllCheckbox) {
+                const allChecked = Array.from(checkboxes).every(c => c.checked);
+                selectAllCheckbox.checked = allChecked;
+            }
+        });
+    });
+
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', (e) => {
+            if (!selectModeActive) return;
+            checkboxes.forEach(cb => cb.checked = e.target.checked);
+            updateBulkUI();
         });
     }
 
-    // SELECT MODE
-    let selectMode = false;
+    // Tombol hapus terpilih
+    if (deleteSelectedBtn) {
+        deleteSelectedBtn.addEventListener('click', () => {
+            const count = Array.from(checkboxes).filter(cb => cb.checked).length;
+            if (count === 0) return;
+            showConfirm({
+                title: 'Hapus Barang Terpilih?',
+                message: `Anda akan menghapus ${count} barang. Data tidak dapat dikembalikan.`,
+                type: 'danger',
+                confirmText: '🗑️ Ya, Hapus',
+                onConfirm: () => {
+                    bulkDeleteForm.submit();
+                }
+            });
+        });
+    }
 
-    document.getElementById('toggleSelectBtn').onclick = () => {
-        selectMode = true;
-    };
-
+    // Inisialisasi: pastikan mode tidak aktif saat halaman dimuat
+    disableSelectMode();
 </script>
-
 @endsection
