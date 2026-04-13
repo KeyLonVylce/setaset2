@@ -10,6 +10,7 @@
 </head>
 <body>
 
+    <!-- munculkan SweetAlert berdasarkan session (Error) -->
     @if(session('error'))
     <script>
         Swal.fire({
@@ -27,6 +28,7 @@
         <div class="loading-text">Memproses login...</div>
     </div>
     
+    <!-- Tampilan paling kiri yang berisi inforamasi mengenai aplikasi setaset -->
     <div class="login-wrapper">
         <!-- Left Side -->
         <div class="login-left">
@@ -63,13 +65,14 @@
             </div>
         </div>
         
-        <!-- Right Side -->
+        <!-- Text doang di bagian kanan (form login) -->
         <div class="login-right">
             <div class="login-header">
                 <h2>Masuk ke Sistem</h2>
                 <p>Silakan login menggunakan akun Anda</p>
             </div>
 
+            <!-- Alert untuk error login -->
             @if($errors->has('username'))
             <div class="alert alert-error">
                 <span>⚠</span>
@@ -77,6 +80,7 @@
             </div>
             @endif
 
+            <!-- Success login -->
             @if(session('success'))
             <div class="alert alert-success">
                 <span>✓</span>
@@ -84,6 +88,7 @@
             </div>
             @endif
 
+            <!-- Form login (username) -->
             <form action="{{ route('login.post') }}" method="POST">
                 @csrf
                 <div class="form-group">
@@ -94,6 +99,7 @@
                     </div>
                 </div>
 
+                <!-- Form Login (password) -->
                 <div class="form-group">
                     <label for="password">Password</label>
                     <div class="input-wrapper">
@@ -102,6 +108,7 @@
                     </div>
                 </div>
 
+                <!-- Link untuk forgot password -->
                 <div style="text-align:right; margin-top:10px;">
                     <a href="/forgot-password" style="color:#0d6efd; text-decoration:none;">
                         Lupa Password?
@@ -111,7 +118,7 @@
                 <button type="submit" class="btn-login">Masuk ke Sistem</button>
             </form>
 
-            
+            <!-- footer -->
             <div class="footer-login">
                 © {{ date('Y') }} Dinas Komunikasi dan Informatika Provinsi Jawa Barat<br>
                 Hak Cipta Dilindungi Undang-Undang

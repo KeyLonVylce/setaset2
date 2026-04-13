@@ -7,15 +7,20 @@
 @endsection
 
 @section('content')
+
+<!-- Breadcrumb-->
 <div class="breadcrumb">
     <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp;Edit Profil
 </div>
+
+<!-- header -->
 <div class="card">
     <div class="profile-header">
         <h2>Edit Profil</h2>
         <p>Perbarui informasi akun Anda</p>
     </div>
 
+    <!-- Flash message -->
     @if(session('success'))
         <div class="alert-success">{{ session('success') }}</div>
     @endif
@@ -125,6 +130,7 @@
             </div>
         </div>
 
+    <!-- tombol simpan -->
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">💾 Simpan Perubahan</button>
             <a href="{{ route('home') }}" class="btn-batal">Batal</a>
@@ -135,6 +141,7 @@
 
 @section('scripts')
 <script>
+    // Fungsi untuk toggle visibility password
     function togglePassword(id, btn) {
         const input = document.getElementById(id);
         const icon = btn.querySelector('i');
@@ -147,12 +154,14 @@
         }
     }
 
+    // Validasi form sebelum submit
     document.getElementById('profileForm').addEventListener('submit', function(e) {
         const passwordBaru = document.getElementById('password');
         const passwordLama = document.getElementById('password_lama');
         const errorPanjang = document.getElementById('passwordError');
         const errorLama   = document.getElementById('passwordLamaError');
 
+        // Reset error state
         errorPanjang.style.display = 'none';
         errorLama.style.display    = 'none';
         passwordBaru.classList.remove('is-invalid');
@@ -160,6 +169,7 @@
 
         let valid = true;
 
+        // Validasi password baru minimal 6 karakter jika diisi
         if (passwordBaru.value.length > 0 && passwordBaru.value.length < 6) {
             errorPanjang.style.display = 'block';
             passwordBaru.classList.add('is-invalid');

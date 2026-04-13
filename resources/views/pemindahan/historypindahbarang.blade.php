@@ -138,6 +138,7 @@
             </div>
             @endif
 
+            <!-- End of pagination -->
         @else
             <div class="empty-state">
                 <div class="empty-icon">📭</div>

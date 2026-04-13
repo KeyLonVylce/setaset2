@@ -11,27 +11,34 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
+
+    <!-- form forgot password -->
     <div class="form-card">
         <div class="card-inner">
             <div class="card-header">
                 <i class="fas fa-key"></i>
                 <h2>Lupa Password</h2>
             </div>
+            <!-- Hanya Text Kirim tautan reset ke email Anda -->
             <div class="sub-text">
                 <i class="fas fa-envelope-open-text" style="font-size: 0.75rem; margin-right: 6px;"></i> 
                 Kirim tautan reset ke email Anda
             </div>
 
-            <form method="POST" action="/forgot-password">
+            <!-- Form untuk input email -->
+            <form method="POST" action="/forgot-password"> <!-- method post untuk forgot password -->
                 @csrf
-                <div class="input-group">
+                <div class="input-group"> <!-- input email -->
                     <label for="email_forgot"><i class="fas fa-at"></i> Alamat Email</label>
                     <input type="email" class="input-field" id="email_forgot" name="email" placeholder="contoh@email.com" required autocomplete="email">
                 </div>
-                
+               
+                <!-- Button untuk submit form -->
                 <button type="submit" class="btn-reset">
                     <i class="fas fa-paper-plane"></i> Kirim Link Reset
                 </button>
+                
+                <!-- Link untuk kembali ke halaman login -->
                 <div class="helper-link">
                     <a href="/login"><i class="fas fa-chevron-left"></i> Kembali ke halaman masuk</a>
                 </div>
@@ -59,6 +66,7 @@
     // ✅ SweetAlert hanya muncul jika ada session
 </script>
 
+<!-- munculkan SweetAlert berdasarkan session (Sukses) -->
 @if(session('success'))
 <script>
     Swal.fire({
@@ -74,6 +82,7 @@
 </script>
 @endif
 
+<!-- munculkan SweetAlert berdasarkan session (Error) -->
 @if(session('error'))
 <script>
     Swal.fire({

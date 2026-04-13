@@ -31,6 +31,7 @@
                     </select>
                 </div>
 
+                <!-- Filter jenis notifikasi (hanya untuk admin) -->
                 @if($user && $user->role === 'admin')
                 <div class="filter-group">
                     <select name="type" class="filter-select" onchange="this.form.submit()">

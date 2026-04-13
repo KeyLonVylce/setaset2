@@ -8,7 +8,7 @@
 
 @section('content')
 
-{{-- Breadcrumb --}}
+<!-- Breadcrumb -->
 <div class="breadcrumb">
     <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp;
     <a href="{{ route('lantai.show', $ruangan->lantai_id) }}">
@@ -18,6 +18,7 @@
     Tambah Barang
 </div>
 
+<!-- Tambah Barang Form -->
 <div class="card">
     <div class="page-header">
         <h2>Tambah Barang Baru</h2>
@@ -27,6 +28,7 @@
 </p>
     </div>
 
+    <!-- Tampilkan error validasi jika ada -->
     @if($errors->any())
     <div class="alert alert-danger" style="margin-bottom: 20px; padding: 12px 15px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 6px; color: #721c24;">
         <ul style="margin: 0; padding-left: 20px;">
@@ -37,6 +39,7 @@
     </div>
     @endif
 
+    <!-- Form untuk tambah barang -->
     <form action="{{ route('barang.store', $ruangan->id) }}" method="POST">
         @csrf
 
@@ -44,6 +47,7 @@
 
             <div class="section-title">Identitas Barang</div>
 
+            <!-- Input Nama Barang -->
             <div class="form-group">
                 <label for="nama_barang">Nama Barang <span class="required">*</span></label>
                 <input type="text" id="nama_barang" name="nama_barang"
@@ -52,21 +56,24 @@
                     required>
             </div>
 
-            <div class="form-group">
+            <!-- Input Kode Barang -->
+             <div class="form-group">
                 <label for="kode_barang">Kode Barang</label>
                 <input type="text" id="kode_barang" name="kode_barang"
                     value="{{ old('kode_barang') }}"
                     placeholder="Contoh: MJ-001">
             </div>
 
-            <div class="form-group">
+            <!-- input merk/model -->
+             <div class="form-group">
                 <label for="merk_model">Merk / Model</label>
                 <input type="text" id="merk_model" name="merk_model"
                     value="{{ old('merk_model') }}"
                     placeholder="Contoh: Futura Type A">
             </div>
 
-            <div class="form-group">
+            <!-- input no seri pabrik -->
+             <div class="form-group">
                 <label for="no_seri_pabrik">No. Seri Pabrik</label>
                 <input type="text" id="no_seri_pabrik" name="no_seri_pabrik"
                     value="{{ old('no_seri_pabrik') }}"
@@ -75,21 +82,24 @@
 
             <div class="section-title">Spesifikasi</div>
 
-            <div class="form-group">
+            <!-- input ukuran -->
+             <div class="form-group">
                 <label for="ukuran">Ukuran</label>
                 <input type="text" id="ukuran" name="ukuran"
                     value="{{ old('ukuran') }}"
                     placeholder="Contoh: 120x60x75 cm">
             </div>
 
-            <div class="form-group">
+            <!-- input bahan -->
+             <div class="form-group">
                 <label for="bahan">Bahan</label>
                 <input type="text" id="bahan" name="bahan"
                     value="{{ old('bahan') }}"
                     placeholder="Contoh: Kayu, Besi, Plastik">
             </div>
 
-            <div class="form-group">
+            <!-- input tahun pembuatan -->
+             <div class="form-group">
                 <label for="tahun_pembuatan">Tahun Pembuatan</label>
                 <input type="number" id="tahun_pembuatan" name="tahun_pembuatan"
                     value="{{ old('tahun_pembuatan') }}"
@@ -97,7 +107,8 @@
                     placeholder="{{ date('Y') }}">
             </div>
 
-            <div class="form-group">
+            <!-- input jumlah -->
+             <div class="form-group">
                 <label for="jumlah">Jumlah <span class="required">*</span></label>
                 <input type="number" id="jumlah" name="jumlah"
                     value="{{ old('jumlah', 1) }}"
@@ -106,7 +117,8 @@
 
             <div class="section-title">Kondisi & Nilai</div>
 
-            <div class="form-group">
+            <!-- input kondisi -->
+             <div class="form-group">
                 <label for="kondisi">Kondisi <span class="required">*</span></label>
                 <select id="kondisi" name="kondisi" required>
                     <option value="">-- Pilih Kondisi --</option>
@@ -116,7 +128,8 @@
                 </select>
             </div>
 
-            <div class="form-group">
+            <!-- input harga perolehan -->
+             <div class="form-group">
                 <label for="harga_perolehan">Harga Perolehan (Rp)</label>
                 <input type="number" id="harga_perolehan" name="harga_perolehan"
                     value="{{ old('harga_perolehan') }}"
@@ -124,7 +137,8 @@
                     placeholder="0">
             </div>
 
-            <div class="form-group">
+            <!-- input total nilai -->
+             <div class="form-group">
                 <label for="total_nilai">Total Nilai (Rp)</label>
                 <input type="number" id="total_nilai" name="total_nilai"
                     value="{{ old('total_nilai') }}"
@@ -132,6 +146,7 @@
                     placeholder="0" readonly style="background-color: #f9fafb;">
             </div>
 
+            <!-- input keterangan -->
             <div class="form-group full-width">
                 <label for="keterangan">Keterangan</label>
                 <textarea id="keterangan" name="keterangan" rows="3"
@@ -140,6 +155,7 @@
 
         </div>
 
+        <!-- tombol simpan barang dan batal -->
         <div class="form-actions">
             <button type="submit" class="btn btn-success">💾 Simpan Barang</button>
             <a href="{{ route('ruangan.show', $ruangan->id) }}" class="btn btn-danger">Batal</a>
@@ -151,12 +167,13 @@
 
 @section('scripts')
 <script>
+    // Script untuk menghitung total nilai secara otomatis
     document.addEventListener('DOMContentLoaded', function() {
         const jumlahInput = document.getElementById('jumlah');
         const hargaInput = document.getElementById('harga_perolehan');
         const totalInput = document.getElementById('total_nilai');
 
-        function updateTotal() {
+        function updateTotal() { // Fungsi untuk menghitung total nilai
             const jumlah = parseInt(jumlahInput.value) || 0;
             const harga = parseFloat(hargaInput.value) || 0;
             totalInput.value = jumlah * harga;

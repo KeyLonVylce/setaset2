@@ -3,49 +3,7 @@
 @section('title', 'Laporan Bulanan Barang')
 
 @section('styles')
-<style>
-.header-box {
-    background: linear-gradient(135deg,#0066cc,#004c99);
-    color:white;
-    padding:20px;
-    border-radius:12px;
-    margin-bottom:20px;
-}
-
-.filter-box {
-    background:white;
-    padding:20px;
-    border-radius:12px;
-    margin-bottom:20px;
-    box-shadow:0 4px 15px rgba(0,0,0,0.05);
-}
-
-.filter-box form {
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-    align-items:center;
-}
-
-select, input {
-    padding:8px 12px;
-    border-radius:8px;
-    border:1px solid #ddd;
-}
-
-.table-box {
-    background:white;
-    padding:20px;
-    border-radius:12px;
-}
-
-.badge {
-    background:#e0f2fe;
-    color:#0369a1;
-    padding:4px 10px;
-    border-radius:20px;
-}
-</style>
+<link rel="stylesheet" href="{{ asset('css/laporan_bulanan/barang.css') }}">
 @endsection
 
 

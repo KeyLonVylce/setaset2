@@ -6,11 +6,13 @@
 <link rel="stylesheet" href="{{ asset('css/lantai/show.css') }}">
 @endsection
 
+<!-- Breadcrumb -->
 @section('content')
 <div class="breadcrumb">
     <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp;{{ $lantai->nama_lantai }}
 </div>
 
+<!-- Tampilan utama halaman show lantai yang menampilkan daftar ruangan -->
 <div class="card">
     <div class="page-header">
         <h2>{{ $lantai->nama_lantai }}</h2>
@@ -24,6 +26,7 @@
         </div>
     </div>
 
+    <!-- Tampilkan keterangan lantai jika ada, dan jumlah total ruangan -->
     @if($lantai->keterangan || $ruangans->total() > 0)
     <div class="lantai-info">
         @if($lantai->keterangan)
@@ -33,6 +36,7 @@
     </div>
     @endif
 
+    <!-- Tampilkan daftar ruangan dalam bentuk grid -->
     @if($ruangans->count() > 0)
     <div class="ruangan-grid">
         @foreach($ruangans as $ruangan)
@@ -45,6 +49,7 @@
                     '{{ addslashes($ruangan->keterangan ?? '') }}'
                 )" title="Edit Ruangan">✏️</button>
 
+                <!-- Form untuk delete ruangan -->
                 <form action="{{ route('ruangan.destroy', $ruangan->id) }}" method="POST" style="display: inline;">
                     @csrf
                     @method('DELETE')
@@ -58,6 +63,7 @@
                         })">🗑️</button>
                 </form>
             </div>
+
             @endif
             <a href="{{ route('ruangan.show', $ruangan->id) }}" class="ruangan-card">
                 <h3>{{ $ruangan->nama_ruangan }}</h3>
@@ -171,6 +177,7 @@
 
 @section('scripts')
 <script>
+    // Fungsi untuk membuka dan menutup modal tambah/edit ruangan
     function openAddRuanganModal() {
         document.getElementById('addRuanganModal').style.display = 'flex';
     }
@@ -178,6 +185,7 @@
         document.getElementById('addRuanganModal').style.display = 'none';
     }
 
+    // Fungsi untuk membuka modal edit ruangan dengan data yang sudah terisi
     function openEditRuanganModal(id, nama, keterangan) {
         document.getElementById('editRuanganForm').action = '/admin/ruangan/' + id;
         document.getElementById('edit_nama_ruangan').value = nama;

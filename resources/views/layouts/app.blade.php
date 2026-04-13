@@ -39,6 +39,7 @@
                 </div>
             </div>
             
+            <!-- Bagian user info, notifikasi, dan tombol staff (hanya untuk admin) -->
             <div class="user-section">
             @if(Auth::guard('stafaset')->user()->isAdmin())
                 <a href="{{ route('staff.index') }}" class="staff-button">

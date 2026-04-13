@@ -7,12 +7,15 @@
 @endsection
 
 @section('content')
+
+<!-- Header -->
 <div class="pemindahan-container">
     <div class="pemindahan-header">
         <h1>Pemindahan Barang</h1>
         <p>Pindahkan barang dari satu lokasi ke lokasi lainnya</p>
     </div>
 
+    <!-- session success atau error -->   
     @if(session('success'))
         <div class="alert alert-success">
             ✓ {{ session('success') }}
@@ -33,6 +36,7 @@
         <form id="moveForm" action="{{ route('barang.pindah.store') }}" method="POST">
             @csrf
 
+            <!-- Dropdown untuk memilih lantai dan ruangan asal, serta barang yang akan dipindahkan -->
             <div class="form-group" id="group_lantai_asal">
                 <label for="lantai_asal">Pilih Lantai Asal <span class="text-danger">*</span></label>
                 <select id="lantai_asal" class="form-control">
@@ -44,22 +48,25 @@
                 <div class="error-message" id="error_lantai_asal"></div>
             </div>
 
+            <!-- Dropdown ruangan asal, akan terisi berdasarkan lantai yang dipilih -->
             <div class="form-group" id="group_ruangan_asal">
                 <label for="ruangan_asal">Pilih Ruangan Asal <span class="text-danger">*</span></label>
                 <select id="ruangan_asal" class="form-control" disabled>
-                    <option value="">-- Pilih lantai terlebih dahulu --</option>
+                    <option value="">-- Pilih lantai terlebih dahulu --</option> <!-- opsi akan diisi oleh lantai yang ada -->
                 </select>
                 <div class="error-message" id="error_ruangan_asal"></div>
             </div>
 
+            <!-- Dropdown barang, akan terisi berdasarkan ruangan asal yang dipilih -->
             <div class="form-group" id="group_barang">
                 <label for="barang_id">Pilih Barang yang Akan Dipindahkan <span class="text-danger">*</span></label>
                 <select name="barang_id" id="barang_id" class="form-control" required disabled>
-                    <option value="">-- Pilih ruangan terlebih dahulu --</option>
+                    <option value="">-- Pilih ruangan terlebih dahulu --</option><!-- opsi akan diisi oleh ruangan yang ada -->
                 </select>
                 <div class="error-message" id="error_barang"></div>
             </div>
 
+            <!-- Info stok barang yang dipilih -->
             <div class="form-group" id="stock_info" style="display: none;">
                 <div class="info-box">
                     <span class="label-small">Stok tersedia:</span>
@@ -69,6 +76,7 @@
                 </div>
             </div>
 
+            <!-- Input jumlah barang yang akan dipindahkan, dengan validasi real-time -->
             <div class="form-row">
                 <div class="form-group" id="group_jumlah">
                     <label for="jumlah_pindah">Jumlah yang Dipindahkan <span class="text-danger">*</span></label>
@@ -76,20 +84,22 @@
                     <div class="error-message" id="error_jumlah"></div>
                 </div>
 
-                <div class="form-group" id="group_ruangan_tujuan">
+                <!-- Dropdown ruangan tujuan, akan terisi berdasarkan ruangan asal yang dipilih -->              <div class="form-group" id="group_ruangan_tujuan">
                     <label for="ruangan_tujuan">Ruangan Tujuan <span class="text-danger">*</span></label>
                     <select name="ruangan_tujuan" id="ruangan_tujuan" class="form-control" required>
-                        <option value="">-- Pilih lokasi tujuan --</option>
+                        <option value="">-- Pilih lokasi tujuan --</option><!-- opsi akan diisi oleh ruangan yang ada, kecuali ruangan asal -->
                     </select>
                     <div class="error-message" id="error_ruangan_tujuan"></div>
                 </div>
             </div>
 
+            <!-- Input catatan pemindahan (opsional) -->
             <div class="form-group">
                 <label for="notes">Catatan (Opsional)</label>
                 <textarea name="notes" id="notes" class="form-control" rows="3" placeholder="Tambahkan catatan pemindahan jika diperlukan...">{{ old('notes') }}</textarea>
             </div>
 
+            <!-- Tombol submit dengan konfirmasi -->
             <div class="form-actions">
             <a href="{{ auth()->guard('stafaset')->user()?->role === 'admin' ? route('pemindahan.laporanpindahbarang') : route('home') }}" class="btn btn-dark">
                 ← Kembali

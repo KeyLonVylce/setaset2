@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ asset('css/auth/reset-password.css') }}">
 </head>
 <body>
+        <!-- form reset password -->
     <div class="form-card">
         <div class="card-inner">
             <div class="card-header">
@@ -20,23 +21,28 @@
                 <i class="fas fa-shield-alt"></i> Buat password baru yang kuat
             </div>
 
+            <!-- method post untuk reset password -->
             <form method="POST" action="/reset-password/{{ $token }}">
                 @csrf
 
+                <!-- input password baru -->
                 <div class="input-group">
                     <label for="new_password"><i class="fas fa-lock"></i> Password Baru</label>
                     <input type="password" class="input-field" id="new_password" name="password" placeholder="Minimal 8 karakter" required autocomplete="new-password">
                     <div class="hint"><i class="fas fa-info-circle"></i> Gunakan kombinasi huruf, angka & simbol</div>
                 </div>
 
+                <!-- konfirmasi password kembali-->
                 <div class="input-group">
                     <label for="password_confirm"><i class="fas fa-check-circle"></i> Konfirmasi Password</label>
                     <input type="password" class="input-field" id="password_confirm" name="password_confirmation" placeholder="Ketik ulang password baru" required autocomplete="off">
                 </div>
 
+                    <!-- Button untuk submit form -->
                 <button type="submit" class="btn-reset">
                     <i class="fas fa-sync-alt"></i> Reset Password
                 </button>
+                <!-- Link untuk kembali ke halaman login -->
                 <div class="helper-link">
                     <a href="/login"><i class="fas fa-sign-in-alt"></i> Ke Halaman Login</a>
                 </div>
@@ -45,11 +51,13 @@
     </div>
 
     <script>
+        // Validasi kecocokan password dan konfirmasi password secara real-time
         (function() {
             const resetForm = document.querySelector('form');
             const passwordInput = resetForm.querySelector('input[name="password"]');
             const confirmInput = resetForm.querySelector('input[name="password_confirmation"]');
 
+            // Jika kedua input ditemukan, tambahkan validasi
             if (passwordInput && confirmInput) {
                 // Buat elemen pesan error
                 let errorSpan = document.createElement('div');
@@ -66,6 +74,7 @@
                 errorSpan.style.padding = '0.3rem 0.8rem';
                 errorSpan.style.width = 'fit-content';
 
+                // Tempatkan pesan error di bawah input konfirmasi password
                 const confirmGroup = confirmInput.closest('.input-group');
                 if (confirmGroup && !confirmGroup.querySelector('.match-error')) {
                     errorSpan.className = 'match-error';
@@ -73,31 +82,31 @@
                 }
 
                 function validateMatch() {
-                    const pass = passwordInput.value;
-                    const confirm = confirmInput.value;
-                    if (confirm.length > 0 && pass !== confirm) {
+                    const pass = passwordInput.value; // Ambil nilai password utama
+                    const confirm = confirmInput.value; // Ambil nilai konfirmasi password
+                    if (confirm.length > 0 && pass !== confirm) { // Jika konfirmasi tidak kosong dan tidak cocok
                         errorSpan.innerHTML = '<i class="fas fa-exclamation-circle" style="font-size: 0.65rem;"></i> Password dan konfirmasi tidak cocok';
                         errorSpan.style.display = 'flex';
                         confirmInput.style.borderColor = '#f97316';
                         confirmInput.style.boxShadow = '0 0 0 2px rgba(249,115,22,0.2)';
-                    } else if (confirm.length > 0 && pass === confirm) {
+                    } else if (confirm.length > 0 && pass === confirm) { // Jika konfirmasi tidak kosong dan cocok
                         errorSpan.innerHTML = '<i class="fas fa-check-circle" style="color:#10b981;"></i> Password cocok';
                         errorSpan.style.color = '#0e6b3e';
                         errorSpan.style.backgroundColor = '#e3f7ec';
                         confirmInput.style.borderColor = '#10b981';
                         confirmInput.style.boxShadow = '0 0 0 2px rgba(16,185,129,0.2)';
-                    } else {
+                    } else { // Jika konfirmasi kosong, sembunyikan pesan error
                         errorSpan.style.display = 'none';
                         confirmInput.style.borderColor = '#e2e8f0';
                         confirmInput.style.boxShadow = 'none';
                     }
                 }
 
-                passwordInput.addEventListener('input', validateMatch);
-                confirmInput.addEventListener('input', validateMatch);
+                passwordInput.addEventListener('input', validateMatch); // Validasi ulang saat password utama diubah
+                confirmInput.addEventListener('input', validateMatch);// Validasi saat form disubmit
 
                 resetForm.addEventListener('submit', function(e) {
-                    if (passwordInput.value !== confirmInput.value) {
+                    if (passwordInput.value !== confirmInput.value) { // Validasi terakhir saat submit
                         e.preventDefault();
                         errorSpan.innerHTML = '<i class="fas fa-ban"></i> Harap pastikan password dan konfirmasi sama!';
                         errorSpan.style.display = 'flex';
@@ -107,7 +116,7 @@
                         confirmInput.style.borderColor = '#dc2626';
                         return false;
                     }
-                    if (passwordInput.value.length > 0 && passwordInput.value.length < 6) {
+                    if (passwordInput.value.length > 0 && passwordInput.value.length < 6) { // Validasi panjang password minimal 6 karakter
                         e.preventDefault();
                         alert('⚠️ Password minimal 6 karakter untuk keamanan yang lebih baik.');
                         passwordInput.focus();

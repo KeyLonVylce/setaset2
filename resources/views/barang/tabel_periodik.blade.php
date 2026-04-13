@@ -43,7 +43,7 @@
                 </select>
             </div>
 
-            <!-- RUANGAN — $ruangans adalah array dari controller -->
+            <!-- RUANGAN -->
             <div class="filter-item">
                 <label>Ruangan</label>
                 <select name="ruangan" id="ruanganSelect" disabled>
@@ -96,6 +96,8 @@
             <div>
                 <button type="submit" class="btn btn-primary">Terapkan</button>
             </div>
+
+            <!-- Tombol export Excel -->
             <div>
                 <a href="{{ route('laporan.periodik.export', request()->query()) }}"
                    class="btn btn-success">📥 Export Excel</a>
@@ -129,6 +131,7 @@
                         {{ $log['kode_barang'] ?? '—' }}
                     </td>
 
+                    <!-- Aktivitas tambah edit dll dengan badge warna-warni -->
                     <td>
                         @if($log['aktivitas'] === 'tambah')
                             <span class="badge-akt badge-tambah">➕ Tambah</span>
@@ -141,6 +144,7 @@
                         @endif
                     </td>
 
+                    <!-- dari -->
                     <td>
                         @if(!empty($log['dari']) && $log['dari'] !== '-')
                             <span class="room-tag">{{ $log['dari'] }}</span>
@@ -152,6 +156,7 @@
                         @endif
                     </td>
 
+                    <!-- KE -->
                     <td>
                         @if(!empty($log['ke']) && $log['ke'] !== '-')
                             <span class="room-tag">{{ $log['ke'] }}</span>
@@ -163,6 +168,7 @@
                         @endif
                     </td>
 
+                    <!-- TANGGAL -->
                     <td style="white-space:nowrap;" data-timestamp="{{ strtotime($log['created_at']) }}">
                         <div style="font-size:13px;">
                             {{ \Carbon\Carbon::parse($log['created_at'])->translatedFormat('d F Y') }}
@@ -172,6 +178,7 @@
                         </div>
                     </td>
 
+                    <!-- TOMBOL DETAIL KETERANGAN -->
                     <td>
                         <button class="btn-detail" onclick="toggleKet({{ $i }}, this)">
                             <span class="icon">▼</span> Detail

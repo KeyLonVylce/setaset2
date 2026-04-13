@@ -18,12 +18,14 @@
     Edit Barang
 </div>
 
+<!-- Edit Barang Form -->
 <div class="card">
     <div class="page-header">
         <h2>Edit Barang</h2>
         <p style="color: #666; margin-top: 5px;">Ruangan: <strong>{{ $ruangan->nama_ruangan }}</strong> — {{ $ruangan->lantai->nama_lantai }}</p>
     </div>
 
+    <!-- Tampilkan error validasi jika ada -->
     @if($errors->any())
     <div class="alert alert-danger" style="margin-bottom: 20px; padding: 12px 15px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 6px; color: #721c24;">
         <ul style="margin: 0; padding-left: 20px;">
@@ -34,6 +36,7 @@
     </div>
     @endif
 
+    <!-- Form untuk edit barang -->
     <form action="{{ route('barang.update', $barang->id) }}" method="POST">
         @csrf
         @method('PUT')
@@ -42,6 +45,7 @@
 
             <div class="section-title">Identitas Barang</div>
 
+            <!-- edit nama barang -->
             <div class="form-group">
                 <label for="nama_barang">Nama Barang <span class="required">*</span></label>
                 <input type="text" id="nama_barang" name="nama_barang"
@@ -50,6 +54,7 @@
                     required>
             </div>
 
+            <!-- edit kode barang -->
             <div class="form-group">
                 <label for="kode_barang">Kode Barang</label>
                 <input type="text" id="kode_barang" name="kode_barang"
@@ -57,6 +62,7 @@
                     placeholder="Contoh: MJ-001">
             </div>
 
+            <!-- edit merk/model -->
             <div class="form-group">
                 <label for="merk_model">Merk / Model</label>
                 <input type="text" id="merk_model" name="merk_model"
@@ -64,6 +70,7 @@
                     placeholder="Contoh: Futura Type A">
             </div>
 
+            <!-- edit no seri pabrik -->
             <div class="form-group">
                 <label for="no_seri_pabrik">No. Seri Pabrik</label>
                 <input type="text" id="no_seri_pabrik" name="no_seri_pabrik"
@@ -73,6 +80,7 @@
 
             <div class="section-title">Spesifikasi</div>
 
+            <!-- edit ukuran -->
             <div class="form-group">
                 <label for="ukuran">Ukuran</label>
                 <input type="text" id="ukuran" name="ukuran"
@@ -80,6 +88,7 @@
                     placeholder="Contoh: 120x60x75 cm">
             </div>
 
+            <!-- edit bahan -->
             <div class="form-group">
                 <label for="bahan">Bahan</label>
                 <input type="text" id="bahan" name="bahan"
@@ -87,6 +96,7 @@
                     placeholder="Contoh: Kayu, Besi, Plastik">
             </div>
 
+            <!-- edit tahun pembuatan -->
             <div class="form-group">
                 <label for="tahun_pembuatan">Tahun Pembuatan</label>
                 <input type="number" id="tahun_pembuatan" name="tahun_pembuatan"
@@ -95,6 +105,7 @@
                     placeholder="{{ date('Y') }}">
             </div>
 
+            <!-- edit jumlah-->
             <div class="form-group">
                 <label for="jumlah">Jumlah <span class="required">*</span></label>
                 <input type="number" id="jumlah" name="jumlah"
@@ -104,6 +115,7 @@
 
             <div class="section-title">Kondisi & Nilai</div>
 
+            <!-- edit kondisi -->
             <div class="form-group">
                 <label for="kondisi">Kondisi <span class="required">*</span></label>
                 <select id="kondisi" name="kondisi" required>
@@ -114,6 +126,7 @@
                 </select>
             </div>
 
+            <!-- edit harga perolehan -->
             <div class="form-group">
                 <label for="harga_perolehan">Harga Perolehan (Rp)</label>
                 <input type="number" id="harga_perolehan" name="harga_perolehan"
@@ -122,6 +135,7 @@
                     placeholder="0">
             </div>
 
+            <!-- edit total nilai -->
             <div class="form-group">
                 <label for="total_nilai">Total Nilai (Rp)</label>
                 <input type="number" id="total_nilai" name="total_nilai"
@@ -131,6 +145,7 @@
                     readonly style="background-color: #f9fafb;">
             </div>
 
+            <!-- edit keterangan -->
             <div class="form-group full-width">
                 <label for="keterangan">Keterangan</label>
                 <textarea id="keterangan" name="keterangan" rows="3"
@@ -139,6 +154,7 @@
 
         </div>
 
+        <!-- tombol update barang dan batal -->
         <div class="form-actions">
             <button type="submit" class="btn btn-success">💾 Update Barang</button>
             <a href="{{ route('ruangan.show', $ruangan->id) }}" class="btn btn-danger">Batal</a>
@@ -150,6 +166,7 @@
 
 @section('scripts')
 <script>
+        // Script untuk menghitung total nilai secara otomatis
     document.addEventListener('DOMContentLoaded', function() {
         const jumlahInput = document.getElementById('jumlah');
         const hargaInput = document.getElementById('harga_perolehan');
