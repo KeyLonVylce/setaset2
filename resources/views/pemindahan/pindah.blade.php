@@ -91,9 +91,9 @@
             </div>
 
             <div class="form-actions">
-                <a href="{{ route('pemindahan.laporanpindahbarang') }}" class="btn btn-dark">
-                    ← Kembali
-                </a>
+            <a href="{{ auth()->guard('stafaset')->user()?->role === 'admin' ? route('pemindahan.laporanpindahbarang') : route('home') }}" class="btn btn-dark">
+                ← Kembali
+            </a>
                 <button type="submit" class="btn btn-primary" id="submitBtn">
                     Konfirmasi Pemindahan
                 </button>
