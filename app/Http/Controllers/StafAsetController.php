@@ -10,27 +10,40 @@ use Illuminate\Support\Facades\Auth;
 
 class StafAsetController extends Controller
 {
+    /**
+     * Menampilkan daftar semua staff (role = 'staff') dengan pagination 10 per halaman
+     */
     public function index()
     {
+        // Ambil semua data staff yang role-nya 'staff', urutkan descending berdasarkan created_at
         $staffs = StafAset::where('role', 'staff')->orderBy('created_at', 'desc')->paginate(10);
         return view('staff.index', compact('staffs'));
     }
 
+    /**
+     * Menampilkan form tambah staff
+     */
     public function create()
     {
         return view('staff.create');
     }
 
+    /**
+     * Menyimpan data staff baru ke database
+     * Role otomatis diisi 'staff', password di-hash
+     */
     public function store(Request $request)
     {
+        // Validasi input: username, nama, nip, email, password
+        // NIP harus integer dan unik, email unik, password minimal 6 karakter
         $validated = $request->validate([
             'username' => 'required|string|max:50|unique:stafaset,username',
             'nama'     => 'required|string|max:150',
-            'nip'      => 'required|integer|digits_between:1,20|unique:stafaset,nip',  // ← integer & unique
+            'nip'      => 'required|integer|digits_between:1,20|unique:stafaset,nip',
             'email'    => 'required|email|unique:stafaset,email',
             'password' => 'required|string|min:6',
         ], [
-            // Custom messages
+            // Custom pesan error untuk setiap field
             'username.required' => 'Username wajib diisi.',
             'username.unique'   => 'Username sudah digunakan.',
             'nama.required'     => 'Nama wajib diisi.',
@@ -44,6 +57,7 @@ class StafAsetController extends Controller
             'password.required' => 'Password wajib diisi.',
             'password.min'      => 'Password minimal 6 karakter.',
         ], [
+            // Nama atribut untuk tampilan error (opsional)
             'username' => 'Username',
             'nama'     => 'Nama',
             'nip'      => 'NIP',
@@ -51,11 +65,15 @@ class StafAsetController extends Controller
             'password' => 'Password',
         ]);
     
+        // Hash password sebelum disimpan
         $validated['password'] = Hash::make($validated['password']);
+        // Tetapkan role sebagai staff
         $validated['role'] = 'staff';
     
+        // Simpan ke database
         $staff = StafAset::create($validated);
     
+        // Kirim notifikasi ke admin bahwa staff baru ditambahkan
         NotificationHelper::create(
             'staff',
             'tambah',
@@ -67,20 +85,29 @@ class StafAsetController extends Controller
             ->with('success', 'Akun staff berhasil dibuat!');
     }
 
+    /**
+     * Menampilkan form edit staff
+     */
     public function edit($id)
     {
         $staff = StafAset::findOrFail($id);
         return view('staff.edit', compact('staff'));
     }
 
+    /**
+     * Memperbarui data staff (hanya staff, bukan admin)
+     * Admin tidak boleh diedit melalui form ini
+     */
     public function update(Request $request, $id)
     {
         $staff = StafAset::findOrFail($id);
 
+        // Cegah mengedit akun yang role-nya admin
         if ($staff->role === 'admin') {
             return back()->with('error', 'Tidak dapat mengedit akun Administrator!');
         }
 
+        // Validasi input: username, nama, nip, email, dan password (nullable)
         $validated = $request->validate([
             'username' => 'required|string|max:50|unique:stafaset,username,' . $id,
             'nama'     => 'required|string|max:150',
@@ -90,16 +117,12 @@ class StafAsetController extends Controller
         ], [
             'username.required' => 'Username wajib diisi.',
             'username.unique'   => 'Username sudah digunakan.',
-        
             'nama.required'     => 'Nama wajib diisi.',
-        
             'nip.required'      => 'NIP wajib diisi.',
             'nip.unique'        => 'NIP sudah digunakan.',
-        
             'email.required'    => 'Email wajib diisi.',
             'email.email'       => 'Format email tidak valid.',
             'email.unique'      => 'Email sudah digunakan.',
-        
             'password.min'      => 'Password minimal 6 karakter.',
         ], [
             'username' => 'Username',
@@ -109,6 +132,7 @@ class StafAsetController extends Controller
             'password' => 'Password',
         ]);
 
+        // Jika password diisi, hash dan simpan; jika tidak, hapus dari array update
         if (!empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
         } else {
@@ -117,6 +141,7 @@ class StafAsetController extends Controller
 
         $staff->update($validated);
 
+        // Notifikasi ke admin bahwa staff diubah
         NotificationHelper::create(
             'staff',
             'edit',
@@ -128,14 +153,20 @@ class StafAsetController extends Controller
             ->with('success', 'Akun staff berhasil diupdate!');
     }
 
+    /**
+     * Menghapus akun staff (hanya role staff, tidak bisa hapus admin)
+     * Juga tidak bisa menghapus akun sendiri yang sedang login
+     */
     public function destroy($id)
     {
         $staff = StafAset::findOrFail($id);
 
+        // Cegah penghapusan admin
         if ($staff->role === 'admin') {
             return back()->with('error', 'Tidak dapat menghapus akun Administrator!');
         }
 
+        // Cegah penghapusan akun sendiri
         if ($staff->id === auth('stafaset')->id()) {
             return back()->with('error', 'Tidak dapat menghapus akun Anda sendiri!');
         }
@@ -145,6 +176,7 @@ class StafAsetController extends Controller
 
         $staff->delete();
 
+        // Notifikasi ke admin bahwa staff dihapus
         NotificationHelper::create(
             'staff',
             'hapus',
@@ -156,12 +188,19 @@ class StafAsetController extends Controller
             ->with('success', 'Akun staff berhasil dihapus!');
     }
 
+    /**
+     * Menampilkan halaman edit profil untuk user yang sedang login
+     */
     public function editProfile()
     {
         $staff = Auth::guard('stafaset')->user();
         return view('profile.edit', compact('staff'));
     }
 
+    /**
+     * Memproses update profil user yang sedang login
+     * Termasuk validasi password lama jika ingin mengganti password
+     */
     public function updateProfile(Request $request)
     {
         $staff = Auth::guard('stafaset')->user();
