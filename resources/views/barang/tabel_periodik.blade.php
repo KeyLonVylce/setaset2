@@ -162,6 +162,18 @@
                        value="{{ request('tahun') }}" placeholder="2026">
             </div>
 
+            <!-- TANGGAL AWAL -->
+            <div class="filter-item">
+                <label>Dari Tanggal</label>
+                <input type="date" name="start_date" value="{{ request('start_date') }}">
+            </div>
+
+            <!-- TANGGAL AKHIR -->
+            <div class="filter-item">
+                <label>Sampai Tanggal</label>
+                <input type="date" name="end_date" value="{{ request('end_date') }}">
+            </div>
+
             <div>
                 <button type="submit" class="btn btn-primary">Terapkan</button>
             </div>
@@ -387,5 +399,9 @@ function toggleKet(index, btn) {
     btn.style.borderColor   = open ? '#93c5fd' : '';
     btn.style.color         = open ? '#1e40af' : '';
 }
+
+document.querySelector('input[name="start_date"]').addEventListener('change', () => document.getElementById('filterForm').submit());
+document.querySelector('input[name="end_date"]').addEventListener('change', () => document.getElementById('filterForm').submit());
+
 </script>
 @endsection

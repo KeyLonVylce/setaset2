@@ -6,12 +6,14 @@ use App\Models\Pindahbarang;
 use App\Models\Notification;
 use App\Models\Ruangan;
 use App\Models\Lantai;
+use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Illuminate\Support\Collection;
 
 class PeriodikExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
 {
@@ -22,40 +24,91 @@ class PeriodikExport implements FromCollection, WithHeadings, WithMapping, Shoul
         $this->filters = $filters;
     }
 
+    /**
+     * Apply date range filter to a query.
+     * Returns true if a valid date filter was applied, false otherwise.
+     */
+    private function applyDateFilter($query, $startDate, $endDate)
+    {
+        $hasStart = !empty($startDate);
+        $hasEnd   = !empty($endDate);
+
+        if (!$hasStart && !$hasEnd) {
+            return false;
+        }
+
+        try {
+            if ($hasStart && $hasEnd) {
+                $start = Carbon::parse($startDate)->startOfDay();
+                $end   = Carbon::parse($endDate)->endOfDay();
+                if ($start <= $end) {
+                    $query->whereBetween('created_at', [$start, $end]);
+                    return true;
+                }
+            } elseif ($hasStart) {
+                $start = Carbon::parse($startDate)->startOfDay();
+                $query->where('created_at', '>=', $start);
+                return true;
+            } elseif ($hasEnd) {
+                $end = Carbon::parse($endDate)->endOfDay();
+                $query->where('created_at', '<=', $end);
+                return true;
+            }
+        } catch (\Exception $e) {
+            // Invalid date format – ignore filter
+        }
+
+        return false;
+    }
+
     public function collection()
     {
-        // ==================== 1. PINDAH BARANG ====================
+        // ========== PINDAH BARANG ==========
         $pindahQuery = Pindahbarang::with(['barang', 'asal.lantai', 'tujuan.lantai']);
 
+        // Apply date range filter (priority over month/year)
+        $dateFilterApplied = $this->applyDateFilter(
+            $pindahQuery,
+            $this->filters['start_date'] ?? null,
+            $this->filters['end_date'] ?? null
+        );
+
+        // Only use month/year if no date range was applied
+        if (!$dateFilterApplied) {
+            if (!empty($this->filters['bulan'])) {
+                $pindahQuery->whereMonth('created_at', (int) $this->filters['bulan']);
+            }
+            if (!empty($this->filters['tahun'])) {
+                $pindahQuery->whereYear('created_at', $this->filters['tahun']);
+            }
+        }
+
+        // Filter lantai (asal atau tujuan)
         if (!empty($this->filters['lantai'])) {
             $pindahQuery->where(function ($q) {
                 $q->whereHas('asal.lantai', fn($sq) => $sq->where('id', $this->filters['lantai']))
                   ->orWhereHas('tujuan.lantai', fn($sq) => $sq->where('id', $this->filters['lantai']));
             });
         }
+
+        // Filter ruangan (asal atau tujuan)
         if (!empty($this->filters['ruangan'])) {
             $pindahQuery->where(function ($q) {
                 $q->where('ruangan_asal', $this->filters['ruangan'])
                   ->orWhere('ruangan_tujuan', $this->filters['ruangan']);
             });
         }
-        if (!empty($this->filters['bulan'])) {
-            $pindahQuery->whereMonth('created_at', (int) $this->filters['bulan']);
-        }
-        if (!empty($this->filters['tahun'])) {
-            $pindahQuery->whereYear('created_at', $this->filters['tahun']);
-        }
+
+        // Filter huruf (nama barang)
         if (!empty($this->filters['huruf'])) {
             $pindahQuery->whereHas('barang', fn($q) => $q->where('nama_barang', 'like', $this->filters['huruf'] . '%'));
         }
 
         $pindahLogs = $pindahQuery->get()->map(function ($p) {
-            // Format asal (Dari)
             $asalNama = $p->asal->nama_ruangan ?? '-';
             $asalLantai = $p->asal->lantai->nama_lantai ?? '';
             $dari = $asalNama . ($asalLantai ? " ({$asalLantai})" : '');
 
-            // Format tujuan (Ke)
             $tujuanNama = $p->tujuan->nama_ruangan ?? '-';
             $tujuanLantai = $p->tujuan->lantai->nama_lantai ?? '';
             $ke = $tujuanNama . ($tujuanLantai ? " ({$tujuanLantai})" : '');
@@ -70,21 +123,32 @@ class PeriodikExport implements FromCollection, WithHeadings, WithMapping, Shoul
             ];
         });
 
-        // ==================== 2. NOTIFIKASI (TAMBAH, EDIT, HAPUS) ====================
+        // ========== NOTIFIKASI ==========
         $notifQuery = Notification::where('type', 'barang')
             ->whereIn('aksi', ['tambah', 'hapus', 'edit']);
 
-        if (!empty($this->filters['bulan'])) {
-            $notifQuery->whereMonth('created_at', (int) $this->filters['bulan']);
+        // Apply same date filter to notifications
+        $dateFilterAppliedNotif = $this->applyDateFilter(
+            $notifQuery,
+            $this->filters['start_date'] ?? null,
+            $this->filters['end_date'] ?? null
+        );
+
+        if (!$dateFilterAppliedNotif) {
+            if (!empty($this->filters['bulan'])) {
+                $notifQuery->whereMonth('created_at', (int) $this->filters['bulan']);
+            }
+            if (!empty($this->filters['tahun'])) {
+                $notifQuery->whereYear('created_at', $this->filters['tahun']);
+            }
         }
-        if (!empty($this->filters['tahun'])) {
-            $notifQuery->whereYear('created_at', $this->filters['tahun']);
-        }
+
+        // Filter huruf on notification message
         if (!empty($this->filters['huruf'])) {
             $notifQuery->where('pesan', 'like', '%>' . $this->filters['huruf'] . '%');
         }
 
-        // Filter notifikasi berdasarkan lantai/ruangan (jika ada)
+        // Filter notifikasi berdasarkan lantai/ruangan (parse from HTML)
         if (!empty($this->filters['lantai']) || !empty($this->filters['ruangan'])) {
             $ruanganQuery = Ruangan::query();
             if (!empty($this->filters['lantai'])) {
@@ -95,27 +159,29 @@ class PeriodikExport implements FromCollection, WithHeadings, WithMapping, Shoul
             }
             $namaRuangans = $ruanganQuery->pluck('nama_ruangan')->toArray();
 
-            $notifQuery->where(function ($q) use ($namaRuangans) {
-                foreach ($namaRuangans as $nama) {
-                    $q->orWhere('pesan', 'like', '%<b>' . $nama . '</b>%');
-                }
-            });
+            if (count($namaRuangans) > 0) {
+                $notifQuery->where(function ($q) use ($namaRuangans) {
+                    foreach ($namaRuangans as $nama) {
+                        $q->orWhere('pesan', 'like', '%<b>' . $nama . '</b>%');
+                    }
+                });
+            } else {
+                // No matching rooms → force empty result
+                $notifQuery->whereRaw('1 = 0');
+            }
         }
 
         $notifLogs = $notifQuery->get()->map(function ($n) {
-            // Ambil nama barang dan ruangan dari tag <b>
             preg_match_all('/<b>(.*?)<\/b>/', $n->pesan, $matches);
             $namaBarang  = $matches[1][0] ?? '-';
             $namaRuangan = $matches[1][1] ?? '-';
 
-            // Cari objek ruangan untuk mendapatkan lantai
             $ruanganObj = Ruangan::with('lantai')
                 ->where('nama_ruangan', $namaRuangan)
                 ->first();
             $namaLantai = $ruanganObj?->lantai?->nama_lantai ?? '';
             $ruanganDisplay = $namaRuangan . ($namaLantai ? " ({$namaLantai})" : '');
 
-            // Tentukan kolom Dari dan Ke berdasarkan aksi
             $dari = '-';
             $ke   = '-';
             if ($n->aksi === 'hapus') {
@@ -125,7 +191,7 @@ class PeriodikExport implements FromCollection, WithHeadings, WithMapping, Shoul
             }
 
             return (object) [
-                'kode_barang' => '-',                     // Notifikasi tidak menyimpan kode barang
+                'kode_barang' => '-',
                 'barang_nama' => $namaBarang,
                 'aktivitas'   => $n->aksi,
                 'dari'        => $dari,
@@ -134,7 +200,7 @@ class PeriodikExport implements FromCollection, WithHeadings, WithMapping, Shoul
             ];
         });
 
-        // Filter tambahan untuk notifikasi berdasarkan lantai (karena lantai tidak tersimpan langsung)
+        // Post-filter notifications by lantai/ruangan (if needed)
         if (!empty($this->filters['lantai'])) {
             $namaLantaiDipilih = Lantai::find($this->filters['lantai'])?->nama_lantai;
             if ($namaLantaiDipilih) {
@@ -153,15 +219,12 @@ class PeriodikExport implements FromCollection, WithHeadings, WithMapping, Shoul
             }
         }
 
-        // ==================== 3. GABUNG & URUTKAN ====================
-        return $pindahLogs->concat($notifLogs)
-            ->sortByDesc('created_at')
-            ->values();
+        // Merge and sort
+        $allLogs = $pindahLogs->concat($notifLogs)->sortByDesc('created_at')->values();
+
+        return $allLogs;
     }
 
-    /**
-     * Heading (judul kolom) sesuai tampilan halaman
-     */
     public function headings(): array
     {
         return [
@@ -174,24 +237,18 @@ class PeriodikExport implements FromCollection, WithHeadings, WithMapping, Shoul
         ];
     }
 
-    /**
-     * Mapping setiap baris data ke kolom Excel
-     */
     public function map($log): array
     {
         return [
             $log->barang_nama,
             $log->kode_barang,
-            ucfirst($log->aktivitas),          // pindah, tambah, edit, hapus
+            ucfirst($log->aktivitas),
             $log->dari,
             $log->ke,
-            $log->created_at->format('d-m-Y') // format tanggal
+            $log->created_at->format('d-m-Y')
         ];
     }
 
-    /**
-     * Styling header (baris pertama) bold
-     */
     public function styles(Worksheet $sheet)
     {
         return [
