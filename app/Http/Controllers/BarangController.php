@@ -259,7 +259,7 @@ class BarangController extends Controller
             ->with('success', 'Barang berhasil dipindahkan!');
     }
 
-    public function laporanPindah()
+    public function laporan()
     {
         $data = PindahBarang::with(['barang', 'asal', 'tujuan'])
             ->latest('created_at')

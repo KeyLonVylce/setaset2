@@ -30,18 +30,22 @@
     </div>
 </div>
 
-<div class="laporan-container">
-    <h3>Laporan</h3>
-    <div style="display:flex; gap:10px; margin-bottom:20px;">
-        <a href="{{ route('laporan.periodik') }}" class="btn btn-success">
-            📊 Tabel Periodik
-        </a>
+@auth
+    @if(auth()->user()->role === 'admin')
+        <div class="laporan-container">
+            <h3>Laporan</h3>
+            <div style="display:flex; gap:10px; margin-bottom:20px;">
+                <a href="{{ route('laporan.periodik') }}" class="btn btn-success">
+                    📊 Tabel Periodik
+                </a>
 
-        <a href="{{ route('pemindahan.laporanpindahbarang') }}" class="btn btn-success">
-            🔄 Laporan Pindah Barang
-        </a>
-    </div>
-</div>
+                <a href="{{ route('pemindahan.laporanpindahbarang') }}" class="btn btn-success">
+                    🔄 Laporan Pindah Barang
+                </a>
+            </div>
+        </div>
+    @endif
+@endauth
 
 <div class="card">
     <div class="lantai-header">

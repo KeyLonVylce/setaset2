@@ -49,17 +49,9 @@ Route::middleware('auth:stafaset')->group(function () {
         Route::delete('/bulk-destroy', [BarangController::class, 'bulkDestroy'])->name('barang.bulk.destroy');
     });
 
-    // Pindah barang
-        Route::get('/laporan-pemindahan', [BarangController::class, 'laporan'])
-        ->name('pemindahan.laporanpindahbarang');
     //
     Route::get('/pindah-barang', [BarangController::class, 'pindahForm'])
     ->name('pindah.form');
-
-    // Laporan periodik
-    Route::get('/laporan/periodik', [BarangController::class, 'periodik'])->name('laporan.periodik');
-    Route::get('/laporan/periodik/export', [BarangController::class, 'exportPeriodik'])
-    ->name('laporan.periodik.export');
 
     // Notifikasi
     Route::prefix('notifications')->group(function () {
@@ -96,5 +88,15 @@ Route::middleware(['auth:stafaset', 'role:admin'])->prefix('admin')->group(funct
     Route::get('/staff/{id}/edit', [StafAsetController::class, 'edit'])->name('staff.edit');
     Route::put('/staff/{id}', [StafAsetController::class, 'update'])->name('staff.update');
     Route::delete('/staff/{id}', [StafAsetController::class, 'destroy'])->name('staff.destroy');
+
+    // Pindah barang
+    Route::get('/laporan-pemindahan', [BarangController::class, 'laporan'])
+    ->name('pemindahan.laporanpindahbarang');
+
+    // Laporan periodik
+    Route::get('/laporan/periodik', [BarangController::class, 'periodik'])->name('laporan.periodik');
+    Route::get('/laporan/periodik/export', [BarangController::class, 'exportPeriodik'])
+    ->name('laporan.periodik.export');
     });
 //
+
