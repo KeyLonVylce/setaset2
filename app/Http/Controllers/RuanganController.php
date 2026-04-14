@@ -180,16 +180,23 @@ class RuanganController extends Controller
      */
     public function exportPdf($id)
     {
-        // Ambil data ruangan
         $ruangan = Ruangan::findOrFail($id);
-
-        // Buat PDF dari view 'ruangan.export', kirim flag pdf=true untuk menyesuaikan tampilan
+    
         $pdf = PDF::loadView('ruangan.export', [
             'ruangan' => $ruangan,
             'pdf' => true
-        ])->setPaper('a4', 'landscape');
-
-        // Download file PDF dengan nama dinamis
+        ])
+        ->setPaper('a4', 'landscape')
+        ->setOptions([
+            'defaultFont' => 'sans-serif',
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => false,
+            'margin_left' => 5,        // margin kiri (mm)
+            'margin_right' => 5,       // margin kanan
+            'margin_top' => 10,
+            'margin_bottom' => 10,
+        ]);
+    
         return $pdf->download('ruangan-'.$ruangan->nama_ruangan.'.pdf');
     }
 }

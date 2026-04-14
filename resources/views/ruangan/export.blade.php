@@ -5,6 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kartu Inventaris - {{ $ruangan->nama_ruangan }}</title>
     <link rel="stylesheet" href="{{ asset('css/ruangan/export.css') }}">
+
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        font-size: 9pt; /* diperkecil dari 10pt */
+        margin: 0;
+        padding: 0;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed; /* penting agar lebar kolom konsisten */
+    }
+    th, td {
+        border: 1px solid #000;
+        padding: 4px 3px;
+        vertical-align: top;
+        word-wrap: break-word;
+    }
+    /* Lebar kolom (total 100%) */
+    th:nth-child(1), td:nth-child(1) { width: 4%; }  /* No urut */
+    th:nth-child(2), td:nth-child(2) { width: 12%; } /* Nama barang */
+    th:nth-child(3), td:nth-child(3) { width: 8%; }  /* Merk */
+    th:nth-child(4), td:nth-child(4) { width: 6%; }  /* No seri */
+    th:nth-child(5), td:nth-child(5) { width: 5%; }  /* Ukuran */
+    th:nth-child(6), td:nth-child(6) { width: 5%; }  /* Bahan */
+    th:nth-child(7), td:nth-child(7) { width: 6%; }  /* Tahun */
+    th:nth-child(8), td:nth-child(8) { width: 8%; }  /* Kode barang */
+    th:nth-child(9), td:nth-child(9) { width: 5%; }  /* Jumlah */
+    th:nth-child(10), td:nth-child(10) { width: 10%; } /* Harga */
+    th:nth-child(11), td:nth-child(11) { width: 4%; } /* B */
+    th:nth-child(12), td:nth-child(12) { width: 5%; } /* KB */
+    th:nth-child(13), td:nth-child(13) { width: 5%; } /* RB */
+    th:nth-child(14), td:nth-child(14) { width: 12%; } /* Keterangan */
+    
+    .center { text-align: center; }
+    .left { text-align: left; }
+    .right { text-align: right; }
+    .title-row { font-size: 12pt; font-weight: bold; text-align: center; background: #e0e0e0; }
+    .table-header { background: #d9d9d9; }
+    .info-label { font-weight: bold; width: 100px; }
+    .footer {
+        margin-top: 15px;
+        font-size: 7pt;
+        text-align: center;
+        border-top: 1px solid #ccc;
+        padding-top: 5px;
+    }
+    @media print {
+        .no-print { display: none; }
+    }
+</style>
 </head>
 <body>
         @if(empty($pdf))
