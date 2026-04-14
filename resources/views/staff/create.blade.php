@@ -95,6 +95,23 @@
 @section('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+
+        // Validasi Nama: hanya huruf (A-Z, a-z) dan spasi
+        const namaInput = document.getElementById('nama');
+        if (namaInput) {
+            namaInput.addEventListener('input', function () {
+                this.value = this.value.replace(/[^A-Za-z\s]/g, '');
+            });
+        }
+
+        // Validasi Username: hanya huruf, angka, underscore (_), dan titik (.)
+        const usernameInput = document.getElementById('username');
+        if (usernameInput) {
+            usernameInput.addEventListener('input', function () {
+                this.value = this.value.replace(/[^A-Za-z0-9_.]/g, '');
+            });
+        }
+
         // Validasi NIP hanya angka (client-side)
         const nipInput = document.getElementById('nip');
         if (nipInput) {

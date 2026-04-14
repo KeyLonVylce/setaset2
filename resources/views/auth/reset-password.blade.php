@@ -28,7 +28,7 @@
                 <!-- input password baru -->
                 <div class="input-group">
                     <label for="new_password"><i class="fas fa-lock"></i> Password Baru</label>
-                    <input type="password" class="input-field" id="new_password" name="password" placeholder="Minimal 8 karakter" required autocomplete="new-password">
+                    <input type="password" class="input-field" id="new_password" name="password" placeholder="Minimal 6 karakter" required autocomplete="new-password">
                     <div class="hint"><i class="fas fa-info-circle"></i> Gunakan kombinasi huruf, angka & simbol</div>
                 </div>
 

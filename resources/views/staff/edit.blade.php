@@ -16,7 +16,6 @@
 <div class="card">
     <div class="page-header">
         <h2>Edit Staff</h2>
-        <p style="color: #666;">{   { $staff->nama }} ({{ $staff->username }})</p>
     </div>
 
     <form action="{{ route('staff.update', $staff->id) }}" method="POST">
@@ -104,6 +103,23 @@
 @section('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+
+        // Validasi Nama: hanya huruf (A-Z, a-z) dan spasi
+        const namaInput = document.getElementById('nama');
+        if (namaInput) {
+            namaInput.addEventListener('input', function () {
+                this.value = this.value.replace(/[^A-Za-z\s]/g, '');
+            });
+        }
+
+        // Validasi Username: hanya huruf, angka, underscore (_), dan titik (.)
+        const usernameInput = document.getElementById('username');
+        if (usernameInput) {
+            usernameInput.addEventListener('input', function () {
+                this.value = this.value.replace(/[^A-Za-z0-9_.]/g, '');
+            });
+        }
+
         // NIP: hanya angka (hapus semua karakter non-digit)
         const nipInput = document.getElementById('nip');
         if (nipInput) {
