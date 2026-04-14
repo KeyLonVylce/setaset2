@@ -58,6 +58,8 @@ Route::middleware('auth:stafaset')->group(function () {
         Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');
         Route::post('/read/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.read');
         Route::get('/realtime', [NotificationController::class, 'realtime'])->name('notifications.realtime');
+        Route::get('/export', [NotificationController::class, 'exportExcel'])->name('notifications.export');
+        Route::get('/export-pdf', [NotificationController::class, 'exportPdf'])->name('notifications.export-pdf');
     });
 
     //Profile
@@ -88,6 +90,8 @@ Route::middleware(['auth:stafaset', 'role:admin'])->prefix('admin')->group(funct
     Route::get('/staff/{id}/edit', [StafAsetController::class, 'edit'])->name('staff.edit');
     Route::put('/staff/{id}', [StafAsetController::class, 'update'])->name('staff.update');
     Route::delete('/staff/{id}', [StafAsetController::class, 'destroy'])->name('staff.destroy');
+    Route::get('/staff/export', [StafAsetController::class, 'exportExcel'])->name('staff.export');
+    Route::get('/staff/export/pdf', [StafAsetController::class, 'exportPDF'])->name('staff.export.pdf'); 
 
     // Pindah barang
     Route::get('/laporan-pemindahan', [BarangController::class, 'laporan'])

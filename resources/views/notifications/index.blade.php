@@ -42,6 +42,13 @@
                     </select>
                 </div>
                 @endif
+
+                <a href="{{ route('notifications.export', request()->query()) }}" class="btn btn-success btn-sm">
+                    &nbsp;Export Excel&nbsp; 
+                </a>
+                <a href="{{ route('notifications.export-pdf', request()->query()) }}" class="btn btn-success btn-sm">
+                    &nbsp;Export PDF&nbsp; 
+                </a>
             </div>
         </form>
     </div>

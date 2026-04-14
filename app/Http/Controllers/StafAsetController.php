@@ -7,6 +7,9 @@ use App\Models\StafAset;
 use Illuminate\Support\Facades\Hash;
 use App\Helpers\NotificationHelper;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\StaffExport;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class StafAsetController extends Controller
 {
@@ -257,4 +260,29 @@ class StafAsetController extends Controller
         return redirect()->route('profile.edit')
             ->with('success', 'Profil berhasil diperbarui!');
     }
+
+    /**
+     * Export data staff ke file Excel
+     */
+    public function exportExcel()
+    {
+        $fileName = 'data-staff-' . date('Y-m-d') . '.xlsx';
+        return Excel::download(new StaffExport, $fileName);
+    }
+
+    /**
+     * Export data staff ke file PDF
+     */
+    public function exportPDF()
+    {
+        // Ambil semua staff (tidak pakai pagination)
+        $staffs = StafAset::where('role', 'staff')->orderBy('created_at', 'desc')->get();
+        
+        $pdf = Pdf::loadView('staff.pdf', compact('staffs'));
+        
+        // Optional: setting ukuran kertas & orientasi
+        $pdf->setPaper('A4');
+        
+        return $pdf->download('data-staff-' . date('Y-m-d') . '.pdf');
+    }   
 }

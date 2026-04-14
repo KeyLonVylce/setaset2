@@ -19,13 +19,20 @@
 <div class="card">
 
     <!-- Header halaman -->
-    <div class="page-header">
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
         <h2>Kelola Staff</h2>
 
-        <!-- Tombol tambah -->
-        <a href="{{ route('staff.create') }}" class="btn btn-primary">
-            + Tambah Staff
-        </a>
+        <div>
+            <a href="{{ route('staff.export') }}" class="btn btn-success">
+                Export Excel
+            </a>
+            <a href="{{ route('staff.export.pdf') }}" class="btn btn-success">
+                Export PDF
+            </a>
+            <a href="{{ route('staff.create') }}" class="btn btn-primary">
+                + Tambah Staff
+            </a>
+        </div>
     </div>
 
     <!-- Cek apakah ada data -->
@@ -78,7 +85,7 @@
 
                     <!-- Tanggal dibuat -->
                     <td>
-                        {{ $staff->created_at->format('d M Y') }}
+                        {{ $staff->created_at->locale('id')->translatedFormat('d F Y') }}
                         <!-- format tanggal pakai Carbon -->
                     </td>
 

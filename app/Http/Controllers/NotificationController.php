@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Notification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\NotificationsExport;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class NotificationController extends Controller
 {
@@ -103,5 +106,112 @@ class NotificationController extends Controller
         return response()->json([
             'unread' => $unread
         ]);
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $user = auth()->user();
+    
+        $query = Notification::query();
+    
+        // Filter status
+        $status = $request->input('status');
+        if ($status === 'read') {
+            $query->whereJsonContains('read_by', $user->id);
+        } elseif ($status === 'unread') {
+            $query->where(function ($q) use ($user) {
+                $q->whereNull('read_by')
+                  ->orWhereJsonDoesntContain('read_by', $user->id);
+            });
+        }
+    
+        // Filter type
+        $type = $request->input('type');
+        if ($type && $type !== 'all') {
+            $query->where('type', $type);
+        }
+    
+        // Filter target role
+        $query->where(function ($q) use ($user) {
+            $q->whereNull('target_role')
+              ->orWhere('target_role', 'all')
+              ->orWhere('target_role', $user->role);
+        });
+    
+        $notifications = $query->latest()->get();
+    
+        $fileName = 'notifikasi_'
+            . ($status ?? 'all') . '_'
+            . ($type ?? 'all') . '_'
+            . date('Y-m-d') . '.xlsx';
+    
+        // Kirim parameter tambahan ke export class
+        return Excel::download(new NotificationsExport(
+            $notifications,
+            $user->id,
+            $status,
+            $type,
+            $user->role
+        ), $fileName);
+    }
+
+    /**
+     * Export notifikasi ke PDF sesuai filter yang dipilih
+     */
+    public function exportPdf(Request $request)
+    {
+        // Gunakan guard yang sesuai dengan middleware
+        $user = Auth::guard('stafaset')->user();
+    
+        $query = Notification::query();
+    
+        // Filter status
+        $status = $request->input('status');
+        if ($status === 'read') {
+            $query->whereJsonContains('read_by', $user->id);
+        } elseif ($status === 'unread') {
+            $query->where(function ($q) use ($user) {
+                $q->whereNull('read_by')
+                  ->orWhereJsonDoesntContain('read_by', $user->id);
+            });
+        }
+    
+        // Filter jenis
+        $type = $request->input('type');
+        if ($type && $type !== 'all') {
+            $query->where('type', $type);
+        }
+    
+        // Filter target role
+        $query->where(function ($q) use ($user) {
+            $q->whereNull('target_role')
+              ->orWhere('target_role', 'all')
+              ->orWhere('target_role', $user->role);
+        });
+    
+        // Ambil notifikasi dan tambahkan atribut tambahan
+        $notifications = $query->latest()->get()->map(function($notif) use ($user) { // ✅ use ($user)
+            $notif->created_at_human = $notif->created_at->diffForHumans();
+            $notif->is_read = $notif->isReadBy($user->id);
+            return $notif;
+        });
+    
+        $data = [
+            'notifications' => $notifications,
+            'user'          => $user,
+            'filter_status' => $status ?? 'all',
+            'filter_type'   => $type ?? 'all',
+            'export_date'   => now()->format('d/m/Y H:i:s')
+        ];
+    
+        $pdf = Pdf::loadView('notifications.pdf', $data);
+        $pdf->setPaper('a4', 'landscape');
+    
+        $fileName = 'notifikasi_'
+            . ($status ?? 'all') . '_'
+            . ($type ?? 'all') . '_'
+            . date('Y-m-d') . '.pdf';
+    
+        return $pdf->download($fileName);
     }
 }
