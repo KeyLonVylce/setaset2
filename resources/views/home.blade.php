@@ -16,14 +16,14 @@
 {{-- Dashboard Statistics --}}
 <div class="dashboard-grid">
     <div class="chart-container">
-        <h3>📊 Distribusi Kondisi Barang</h3>
+        <h3>Distribusi Kondisi Barang</h3>
         <div class="chart-wrapper">
             <canvas id="globalKondisiChart"></canvas>
         </div>
     </div>
     
     <div class="chart-container">
-        <h3>📈 Top 5 Barang Terbanyak</h3>
+        <h3>Top 5 Barang Terbanyak</h3>
         <div class="bar-chart-wrapper">
             <canvas id="topBarangsChart"></canvas>
         </div>

@@ -132,7 +132,7 @@
 
     <!-- tombol simpan -->
         <div class="form-actions">
-            <button type="submit" class="btn btn-primary">💾 Simpan Perubahan</button>
+            <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
             <a href="{{ route('home') }}" class="btn-batal">Batal</a>
         </div>
     </form>

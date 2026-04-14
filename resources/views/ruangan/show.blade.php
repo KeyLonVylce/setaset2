@@ -47,7 +47,7 @@
             <p><strong>Total Barang:</strong> {{ $barangs->total() }} item</p>
         </div>
         <div class="chart-section">
-            <h3>📊 Kondisi Barang</h3>
+            <h3>Kondisi Barang</h3>
             <canvas id="kondisiChart" style="max-width: 280px; max-height: 280px;"></canvas>
         </div>
     </div>

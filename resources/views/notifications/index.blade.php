@@ -15,7 +15,7 @@
     </div>
 
     <div class="filter-section" style="background: linear-gradient(135deg, #0066cc 0%, #004c99 100%); color:#fff;">
-        <center><h5>📢 Notifikasi Aktivitas</h5></center>
+        <center><h5>Notifikasi Aktivitas</h5></center>
     </div>
 
     {{-- FILTER (tetap menggunakan GET, tanpa parameter limit) --}}
@@ -106,7 +106,7 @@ function renderNotifications(limit) {
         const isRead = isReadBy(notif, userId);
         const actionEmoji = getActionEmoji(notif.aksi);
         // Gabungkan emoji dengan teks pesan
-        const messageWithEmoji = `<span class="action-emoji">${actionEmoji}</span> ${notif.pesan}`;
+        const messageWithEmoji = `${notif.pesan}`;
         
         html += `
             <div class="notif-item ${isRead ? 'read' : 'unread'}">

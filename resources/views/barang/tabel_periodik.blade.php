@@ -59,7 +59,7 @@
             </div>
 
             <!-- BULAN -->
-            <div class="filter-item">
+            <!-- <div class="filter-item">
                 <label>Bulan</label>
                 <select name="bulan">
                     <option value="">Semua</option>
@@ -72,14 +72,14 @@
                         </option>
                     @endforeach
                 </select>
-            </div>
+            </div> -->
 
             <!-- TAHUN -->
-            <div class="filter-item">
+            <!-- <div class="filter-item">
                 <label>Tahun</label>
                 <input type="number" name="tahun"
                        value="{{ request('tahun') }}" placeholder="2026">
-            </div>
+            </div> -->
 
             <!-- TANGGAL AWAL -->
             <div class="filter-item">
