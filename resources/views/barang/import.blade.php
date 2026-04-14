@@ -64,7 +64,7 @@
 
         <!-- Tombol submit untuk import barang -->
         <button type="submit" class="btn-import">
-            ⬆️ Import Sekarang
+            Import Sekarang
         </button>
     </form>
 </div>

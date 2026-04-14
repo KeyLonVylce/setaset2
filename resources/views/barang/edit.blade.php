@@ -156,7 +156,7 @@
 
         <!-- tombol update barang dan batal -->
         <div class="form-actions">
-            <button type="submit" class="btn btn-success">💾 Update Barang</button>
+            <button type="submit" class="btn btn-success">Update Barang</button>
             <a href="{{ route('ruangan.show', $ruangan->id) }}" class="btn btn-danger">Batal</a>
         </div>
 
