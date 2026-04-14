@@ -18,7 +18,7 @@
 
     <!-- HEADER -->
     <div class="header-box">
-        <h2>📊 Tabel Periodik Barang</h2>
+        <h2>Tabel Periodik Barang</h2>
         <small>Histori aktivitas barang – pindah, tambah, edit, hapus</small>
     </div>
 
@@ -100,7 +100,7 @@
             <!-- Tombol export Excel -->
             <div>
                 <a href="{{ route('laporan.periodik.export', request()->query()) }}"
-                   class="btn btn-success">📥 Export Excel</a>
+                   class="btn btn-success">Export Excel</a>
             </div>
         </form>
     </div>

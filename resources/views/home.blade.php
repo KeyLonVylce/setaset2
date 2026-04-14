@@ -30,34 +30,23 @@
     </div>
 </div>
 
-@auth
-    @if(auth()->user()->role === 'admin')
-        <div class="laporan-container">
-            <h3>Laporan</h3>
-            <div style="display:flex; gap:10px; margin-bottom:20px;">
-                <a href="{{ route('laporan.periodik') }}" class="btn btn-success">
-                    📊 Tabel Periodik
-                </a>
-
-                <a href="{{ route('pemindahan.laporanpindahbarang') }}" class="btn btn-success">
-                    🔄 Laporan Pindah Barang
-                </a>
-            </div>
-        </div>
-    @endif
-@endauth
-
 <div class="card">
     <div class="lantai-header">
         <h3>Daftar Lantai</h3>
-    <div class="lantai-header-actions">
-    @if(Auth::guard('stafaset')->user()->isAdmin())
-        <button class="btn btn-primary" onclick="openAddLantaiModal()">
-            + Tambah Lantai
-        </button>
-    @endif
+        <div class="lantai-header-actions">
+            <a href="{{ route('laporan.periodik') }}" class="btn btn-success">
+                Tabel Periodik
+            </a>
+            <a href="{{ route('pemindahan.laporanpindahbarang') }}" class="btn btn-success">
+                Laporan Pindah Barang
+            </a>
+            @if(Auth::guard('stafaset')->user()->isAdmin())
+                <button class="btn btn-primary" onclick="openAddLantaiModal()">
+                    + Tambah Lantai
+                </button>
+            @endif
+        </div>
     </div>
-</div>
 
     @if($lantais->count() > 0)
     <div class="lantai-grid">
@@ -77,7 +66,7 @@
             title: 'Tidak Bisa Hapus Lantai',
             message: 'Lantai <strong>{{ addslashes($lantai->nama_lantai) }}</strong> masih memiliki <strong>{{ $lantai->ruangans_count }} ruangan</strong>.<br><br>Harap hapus semua ruangan terlebih dahulu sebelum menghapus lantai ini.',
             type: 'warning',
-            confirmText: '✓ Mengerti',
+            confirmText: 'Mengerti',
             showConfirmOnly: true,
             onConfirm: function() {}
         })">🗑️</button>
@@ -87,7 +76,7 @@
             title: 'Hapus Lantai?',
             message: 'Yakin ingin menghapus <strong>{{ addslashes($lantai->nama_lantai) }}</strong>?',
             type: 'danger',
-            confirmText: '🗑️ Ya, Hapus',
+            confirmText: 'Ya, Hapus',
             onConfirm: function() { f.submit(); }
         })">🗑️</button>
     @endif
