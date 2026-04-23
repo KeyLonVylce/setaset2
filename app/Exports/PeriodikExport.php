@@ -114,6 +114,9 @@ class PeriodikExport implements FromCollection, WithHeadings, WithMapping, Shoul
         if (!empty($this->filters['huruf'])) {
             $pindahQuery->whereHas('barang', fn($q) => $q->where('nama_barang', 'like', $this->filters['huruf'] . '%'));
         }
+        if (!empty($this->filters['kondisi'])) {
+            $pindahQuery->whereHas('barang', fn($q) => $q->where('kondisi', $this->filters['kondisi']));
+        }
 
         // Eksekusi query dan mapping hasil ke format yang seragam
         $pindahLogs = $pindahQuery->get()->map(function ($p) {
@@ -131,6 +134,7 @@ class PeriodikExport implements FromCollection, WithHeadings, WithMapping, Shoul
                 'kode_barang' => $p->barang->kode_barang ?? '-',
                 'barang_nama' => $p->barang->nama_barang ?? '-',
                 'aktivitas'   => 'pindah',
+                'kondisi'     => $p->barang->kondisi ?? null,
                 'dari'        => $dari,
                 'ke'          => $ke,
                 'created_at'  => $p->created_at,
@@ -207,10 +211,19 @@ class PeriodikExport implements FromCollection, WithHeadings, WithMapping, Shoul
                 $ke = $ruanganDisplay;
             }
 
+            $barangObj = \App\Models\Barang::query()
+                ->when($namaBarang !== '-', fn($q) => $q->where('nama_barang', $namaBarang))
+                ->when($namaRuangan !== '-', function ($q) use ($namaRuangan) {
+                    $q->whereHas('ruangan', fn($sq) => $sq->where('nama_ruangan', $namaRuangan));
+                })
+                ->latest('updated_at')
+                ->first();
+
             return (object) [
                 'kode_barang' => '-',
                 'barang_nama' => $namaBarang,
                 'aktivitas'   => $n->aksi,
+                'kondisi'     => $barangObj?->kondisi,
                 'dari'        => $dari,
                 'ke'          => $ke,
                 'created_at'  => $n->created_at,
@@ -237,8 +250,20 @@ class PeriodikExport implements FromCollection, WithHeadings, WithMapping, Shoul
             }
         }
 
+        if (!empty($this->filters['kondisi'])) {
+            $notifLogs = $notifLogs->filter(function ($log) {
+                return ($log->kondisi ?? null) === $this->filters['kondisi'];
+            })->values();
+        }
+
         // Gabungkan semua log, urutkan dari yang terbaru
         $allLogs = $pindahLogs->concat($notifLogs)->sortByDesc('created_at')->values();
+
+        if (!empty($this->filters['aktivitas'])) {
+            $allLogs = $allLogs->filter(function ($log) {
+                return $log->aktivitas === $this->filters['aktivitas'];
+            })->values();
+        }
 
         return $allLogs;
     }

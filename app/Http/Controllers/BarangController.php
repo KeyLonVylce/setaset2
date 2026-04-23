@@ -395,6 +395,9 @@ class BarangController extends Controller
      */
     public function periodik(Request $request)
     {
+        $selectedAktivitas = $request->input('aktivitas');
+        $selectedKondisi = $request->input('kondisi');
+
         // =============================================
         // 1. PINDAH BARANG
         // =============================================
@@ -457,6 +460,11 @@ class BarangController extends Controller
                 $q->where('nama_barang', 'like', $request->huruf . '%')
             );
         }
+        if ($selectedKondisi) {
+            $pindahQuery->whereHas('barang', fn($q) =>
+                $q->where('kondisi', $selectedKondisi)
+            );
+        }
         if ($request->filled('lantai')) {
             $pindahQuery->where(function ($q) use ($request) {
                 $q->whereHas('asal.lantai',     fn($sq) => $sq->where('id', $request->lantai))
@@ -504,6 +512,7 @@ class BarangController extends Controller
                 'aktivitas'   => 'pindah',
                 'barang_nama' => $namaBarang,
                 'kode_barang' => $kodeBarang,
+                'kondisi'     => $p->barang->kondisi ?? null,
                 'dari'        => $ruanganAsal,
                 'lantai_dari' => $lantaiAsal,
                 'ke'          => $ruanganTuju,
@@ -580,10 +589,19 @@ class BarangController extends Controller
                 $ke   = $namaRuangan; $lantaiKe = $namaLantai;
             }
 
+            $barangObj = Barang::query()
+                ->when($namaBarang !== '-', fn($q) => $q->where('nama_barang', $namaBarang))
+                ->when($namaRuangan !== '-', function ($q) use ($namaRuangan) {
+                    $q->whereHas('ruangan', fn($sq) => $sq->where('nama_ruangan', $namaRuangan));
+                })
+                ->latest('updated_at')
+                ->first();
+
             return [
                 'aktivitas'   => $n->aksi,
                 'barang_nama' => $namaBarang,
                 'kode_barang' => null,
+                'kondisi'     => $barangObj?->kondisi,
                 'dari'        => $dari,
                 'lantai_dari' => $lantaiDari,
                 'ke'          => $ke,
@@ -608,12 +626,24 @@ class BarangController extends Controller
             })->values();
         }
 
+        if ($selectedKondisi) {
+            $notifLogs = $notifLogs->filter(function ($log) use ($selectedKondisi) {
+                return ($log['kondisi'] ?? null) === $selectedKondisi;
+            })->values();
+        }
+
         // =============================================
         // 3. GABUNG & PAGINATION
         // =============================================
         $logs = $pindahLogs->concat($notifLogs)
             ->sortByDesc('created_at')
             ->values();
+
+        if ($selectedAktivitas) {
+            $logs = $logs->filter(function ($log) use ($selectedAktivitas) {
+                return ($log['aktivitas'] ?? null) === $selectedAktivitas;
+            })->values();
+        }
 
         $perPage     = 20;
         $currentPage = (int) $request->input('page', 1);
@@ -637,7 +667,29 @@ class BarangController extends Controller
             'lantai_nama'  => $r->lantai->nama_lantai ?? '-',
         ]);
 
-        return view('barang.tabel_periodik', compact('paginator', 'lantais', 'ruangans'));
+        $summaryBarangQuery = Barang::query()
+            ->when($request->filled('lantai'), function ($q) use ($request) {
+                $q->whereHas('ruangan.lantai', fn($sq) => $sq->where('id', $request->lantai));
+            })
+            ->when($request->filled('ruangan'), fn($q) => $q->where('ruangan_id', $request->ruangan))
+            ->when($request->filled('huruf'), fn($q) => $q->where('nama_barang', 'like', $request->huruf . '%'));
+
+        $summary = [
+            'kondisi' => [
+                'B' => (clone $summaryBarangQuery)->where('kondisi', 'B')->sum('jumlah'),
+                'KB' => (clone $summaryBarangQuery)->where('kondisi', 'KB')->sum('jumlah'),
+                'RB' => (clone $summaryBarangQuery)->where('kondisi', 'RB')->sum('jumlah'),
+            ],
+            'aktivitas' => [
+                'tambah' => $logs->where('aktivitas', 'tambah')->count(),
+                'edit' => $logs->where('aktivitas', 'edit')->count(),
+                'hapus' => $logs->where('aktivitas', 'hapus')->count(),
+                'pindah' => $logs->where('aktivitas', 'pindah')->count(),
+            ],
+            'total_log' => $logs->count(),
+        ];
+
+        return view('barang.tabel_periodik', compact('paginator', 'lantais', 'ruangans', 'summary'));
     }
 
     // ==================== EXPORT PERIODIK ====================
@@ -656,6 +708,8 @@ class BarangController extends Controller
             'start_date' => $request->start_date,
             'end_date'   => $request->end_date,
             'huruf'      => $request->huruf,
+            'aktivitas'  => $request->aktivitas,
+            'kondisi'    => $request->kondisi,
         ];
     
         // Download file Excel menggunakan class PeriodikExport

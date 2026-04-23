@@ -9,103 +9,133 @@
 @section('content')
 <div class="container">
 
-    <!-- BREADCRUMB -->
     <div class="custom-breadcrumb">
         <a href="{{ route('home') }}">Home</a>
         <span class="separator">/</span>
         <span class="current">Tabel Periodik Barang</span>
     </div>
 
-    <!-- HEADER -->
     <div class="header-box">
         <h2>Tabel Periodik Barang</h2>
-        <small>Histori aktivitas barang – pindah, tambah, edit, hapus</small>
+        <small>Audit aktivitas barang dan ringkasan kondisi inventaris</small>
     </div>
 
-    <!-- FILTER -->
+    <div class="audit-summary-grid">
+        <div class="summary-card summary-blue">
+            <div class="summary-label">Total Log Audit</div>
+            <div class="summary-value">{{ number_format($summary['total_log']) }}</div>
+            <div class="summary-note">Jumlah log setelah filter diterapkan</div>
+        </div>
+        <div class="summary-card summary-green">
+            <div class="summary-label">Kondisi Baik</div>
+            <div class="summary-value">{{ number_format($summary['kondisi']['B']) }}</div>
+            <div class="summary-note">Barang kondisi baik</div>
+        </div>
+        <div class="summary-card summary-amber">
+            <div class="summary-label">Kurang Baik</div>
+            <div class="summary-value">{{ number_format($summary['kondisi']['KB']) }}</div>
+            <div class="summary-note">Barang kondisi kurang baik</div>
+        </div>
+        <div class="summary-card summary-red">
+            <div class="summary-label">Rusak Berat</div>
+            <div class="summary-value">{{ number_format($summary['kondisi']['RB']) }}</div>
+            <div class="summary-note">Barang rusak berat</div>
+        </div>
+    </div>
+
+    <div class="audit-summary-grid audit-activity-grid">
+        <div class="summary-card summary-soft">
+            <div class="summary-label">Aktivitas Tambah</div>
+            <div class="summary-value">{{ number_format($summary['aktivitas']['tambah']) }}</div>
+            <div class="summary-note">Barang ditambahkan</div>
+        </div>
+        <div class="summary-card summary-soft">
+            <div class="summary-label">Aktivitas Edit</div>
+            <div class="summary-value">{{ number_format($summary['aktivitas']['edit']) }}</div>
+            <div class="summary-note">Barang diperbarui</div>
+        </div>
+        <div class="summary-card summary-soft">
+            <div class="summary-label">Aktivitas Hapus</div>
+            <div class="summary-value">{{ number_format($summary['aktivitas']['hapus']) }}</div>
+            <div class="summary-note">Barang dihapus</div>
+        </div>
+        <div class="summary-card summary-soft">
+            <div class="summary-label">Aktivitas Pindah</div>
+            <div class="summary-value">{{ number_format($summary['aktivitas']['pindah']) }}</div>
+            <div class="summary-note">Barang dipindahkan</div>
+        </div>
+    </div>
+
     <div class="filter-box">
-        <div style="margin-bottom:10px; font-weight:600;">🔍 Filter Data</div>
+        <div class="filter-heading">Filter Data Audit</div>
 
-        <form id="filterForm" method="GET"
-              style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;">
-
-            <!-- LANTAI -->
+        <form id="filterForm" method="GET" class="periodic-filter-form">
             <div class="filter-item">
                 <label>Lantai</label>
                 <select name="lantai" id="lantaiSelect">
                     <option value="">Semua Lantai</option>
                     @foreach($lantais as $l)
-                        <option value="{{ $l->id }}"
-                            {{ request('lantai') == $l->id ? 'selected' : '' }}>
+                        <option value="{{ $l->id }}" {{ request('lantai') == $l->id ? 'selected' : '' }}>
                             {{ $l->nama_lantai }}
                         </option>
                     @endforeach
                 </select>
             </div>
 
-            <!-- RUANGAN -->
             <div class="filter-item">
                 <label>Ruangan</label>
                 <select name="ruangan" id="ruanganSelect" disabled>
                     <option value="">Semua Ruangan</option>
                     @foreach($ruangans as $r)
-                        <option value="{{ $r['id'] }}"
+                        <option
+                            value="{{ $r['id'] }}"
                             data-lantai="{{ $r['lantai_id'] }}"
-                            {{ request('ruangan') == $r['id'] ? 'selected' : '' }}>
+                            {{ request('ruangan') == $r['id'] ? 'selected' : '' }}
+                        >
                             {{ $r['nama_ruangan'] }} ({{ $r['lantai_nama'] }})
                         </option>
                     @endforeach
                 </select>
             </div>
 
-            <!-- BULAN -->
-            <!-- <div class="filter-item">
-                <label>Bulan</label>
-                <select name="bulan">
-                    <option value="">Semua</option>
-                    @foreach([1=>'Januari',2=>'Februari',3=>'Maret',4=>'April',5=>'Mei',6=>'Juni',
-                               7=>'Juli',8=>'Agustus',9=>'September',10=>'Oktober',11=>'November',12=>'Desember']
-                              as $key => $b)
-                        <option value="{{ $key }}"
-                            {{ request('bulan') == $key ? 'selected' : '' }}>
-                            {{ $b }}
-                        </option>
-                    @endforeach
+            <div class="filter-item">
+                <label>Aktivitas</label>
+                <select name="aktivitas" id="aktivitasSelect">
+                    <option value="">Semua Aktivitas</option>
+                    <option value="tambah" {{ request('aktivitas') == 'tambah' ? 'selected' : '' }}>Tambah</option>
+                    <option value="edit" {{ request('aktivitas') == 'edit' ? 'selected' : '' }}>Edit</option>
+                    <option value="hapus" {{ request('aktivitas') == 'hapus' ? 'selected' : '' }}>Hapus</option>
+                    <option value="pindah" {{ request('aktivitas') == 'pindah' ? 'selected' : '' }}>Pindah</option>
                 </select>
-            </div> -->
+            </div>
 
-            <!-- TAHUN -->
-            <!-- <div class="filter-item">
-                <label>Tahun</label>
-                <input type="number" name="tahun"
-                       value="{{ request('tahun') }}" placeholder="2026">
-            </div> -->
+            <div class="filter-item">
+                <label>Kondisi Barang</label>
+                <select name="kondisi" id="kondisiSelect">
+                    <option value="">Semua Kondisi</option>
+                    <option value="B" {{ request('kondisi') == 'B' ? 'selected' : '' }}>Baik</option>
+                    <option value="KB" {{ request('kondisi') == 'KB' ? 'selected' : '' }}>Kurang Baik</option>
+                    <option value="RB" {{ request('kondisi') == 'RB' ? 'selected' : '' }}>Rusak Berat</option>
+                </select>
+            </div>
 
-            <!-- TANGGAL AWAL -->
             <div class="filter-item">
                 <label>Dari Tanggal</label>
                 <input type="date" name="start_date" value="{{ request('start_date') }}">
             </div>
 
-            <!-- TANGGAL AKHIR -->
             <div class="filter-item">
                 <label>Sampai Tanggal</label>
                 <input type="date" name="end_date" value="{{ request('end_date') }}">
             </div>
 
-            <div>
+            <div class="filter-actions-inline">
                 <button type="submit" class="btn btn-primary">Terapkan</button>
-            </div>
-
-            <!-- Tombol export Excel -->
-            <div>
-                <a href="{{ route('laporan.periodik.export', request()->query()) }}"
-                   class="btn btn-success">Export Excel</a>
+                <a href="{{ route('laporan.periodik.export', request()->query()) }}" class="btn btn-success">Export Excel</a>
             </div>
         </form>
     </div>
 
-    <!-- TABEL -->
     <div class="table-box">
         <h3>Riwayat Aktivitas</h3>
         <table class="table table-bordered" id="periodicTable">
@@ -113,6 +143,7 @@
                 <tr>
                     <th>Barang</th>
                     <th>Kode</th>
+                    <th>Kondisi</th>
                     <th>Aktivitas</th>
                     <th>Dari</th>
                     <th>Ke</th>
@@ -122,8 +153,6 @@
             </thead>
             <tbody>
                 @forelse($paginator as $i => $log)
-
-                {{-- ROW UTAMA --}}
                 <tr class="data-row">
                     <td style="font-weight:500;">{{ $log['barang_nama'] }}</td>
 
@@ -131,20 +160,31 @@
                         {{ $log['kode_barang'] ?? '—' }}
                     </td>
 
-                    <!-- Aktivitas tambah edit dll dengan badge warna-warni -->
                     <td>
-                        @if($log['aktivitas'] === 'tambah')
-                            <span class="badge-akt badge-tambah">➕ Tambah</span>
-                        @elseif($log['aktivitas'] === 'hapus')
-                            <span class="badge-akt badge-hapus">🗑️ Hapus</span>
-                        @elseif($log['aktivitas'] === 'edit')
-                            <span class="badge-akt badge-edit">✏️ Edit</span>
+                        @php $kondisi = $log['kondisi'] ?? null; @endphp
+                        @if($kondisi === 'B')
+                            <span class="badge-kondisi badge-kondisi-b">Baik</span>
+                        @elseif($kondisi === 'KB')
+                            <span class="badge-kondisi badge-kondisi-kb">Kurang Baik</span>
+                        @elseif($kondisi === 'RB')
+                            <span class="badge-kondisi badge-kondisi-rb">Rusak Berat</span>
                         @else
-                            <span class="badge-akt badge-pindah">🔄 Pindah</span>
+                            <span class="dash-empty">—</span>
                         @endif
                     </td>
 
-                    <!-- dari -->
+                    <td>
+                        @if($log['aktivitas'] === 'tambah')
+                            <span class="badge-akt badge-tambah">Tambah</span>
+                        @elseif($log['aktivitas'] === 'hapus')
+                            <span class="badge-akt badge-hapus">Hapus</span>
+                        @elseif($log['aktivitas'] === 'edit')
+                            <span class="badge-akt badge-edit">Edit</span>
+                        @else
+                            <span class="badge-akt badge-pindah">Pindah</span>
+                        @endif
+                    </td>
+
                     <td>
                         @if(!empty($log['dari']) && $log['dari'] !== '-')
                             <span class="room-tag">{{ $log['dari'] }}</span>
@@ -156,7 +196,6 @@
                         @endif
                     </td>
 
-                    <!-- KE -->
                     <td>
                         @if(!empty($log['ke']) && $log['ke'] !== '-')
                             <span class="room-tag">{{ $log['ke'] }}</span>
@@ -168,7 +207,6 @@
                         @endif
                     </td>
 
-                    <!-- TANGGAL -->
                     <td style="white-space:nowrap;" data-timestamp="{{ strtotime($log['created_at']) }}">
                         <div style="font-size:13px;">
                             {{ \Carbon\Carbon::parse($log['created_at'])->translatedFormat('d F Y') }}
@@ -178,7 +216,6 @@
                         </div>
                     </td>
 
-                    <!-- TOMBOL DETAIL KETERANGAN -->
                     <td>
                         <button class="btn-detail" onclick="toggleKet({{ $i }}, this)">
                             <span class="icon">▼</span> Detail
@@ -186,18 +223,16 @@
                     </td>
                 </tr>
 
-                {{-- ROW KETERANGAN --}}
                 <tr class="ket-row" id="ket-{{ $i }}">
-                    <td class="ket-cell" colspan="7">
+                    <td class="ket-cell" colspan="8">
                         <div class="ket-bubble">
                             {!! $log['keterangan'] ?? '<span style="color:#9ca3af">Tidak ada keterangan.</span>' !!}
                         </div>
                     </td>
                 </tr>
-
                 @empty
                 <tr>
-                    <td colspan="7" style="text-align:center; padding:40px; color:#6b7280;">
+                    <td colspan="8" style="text-align:center; padding:40px; color:#6b7280;">
                         Tidak ada data aktivitas.
                     </td>
                 </tr>
@@ -206,7 +241,6 @@
         </table>
     </div>
 
-    {{-- PAGINATION --}}
     @if($paginator->hasPages())
     <div class="pagination-wrapper">
         <div class="pagination-info">
@@ -225,9 +259,9 @@
 
                 @php
                     $current = $paginator->currentPage();
-                    $last    = $paginator->lastPage();
-                    $start   = max(1, $current - 2);
-                    $end     = min($last, $current + 2);
+                    $last = $paginator->lastPage();
+                    $start = max(1, $current - 2);
+                    $end = min($last, $current + 2);
                     if ($start > 1) echo '<li class="page-item"><a class="page-link" href="'.$paginator->url(1).'">1</a></li>';
                     if ($start > 2) echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
                 @endphp
@@ -236,9 +270,7 @@
                     @if($page == $current)
                         <li class="page-item active"><span class="page-link">{{ $page }}</span></li>
                     @else
-                        <li class="page-item">
-                            <a class="page-link" href="{{ $paginator->url($page) }}">{{ $page }}</a>
-                        </li>
+                        <li class="page-item"><a class="page-link" href="{{ $paginator->url($page) }}">{{ $page }}</a></li>
                     @endif
                 @endfor
 
@@ -264,70 +296,55 @@
 
 @section('scripts')
 <script>
-const lantaiSelect  = document.getElementById('lantaiSelect');
+const filterForm = document.getElementById('filterForm');
+const lantaiSelect = document.getElementById('lantaiSelect');
 const ruanganSelect = document.getElementById('ruanganSelect');
+const aktivitasSelect = document.getElementById('aktivitasSelect');
+const kondisiSelect = document.getElementById('kondisiSelect');
+const startDateInput = document.querySelector('input[name="start_date"]');
+const endDateInput = document.querySelector('input[name="end_date"]');
 
 function filterRuanganByLantai() {
     const lantaiId = lantaiSelect.value;
-
-    // Enable/disable dropdown ruangan
     ruanganSelect.disabled = !lantaiId;
-    if (!lantaiId) ruanganSelect.value = '';
 
-    // Tampilkan/sembunyikan opsi ruangan sesuai lantai
+    if (!lantaiId) {
+        ruanganSelect.value = '';
+    }
+
     Array.from(ruanganSelect.options).forEach(opt => {
         if (!opt.value) return;
         const cocok = opt.getAttribute('data-lantai') == lantaiId;
-        opt.style.display = cocok ? '' : 'none';
-        // Reset pilihan kalau ruangan aktif tidak cocok dengan lantai baru
+        opt.style.display = !lantaiId || cocok ? '' : 'none';
         if (ruanganSelect.value == opt.value && !cocok) {
             ruanganSelect.value = '';
         }
     });
 }
 
-// Jalankan saat load — restore state dari query string
 window.addEventListener('load', function () {
-    const lantaiDipilih = lantaiSelect.value;
-    if (lantaiDipilih) {
-        // Ada lantai dari query string: enable ruangan dan filter opsinya
-        ruanganSelect.disabled = false;
-        Array.from(ruanganSelect.options).forEach(opt => {
-            if (!opt.value) return;
-            opt.style.display = opt.getAttribute('data-lantai') == lantaiDipilih ? '' : 'none';
-        });
-    } else {
-        // Tidak ada lantai: disable ruangan
-        ruanganSelect.disabled = true;
-    }
+    filterRuanganByLantai();
 });
 
-// Saat lantai berubah: filter ruangan dulu, baru submit
 lantaiSelect.addEventListener('change', function () {
     filterRuanganByLantai();
-    document.getElementById('filterForm').submit();
+    filterForm.submit();
 });
 
-// Submit otomatis saat ruangan/bulan/tahun berubah
-ruanganSelect.addEventListener('change', () => document.getElementById('filterForm').submit());
-document.querySelector('select[name="bulan"]').addEventListener('change',
-    () => document.getElementById('filterForm').submit());
-document.querySelector('input[name="tahun"]').addEventListener('change',
-    () => document.getElementById('filterForm').submit());
+ruanganSelect.addEventListener('change', () => filterForm.submit());
+aktivitasSelect.addEventListener('change', () => filterForm.submit());
+kondisiSelect.addEventListener('change', () => filterForm.submit());
+startDateInput.addEventListener('change', () => filterForm.submit());
+endDateInput.addEventListener('change', () => filterForm.submit());
 
-// Toggle keterangan
 function toggleKet(index, btn) {
-    const row  = document.getElementById('ket-' + index);
+    const row = document.getElementById('ket-' + index);
     const icon = btn.querySelector('.icon');
     const open = row.classList.toggle('open');
-    icon.textContent        = open ? '▲' : '▼';
-    btn.style.background    = open ? '#eff6ff' : '';
-    btn.style.borderColor   = open ? '#93c5fd' : '';
-    btn.style.color         = open ? '#1e40af' : '';
+    icon.textContent = open ? '▲' : '▼';
+    btn.style.background = open ? '#eff6ff' : '';
+    btn.style.borderColor = open ? '#93c5fd' : '';
+    btn.style.color = open ? '#1e40af' : '';
 }
-
-document.querySelector('input[name="start_date"]').addEventListener('change', () => document.getElementById('filterForm').submit());
-document.querySelector('input[name="end_date"]').addEventListener('change', () => document.getElementById('filterForm').submit());
-
 </script>
 @endsection
